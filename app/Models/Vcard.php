@@ -7,10 +7,11 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use App\Models\Transaction;
 use App\Models\Category;
+use Laravel\Passport\HasApiTokens;
 
 class Vcard extends Model
 {
-    use HasFactory;
+    use HasFactory,HasApiTokens ;
     use SoftDeletes;
     protected $primaryKey = 'phone_number';
     public $incrementing = false;

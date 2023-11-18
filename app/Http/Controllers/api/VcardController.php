@@ -34,10 +34,10 @@ class VcardController extends Controller
     //     return new TaskResource($task);
     // }
 
-    public function destroy(Vcard $vcard)
-    {
-        $vcard->transactions()->detach();
-        $vcard->delete();
-        return new VcardResource($vcard);
-    }
+    // public function destroy(Vcard $vcard)
+    // {
+    //     $vcard->transactions()->detach();
+    //     $vcard->delete();
+    //     return new VcardResource($vcard);
+    // }
 }
