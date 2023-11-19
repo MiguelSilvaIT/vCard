@@ -5,6 +5,8 @@ import "bootstrap"
 
 import { createApp } from 'vue'
 import { createPinia } from 'pinia'
+import { io } from 'socket.io-client'
+
 import axios from 'axios'
 
 import Toast from "vue-toastification"
@@ -17,13 +19,21 @@ import ConfirmationDialog from './components/global/ConfirmationDialog.vue'
 import App from './App.vue'
 import router from './router'
 
+
 const app = createApp(App)
 
-const serverBaseUrl = 'http://projdad.test'
+
+const serverBaseUrl = import.meta.env.VITE_API_DOMAIN
+const wsConnection = import.meta.env.VITE_WS_CONNECTION
+
+app.provide('socket', io(wsConnection))
+
+
 app.provide('serverBaseUrl', serverBaseUrl)  
 // Default Axios configuration
 axios.defaults.baseURL = serverBaseUrl + '/api'
 axios.defaults.headers.common['Content-type'] = 'application/json'
+
 
 // Default/Global Toast configuration
 app.use(Toast, {
@@ -40,6 +50,8 @@ app.use(Toast, {
     icon: true,
     rtl: false
 })
+
+
 
 app.use(createPinia())
 app.use(router)
