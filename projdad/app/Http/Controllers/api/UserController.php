@@ -24,6 +24,7 @@ class UserController extends Controller
 
     public function show(User $user)
     {
+        // use UserResource with detailed information
         return new UserResource($user);
     }
 
@@ -38,5 +39,11 @@ class UserController extends Controller
         $user->password = bcrypt($request->validated()['password']);
         $user->save();
         return new UserResource($user);
+    }
+
+    public function destroy(User $user)
+    {
+        $user->delete();
+        return response()->json(null, 204);
     }
 }

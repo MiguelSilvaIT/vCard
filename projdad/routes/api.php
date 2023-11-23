@@ -21,13 +21,10 @@ Route::post('auth/login', [AuthController::class, 'login']);
 Route::middleware('auth:api')->group(function () {
     Route::post('logout', [AuthController::class, 'logout']);
     Route::get('users/me', [UserController::class, 'show_me']);
+    Route::patch('users/{user}/password', [UserController::class, 'update_password']);
+    Route::apiResource('users', UserController::class);
     });
 
-Route::get('users', [UserController::class, 'index']);
-Route::get('users/{user}', [UserController::class, 'show']);
-Route::put('users/{user}', [UserController::class, 'update']);
-Route::patch('users/{user}/password', [UserController::class, 'update_password']);
+Route::post('vcards/{vcard}/checkpassword', [VcardController::class, 'checkPassword']);
+Route::apiResource('vcards', VcardController::class);
 
-Route::get('vcards/{vcard}', [VcardController::class, 'show']);
-//  Route::APIResource('transactions', [TransactionController::class]);
-// Route::APIResource('category', [CategoryController::class]);

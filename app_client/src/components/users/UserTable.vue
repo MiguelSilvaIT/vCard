@@ -1,8 +1,10 @@
 <script setup>
 import { inject } from "vue";
 import avatarNoneUrl from '@/assets/avatar-none.png'
+import { useUserStore } from "../../stores/user.js"
 
 const serverBaseUrl = inject("serverBaseUrl");
+const userStore = useUserStore()
 
 const props = defineProps({
   users: {
@@ -34,6 +36,13 @@ const props = defineProps({
     default: true,
   },
 });
+
+const canViewUserDetail = (userId) => {
+  if (!userStore.user) {
+    return false
+  }
+    return true
+}
 
 const emit = defineEmits(["edit"]);
 
@@ -71,7 +80,7 @@ const editClick = (user) => {
         <td v-if="showAdmin" class="align-middle">{{ user.type == "A" ? "Sim" : "" }}</td>
         <td v-if="showGender" class="align-middle">{{ user.gender_name }}</td>
         <td class="text-end align-middle" v-if="showEditButton">
-          <div class="d-flex justify-content-end">
+          <div class="d-flex justify-content-end" v-if="canViewUserDetail(user.id)">
             <button
               class="btn btn-xs btn-light"
               @click="editClick(user)"

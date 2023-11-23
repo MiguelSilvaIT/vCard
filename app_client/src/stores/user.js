@@ -7,11 +7,11 @@ export const useUserStore = defineStore('user', () => {
     const serverBaseUrl = inject('serverBaseUrl')
     const user = ref(null)
     const userName = computed(() => user.value?.name ?? 'Anonymous')
-    const userId = computed(() => user.value?.id ?? null)
+    const userId = computed(() => user.value?.id ?? -1)
 
     const userPhotoUrl = computed(() =>
-        //user.value?.photo_url? ?
-         serverBaseUrl + '/storage/fotos/' + //user.value.photo_url:
+        user.value?.photo_url ?
+         serverBaseUrl + '/storage/fotos/' + user.value.photo_url:
          avatarNoneUrl)
     async function loadUser() {
         try {
@@ -24,6 +24,7 @@ export const useUserStore = defineStore('user', () => {
     }
     function clearUser () {
         delete axios.defaults.headers.common.Authorization
+        sessionStorage.removeItem('token')
         user.value = null
     }
 
@@ -31,6 +32,7 @@ export const useUserStore = defineStore('user', () => {
         try {
             const response = await axios.post('/auth/login', credentials)
             axios.defaults.headers.common.Authorization = "Bearer " + response.data.access_token
+            sessionStorage.setItem('token', response.data.access_token)
             await loadUser()
             return true
         }
@@ -50,6 +52,16 @@ export const useUserStore = defineStore('user', () => {
         }
     }
 
+    async function restoreToken () {
+        let storedToken = sessionStorage.getItem('token')
+        if (storedToken) {
+        axios.defaults.headers.common.Authorization = "Bearer " + storedToken
+        await loadUser()
+        return true
+        }
+        clearUser()
+        return false
+        }
 
-    return { user, userName, userId, userPhotoUrl, loadUser, clearUser, login, logout}
+    return { user, userName, userId, userPhotoUrl, loadUser, clearUser, login, logout,restoreToken}
 })

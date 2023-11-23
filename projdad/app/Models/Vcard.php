@@ -7,20 +7,22 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use App\Models\Transaction;
 use App\Models\Category;
-use Laravel\Passport\HasApiTokens;
+
 
 class Vcard extends Model
 {
-    use HasFactory,HasApiTokens ;
+    use HasFactory;
     use SoftDeletes;
     protected $primaryKey = 'phone_number';
     public $incrementing = false;
-    
+    protected $casts = [
+        'password' => 'hashed',
+        'confirmation_code' => 'hashed',
+    ];
     protected $fillable = [
         'phone_number',
         'name',
         'email',
-        'phone',
         'photo_url',
         'password',
         'confirmation_code',

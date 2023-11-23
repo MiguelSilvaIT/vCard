@@ -6,6 +6,7 @@ import ChangePassword from "../components/auth/ChangePassword.vue"
 import User from "../components/users/User.vue"
 import Users from "../components/users/Users.vue"
 
+import { useUserStore } from "../stores/user.js"
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -21,6 +22,11 @@ const router = createRouter({
       // route level code-splitting
       // this generates a separate chunk (About.[hash].js) for this route
       // which is lazy-loaded when the route is visited.
+      component: () => import('../views/AboutView.vue')
+    },
+    {
+      path: '/reports',
+      name: 'Reports',
       component: () => import('../views/AboutView.vue')
     },
     {
@@ -52,6 +58,23 @@ const router = createRouter({
       props: route => ({ id: parseInt(route.params.id) })
     },
   ]
+})
+let handlingFirstRoute = true
+router.beforeEach( async (to, from, next) => {
+  const userStore = useUserStore()
+  if (handlingFirstRoute) {
+    handlingFirstRoute = false
+    await userStore.restoreToken()
+    }
+  if ((to.name == 'Login') || (to.name == 'home')) {
+    next()
+    return
+  }
+  if (!userStore.user) {
+    next({ name: 'Login' })
+    return
+  }
+  next()
 })
 
 export default router
