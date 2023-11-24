@@ -1,6 +1,11 @@
+<script setup>
+  import WebSocketTester from '/src/components/WebSocketTester.vue';
+</script>
+
 <template>
-  <div class="about">
-    <h1>Home Page</h1>
+  <div class="container">
+    <h1> DAD 2023/24 Intermediate Submission</h1>
+    <WebSocketTester />
   </div>
 </template>
 
