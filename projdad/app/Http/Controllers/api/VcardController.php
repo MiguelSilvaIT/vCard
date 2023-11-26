@@ -40,6 +40,17 @@ class VcardController extends Controller
             'data' => new VcardResource($newVcard)
         ], 200);
     }
+    public function checkPhoneNumber(Request $request)
+    {
+        $request->validate([
+            'phone_number' => 'required|string|min:9|max:9',
+        ]);
+
+        $vcard = Vcard::where('phone_number', $request->phone_number)->first();
+        return response()->json([
+            'existsVcard' => $vcard != null,
+        ]);
+    }
 
     public function checkPassword(Request $request, Vcard $vcard)
     {
@@ -50,6 +61,18 @@ class VcardController extends Controller
         $isPasswordCorrect = Hash::check($request->password, $vcard->password);
         return response()->json([
             'isPasswordCorrect' => $isPasswordCorrect,
+        ]);
+    }
+
+    public function checkConfirmationCode(Request $request, Vcard $vcard)
+    {
+        $request->validate([
+            'confirmation_code' => 'required|string',
+        ]);
+
+        $isConfirmationCodeCorrect = Hash::check($request->confirmation_code, $vcard->confirmation_code);
+        return response()->json([
+            'isConfirmationCodeCorrect' => $isConfirmationCodeCorrect,
         ]);
     }
 
