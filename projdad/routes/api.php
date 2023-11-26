@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\api\VcardController;
 use App\Http\Controllers\auth\AuthController;
 use App\Http\Controllers\api\UserController;
+use App\Http\Controllers\api\TransactionController;
 
 
 /*
@@ -29,4 +30,8 @@ Route::get('/vcards/{vcard}/transactions', [VcardController::class, 'myTransacti
 
 
 Route::post('vcards/{vcard}/checkpassword', [VcardController::class, 'checkPassword']);
+Route::post('vcards/{vcard}/checkconfirmationcode', [VcardController::class, 'checkConfirmationCode']);
+Route::post('vcards/checkphonenumber', [VcardController::class, 'checkphonenumber']);
 Route::apiResource('vcards', VcardController::class);
+
+Route::apiResource('transactions', TransactionController::class);
