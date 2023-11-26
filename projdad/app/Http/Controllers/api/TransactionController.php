@@ -39,8 +39,8 @@ class TransactionController extends Controller
         
         $newTransaction->save();
         //FALTA ALTERAR O VALOR DO BALANCE DOS VCARDS ENVOLVIDOS
-        // $newTransaction->vcard_details->balance = $newTransaction->new_balance;
-        // $newTransaction->vcard_details->save();
+        $newTransaction->vcard_details->balance = $newTransaction->new_balance;
+        $newTransaction->vcard_details->save();
 
         
         $newPairTransaction->value = $request->value;
@@ -50,15 +50,17 @@ class TransactionController extends Controller
         $newPairTransaction->date = date("Y-m-d");
         $newPairTransaction->datetime = date("Y-m-d H:i:s");
         $newPairTransaction->type = 'C';
-        $newPairTransaction->old_balance = $newPairTransaction->pair_vcard_details->balance;
-        $newPairTransaction->new_balance = $newPairTransaction->pair_vcard_details->balance + $request->value;
+        $newPairTransaction->old_balance = $newPairTransaction->vcard_details->balance;
+        $newPairTransaction->new_balance = $newPairTransaction->vcard_details->balance + $request->value;
         $newPairTransaction->payment_type = 'VCARD';
         $newPairTransaction->payment_reference = $request->vcard;
         $newPairTransaction->pair_transaction = $newTransaction->id;
         $newPairTransaction->save();
         //FALTA ALTERAR O VALOR DO BALANCE DOS VCARDS ENVOLVIDOS
-        // $newPairTransaction->vcard_details->balance = $newPairTransaction->new_balance;
-        // $newPairTransaction->vcard_details->save();
+        $newPairTransaction->vcard_details->balance = $newPairTransaction->new_balance;
+        $newPairTransaction->vcard_details->save();
+
+        //update pair_transaction 
         $newTransaction->pair_transaction = $newPairTransaction->id;
         $newTransaction->save();
 
