@@ -17,7 +17,7 @@ class VcardController extends Controller
         VcardResource::$format = 'detailed';
         return new VcardResource($vcard);
     }
-    
+
     public function index()
     {
         return VcardResource::collection(Vcard::all());
@@ -26,14 +26,14 @@ class VcardController extends Controller
     //create new vcard with phone,email,name,password,confirmation_code,balance
     public function store(StoreVcardRequest $request)
     {
-       
+
         $newVcard = new Vcard($request->validated());
         $newVcard->name = "TAES";
         $newVcard->email = "taes@gmail.com";
         $newVcard->blocked = 0;
-        
+
         $newVcard->save();
-    
+
         VcardResource::$format = 'detailed';
         return response()->json([
             'message' => 'success',
@@ -66,4 +66,9 @@ class VcardController extends Controller
         return new VcardResource($vcard);
     }
 
+    public function myTransactions(Vcard $vcard)
+    {
+        $transactions = $vcard->transactions()->orderBy('date', 'desc')->get();
+        return response()->json($transactions);
+    }
 }
