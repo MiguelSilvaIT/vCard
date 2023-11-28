@@ -131,13 +131,13 @@ const clickMenuOption = () => {
                 <i class="bi bi-xs bi-plus-circle"></i>
               </router-link>
             </li> -->
-            <!-- <li class="nav-item">
-                <router-link class="nav-link" :class="{ active: $route.name === 'Projects' }" 
-                            :to="{ name: 'Projects' }">
+            <li class="nav-item">
+                <router-link class="nav-link" :class="{ active: $route.name === 'Categories' }" 
+                            :to="{ name: 'Categories' }">
                   <i class="bi bi-files"></i>
-                    Projects
+                    Categories
                 </router-link>
-            </li> -->
+            </li>
             <li class="nav-item">
                 <router-link class="nav-link" :class="{ active: $route.name === 'Users' }" 
                             :to="{ name: 'Users' }" @click="clickMenuOption">
@@ -145,6 +145,7 @@ const clickMenuOption = () => {
                     Administrators
                 </router-link>
             </li>
+       
             <li class="nav-item" >
               <router-link class="nav-link" :class="{ active: $route.name === 'Reports' }"
                         :to="{ name: 'Reports' }" @click="clickMenuOption">

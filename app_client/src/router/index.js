@@ -5,6 +5,8 @@ import Login from "../components/auth/Login.vue"
 import ChangePassword from "../components/auth/ChangePassword.vue"
 import User from "../components/users/User.vue"
 import Users from "../components/users/Users.vue"
+import Categories from "../components/categories/Categories.vue"
+import Category from "../components/categories/Category.vue"
 
 import { useUserStore } from "../stores/user.js"
 
@@ -57,6 +59,25 @@ const router = createRouter({
       // Replaced with the following line to ensure that id is a number
       props: route => ({ id: parseInt(route.params.id) })
     },
+    {
+      path: '/categories',
+      name: 'Categories',
+      component: Categories,
+    },
+    {
+      path: '/categories/:id',
+      name: 'Category',
+      component: Category,
+      //props: true
+      // Replaced with the following line to ensure that id is a number
+      props: route => ({ id: parseInt(route.params.id) })
+    },
+    {
+      path: "/categories/new",
+      name: "NewCategory",
+      component: Category,
+      props: { id: -1 },
+  },
   ]
 })
 let handlingFirstRoute = true

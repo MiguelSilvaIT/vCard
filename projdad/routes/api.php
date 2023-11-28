@@ -6,6 +6,7 @@ use App\Http\Controllers\api\VcardController;
 use App\Http\Controllers\auth\AuthController;
 use App\Http\Controllers\api\UserController;
 use App\Http\Controllers\api\TransactionController;
+use App\Http\Controllers\api\CategoryController;
 
 
 /*
@@ -37,3 +38,11 @@ Route::apiResource('vcards', VcardController::class);
 
 
 Route::apiResource('transactions', TransactionController::class);
+Route::get('vcards/{vcard}', [VcardController::class, 'show']);
+//  Route::APIResource('transactions', [TransactionController::class]);
+
+Route::get('categories', [CategoryController::class , 'index']);
+Route::get('categories/{category}', [CategoryController::class , 'show']);
+Route::post('categories', [CategoryController::class , 'store']);
+Route::get('vcards/{vcard}/categories', [CategoryController::class, 'getCategoriesOfVcard']);
+
