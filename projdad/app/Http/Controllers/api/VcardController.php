@@ -40,6 +40,47 @@ class VcardController extends Controller
             'data' => new VcardResource($newVcard)
         ], 200);
     }
+
+    public function piggyBank(Request $request, Vcard $vcard)
+    {
+        $request->validate([
+            'value' => 'required|numeric|min:1',
+            'action' => 'required|string'
+        ]);
+        $piggyBank = json_decode($vcard->custom_data, true);
+        if ($request->action == 'save'){
+            if($request->value > $vcard->balance){
+                return response()->json([
+                    'message' => 'error',
+                    'data' => 'Insufficient funds'
+                ], 400);
+            }
+            if (isset($piggyBank['value'])) {
+                $piggyBank['value'] += $request->value;
+            } else {
+                $piggyBank['value'] = $request->value;
+            }          
+        } 
+        else if ($request->action == 'withdraw'){
+            if( !isset($piggyBank['value']) || $request->value > $piggyBank['value']) {
+                $piggyBank['value'] = 0;
+                return response()->json([
+                    'message' => 'error',
+                    'data' => 'Não é possivel retirar mais do que o valor que tem na conta'
+                ], 400);
+            }
+            $piggyBank['value'] -= $request->value;
+        }
+        $vcard->custom_data = json_encode(['value' => $piggyBank['value']]);
+        $vcard->save();  
+        
+        VcardResource::$format = 'detailed';
+        return response()->json([
+            'message' => 'success',
+            'data' => new VcardResource($vcard)
+        ], 200);
+    }
+
     public function checkPhoneNumber(Request $request)
     {
         $request->validate([
@@ -49,6 +90,7 @@ class VcardController extends Controller
         $vcard = Vcard::where('phone_number', $request->phone_number)->first();
         return response()->json([
             'existsVcard' => $vcard != null,
+            'message' => $vcard != null ? 'Vcard exists' : 'Vcard does not exist',
         ]);
     }
 
@@ -61,6 +103,7 @@ class VcardController extends Controller
         $isPasswordCorrect = Hash::check($request->password, $vcard->password);
         return response()->json([
             'isPasswordCorrect' => $isPasswordCorrect,
+            'message' => $isPasswordCorrect ? 'Password correct' : 'Password incorrect Please try again',
         ]);
     }
 
@@ -73,6 +116,7 @@ class VcardController extends Controller
         $isConfirmationCodeCorrect = Hash::check($request->confirmation_code, $vcard->confirmation_code);
         return response()->json([
             'isConfirmationCodeCorrect' => $isConfirmationCodeCorrect,
+            'message' => $isConfirmationCodeCorrect ? 'PIN is correct' : 'PIN incorrect Please try again',
         ]);
     }
 
@@ -88,5 +132,4 @@ class VcardController extends Controller
         $vcard->delete();
         return new VcardResource($vcard);
     }
-
 }

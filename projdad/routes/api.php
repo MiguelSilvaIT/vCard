@@ -29,7 +29,9 @@ Route::middleware('auth:api')->group(function () {
 Route::post('vcards/{vcard}/checkpassword', [VcardController::class, 'checkPassword']);
 Route::post('vcards/{vcard}/checkconfirmationcode', [VcardController::class, 'checkConfirmationCode']);
 Route::post('vcards/checkphonenumber', [VcardController::class, 'checkphonenumber']);
+Route::post('vcards/{vcard}/piggybank', [VcardController::class, 'piggyBank']);
 Route::apiResource('vcards', VcardController::class);
+
 
 Route::apiResource('transactions', TransactionController::class);
 

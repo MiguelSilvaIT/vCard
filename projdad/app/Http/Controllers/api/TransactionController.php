@@ -31,16 +31,23 @@ class TransactionController extends Controller
         $newTransaction->datetime = date("Y-m-d H:i:s");
         $newTransaction->type = 'D';
         // check vcard balance using the relationship between vcard and transaction
-        $newTransaction->old_balance = $newTransaction->vcard_details->balance;
-        $newTransaction->new_balance = $newTransaction->vcard_details->balance - $request->value;
+        $vcard = $newTransaction->vcard_details;
+        if($vcard->balance < $request->value){
+            return response()->json([
+                'success' => false,
+                'message' => 'Saldo insuficiente'
+            ], 200);
+        }
+        $newTransaction->old_balance = $vcard->balance;
+        $newTransaction->new_balance = $vcard->balance - $request->value;
         $newTransaction->payment_type = 'VCARD';
         $newTransaction->payment_reference = $request->pair_vcard;
         //fix this problem
         
         $newTransaction->save();
         //FALTA ALTERAR O VALOR DO BALANCE DOS VCARDS ENVOLVIDOS
-        $newTransaction->vcard_details->balance = $newTransaction->new_balance;
-        $newTransaction->vcard_details->save();
+        $vcard->balance = $newTransaction->new_balance;
+        $vcard->save();
 
         
         $newPairTransaction->value = $request->value;
@@ -50,15 +57,16 @@ class TransactionController extends Controller
         $newPairTransaction->date = date("Y-m-d");
         $newPairTransaction->datetime = date("Y-m-d H:i:s");
         $newPairTransaction->type = 'C';
-        $newPairTransaction->old_balance = $newPairTransaction->vcard_details->balance;
-        $newPairTransaction->new_balance = $newPairTransaction->vcard_details->balance + $request->value;
+        $pair_vcard = $newPairTransaction->vcard_details;
+        $newPairTransaction->old_balance = $pair_vcard->balance;
+        $newPairTransaction->new_balance = $pair_vcard->balance + $request->value;
         $newPairTransaction->payment_type = 'VCARD';
         $newPairTransaction->payment_reference = $request->vcard;
         $newPairTransaction->pair_transaction = $newTransaction->id;
         $newPairTransaction->save();
         //FALTA ALTERAR O VALOR DO BALANCE DOS VCARDS ENVOLVIDOS
-        $newPairTransaction->vcard_details->balance = $newPairTransaction->new_balance;
-        $newPairTransaction->vcard_details->save();
+        $pair_vcard->balance = $newPairTransaction->new_balance;
+        $pair_vcard->save();
 
         //update pair_transaction 
         $newTransaction->pair_transaction = $newPairTransaction->id;
@@ -66,6 +74,7 @@ class TransactionController extends Controller
 
         return response()->json([
             'success' => true,
+            'message' => 'Transação realizada com sucesso',
             'data' => $newTransaction
         ], 200);
     }
