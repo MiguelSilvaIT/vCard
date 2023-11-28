@@ -121,13 +121,13 @@ const logout = async () => {
                 <i class="bi bi-xs bi-plus-circle"></i>
               </router-link>
             </li> -->
-            <!-- <li class="nav-item">
-                <router-link class="nav-link" :class="{ active: $route.name === 'Projects' }" 
-                            :to="{ name: 'Projects' }">
+            <li class="nav-item">
+                <router-link class="nav-link" :class="{ active: $route.name === 'Categories' }" 
+                            :to="{ name: 'Categories' }">
                   <i class="bi bi-files"></i>
-                    Projects
+                    Categories
                 </router-link>
-            </li> -->
+            </li>
             <li class="nav-item">
                 <router-link class="nav-link" :class="{ active: $route.name === 'Users' }" 
                             :to="{ name: 'Users' }">
@@ -135,6 +135,7 @@ const logout = async () => {
                     Administrators
                 </router-link>
             </li>
+       
             <li class="nav-item">
               <a class="nav-link" href="#">
                 <i class="bi bi-bar-chart-line"></i>

@@ -25,4 +25,15 @@ class Category extends Model
     {
         return $this->belongsTo(Vcard::class,'vcard');
     }
+
+    public function getTypeNameAttribute()
+    {
+        switch ($this->status) {
+            case 'C':
+                return 'Crédito';
+            case 'D':
+                return 'Débito';
+         
+        }
+    }
 }
