@@ -132,13 +132,10 @@ class VcardController extends Controller
         $vcard->delete();
         return new VcardResource($vcard);
     }
-<<<<<<< HEAD
-=======
 
     public function myTransactions(Vcard $vcard)
     {
         $transactions = $vcard->transactions()->orderBy('date', 'desc')->get();
         return response()->json($transactions);
     }
->>>>>>> 2ff5dac5fedcde65e562f1d5f94ccc2549feebda
 }
