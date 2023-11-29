@@ -7,6 +7,7 @@ export const useUserStore = defineStore('user', () => {
     const serverBaseUrl = inject('serverBaseUrl')
     const user = ref(null)
     const userName = computed(() => user.value?.name ?? 'Anonymous')
+    //const phoneNumber = computed(() => user.value.phoneNumber) 
     const userId = computed(() => user.value?.id ?? -1)
 
     const userPhotoUrl = computed(() =>

@@ -4,12 +4,13 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use App\Models\Transaction;
 use App\Models\Category;
 
 
-class Vcard extends Model
+class Vcard extends Authenticatable
 {
     use HasFactory;
     use SoftDeletes;
@@ -31,6 +32,8 @@ class Vcard extends Model
         'max_debit',
     ];
 
+    
+  
     public function transactions()
     {
         return $this->hasMany(Transaction::class,'vcard');
