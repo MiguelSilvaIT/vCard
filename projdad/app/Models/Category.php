@@ -23,7 +23,7 @@ class Category extends Model
 
     public function vcard()
     {
-        return $this->belongsTo(Vcard::class,'vcard');
+        return $this->belongsTo(Vcard::class);
     }
 
     public function getTypeNameAttribute()

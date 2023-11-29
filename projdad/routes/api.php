@@ -44,5 +44,7 @@ Route::get('vcards/{vcard}', [VcardController::class, 'show']);
 Route::get('categories', [CategoryController::class , 'index']);
 Route::get('categories/{category}', [CategoryController::class , 'show']);
 Route::post('categories', [CategoryController::class , 'store']);
+Route::put('categories/{category}', [CategoryController::class , 'update']);
 Route::get('vcards/{vcard}/categories', [CategoryController::class, 'getCategoriesOfVcard']);
+Route::delete('categories/{category}', [CategoryController::class , 'destroy']);
 

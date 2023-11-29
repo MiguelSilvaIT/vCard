@@ -13,6 +13,7 @@ const props = defineProps({
       type: Number,
       default: null
     }
+  
 })
 
 const newCategory = () => {
@@ -39,6 +40,9 @@ const loadCategory = async (id) => {
   } else {
       try {
         const response = await axios.get('categories/' + id)
+        console.log(response.data.data)
+
+        //category.value = response.data.data
         category.value = response.data.data
         originalValueStr = JSON.stringify(category.value)
       } catch (error) {
@@ -47,15 +51,19 @@ const loadCategory = async (id) => {
   }
 }
 
-const save = () => {
+const operation = computed( () => (!props.id || props.id < 0) ? 'insert' : 'update')
+
+
+const save =  () => {
       if (operation.value == 'insert') 
       {
         console.log(category.value)
+        
         axios.post('categories', category.value)
           .then((response) => {
             toast.success('Category Created')
             console.dir(response.data.data)
-            router.back()
+            // router.back()
 
           })
           .catch((error) => {
@@ -82,12 +90,26 @@ const save = () => {
       }
     }
 
-const cancel = () => {
+const cancel =  () => {
   originalValueStr = JSON.stringify(category.value)
   router.back()
 }
 
-const operation = computed( () => (!props.id || props.id < 0) ? 'insert' : 'update')
+const deleteCategory =  () => {
+  console.log('deleteCategory')
+  
+  try {
+      const response =  axios.delete('categories/' + props.id)
+      console.log(response)
+      toast.success('Categorie #' + props.id + ' was deleted successfully.')
+      // router.back()
+
+    } catch (error) {
+      
+      console.log(error)
+      toast.error('Category was not deleted!')      
+    }
+}
 
 
 watch(
@@ -119,21 +141,25 @@ onBeforeRouteLeave((to, from, next) => {
 })
 
 
+
+
 </script>
 
 <template>
-  <confirmation-dialog
+  <!-- <confirmation-dialog
     ref="confirmationLeaveDialog"
     confirmationBtn="Discard changes and leave"
     msg="Do you really want to leave? You have unsaved changes!"
     @confirmed="leaveConfirmed"
   >
-  </confirmation-dialog>  
+  </confirmation-dialog>   -->
 
   <category-detail
+    :operationType="operation"
     :category="category"
     :errors="errors"
     @save="save"
     @cancel="cancel"
+    @deleteCategory = "deleteCategory"
   ></category-detail>
 </template>

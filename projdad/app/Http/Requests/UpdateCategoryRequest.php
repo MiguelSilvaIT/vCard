@@ -25,7 +25,7 @@ class UpdateCategoryRequest extends FormRequest
         return [
             
             'name' => 'required|string|max:255',
-            'type'=> 'required|in:M,F',
+            'type'=> 'required|in:C,D',
         ];
     }
 }

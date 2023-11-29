@@ -26,7 +26,7 @@ class StoreUpdateCategoryRequest extends FormRequest
         return [
             'name'=> 'required',
             'type'=> 'required|in:C,D',
-            'vCard'=> 'required',
+            'vcard'=> 'required',
         ];
     }
 }

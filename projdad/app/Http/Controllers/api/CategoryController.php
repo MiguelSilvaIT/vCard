@@ -41,7 +41,14 @@ class CategoryController extends Controller
 
     public function store(StoreUpdateCategoryRequest $request)
     {
+        //dump("..INICIO.." + $request + "..FIM..");
         $newCategory = Category::create($request->validated());
         return new CategoryResource($newCategory);
+    }
+
+    public function destroy(Category $category)
+    {
+        $category->delete();
+        return response()->noContent();
     }
 }

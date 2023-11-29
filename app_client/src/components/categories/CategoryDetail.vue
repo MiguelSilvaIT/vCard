@@ -1,12 +1,19 @@
 <script setup>
 import { ref, watch, computed, inject } from "vue";
 
-const serverBaseUrl = inject("serverBaseUrl");
+import { useUserStore } from "/src/stores/user.js"
+
+const userStore = useUserStore()
 
 const props = defineProps({
   category: {
     type: Object,
     required: true,
+  },
+
+  operationType: {
+      type: String,
+      default: 'insert'  // insert / update
   },
 
   errors: {
@@ -15,7 +22,7 @@ const props = defineProps({
   },
 });
 
-const emit = defineEmits(["save", "cancel"]);
+const emit = defineEmits(["save", "cancel", "deleteCategory"]);
 
 const editingCategory = ref(props.category)
 
@@ -27,14 +34,24 @@ watch(
   { immediate: true }
 )
 
-
+const categoryTitle = computed( () => {
+    if (!editingCategory.value) {
+        return ''
+      }
+      return props.operationType == 'insert' ? 'New Task' : 'Task #' + editingTask.value.id
+  })
 
 const save = () => {
+  editingCategory.value.vcard = userStore.userId
   emit("save", editingCategory.value);
 }
 
 const cancel = () => {
   emit("cancel", editingCategory.value);
+}
+
+const deleteCategory =  () => {
+  emit("deleteCategory", editingCategory.value);
 }
 
 
@@ -67,6 +84,8 @@ const cancel = () => {
     <div class="mb-3 d-flex justify-content-end">
       <button type="button" class="btn btn-primary px-5" @click="save">Save</button>
       <button type="button" class="btn btn-light px-5" @click="cancel">Cancel</button>
+      <button type="button" class="btn btn-danger px-5" @click="deleteCategory">Delete</button>
+
     </div>
   </form>
 </template>
