@@ -51,8 +51,8 @@ class VcardController extends Controller
         if ($request->action == 'save'){
             if($request->value > $vcard->balance){
                 return response()->json([
-                    'message' => 'error',
-                    'data' => 'Insufficient funds'
+                    'message' => 'Não é possivel guardar mais do que o valor que tem na conta',
+                    'data' => ''
                 ], 400);
             }
             if (isset($piggyBank['value'])) {
@@ -60,23 +60,26 @@ class VcardController extends Controller
             } else {
                 $piggyBank['value'] = $request->value;
             }          
+            $vcard->balance -= $request->value;
         } 
         else if ($request->action == 'withdraw'){
             if( !isset($piggyBank['value']) || $request->value > $piggyBank['value']) {
                 $piggyBank['value'] = 0;
                 return response()->json([
-                    'message' => 'error',
-                    'data' => 'Não é possivel retirar mais do que o valor que tem na conta'
+                    'message' => 'Não é possivel retirar mais do que o valor que tem na poupança',
+                    'data' => ''
                 ], 400);
             }
             $piggyBank['value'] -= $request->value;
+            $vcard->balance += $request->value;
         }
         $vcard->custom_data = json_encode(['value' => $piggyBank['value']]);
         $vcard->save();  
         
         VcardResource::$format = 'detailed';
         return response()->json([
-            'message' => 'success',
+            'success' => true,
+            'message' => 'Dinheiro guardado com sucesso',
             'data' => new VcardResource($vcard)
         ], 200);
     }
@@ -132,13 +135,10 @@ class VcardController extends Controller
         $vcard->delete();
         return new VcardResource($vcard);
     }
-<<<<<<< HEAD
-=======
 
     public function myTransactions(Vcard $vcard)
     {
         $transactions = $vcard->transactions()->orderBy('date', 'desc')->get();
         return response()->json($transactions);
     }
->>>>>>> 2ff5dac5fedcde65e562f1d5f94ccc2549feebda
 }
