@@ -71,7 +71,30 @@ class TransactionController extends Controller
         //update pair_transaction 
         $newTransaction->pair_transaction = $newPairTransaction->id;
         $newTransaction->save();
-
+        if($request->spare_change){
+            $change = round(ceil($request->value) - $request->value,2);
+            if(ceil($request->value)<$vcard->balance ){
+                
+                $piggyBank = json_decode($vcard->custom_data, true);
+                if (isset($piggyBank['value'])) {
+                    $piggyBank['value'] += $change;
+                } else {
+                    $piggyBank['value'] = $change;
+                }
+                $vcard->custom_data = json_encode(['value' => round($piggyBank['value'],2)]);
+                $vcard->save();
+                return response()->json([
+                    'success' => true,
+                    'message' => "({$change}€) guardados com sucesso nas suas poupanças",
+                    'data' => $newTransaction
+                ], 200);
+            }
+            return response()->json([
+                'success' => true,
+                'message' => " Não possui saldo suficiente para guardar ({$change}€) nas suas poupanças",
+                'data' => $newTransaction
+            ], 200);
+        }
         return response()->json([
             'success' => true,
             'message' => 'Transação realizada com sucesso',

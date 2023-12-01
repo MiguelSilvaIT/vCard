@@ -26,7 +26,7 @@ class StoreTransactionRequest extends FormRequest
             'vcard' => 'required|string|min:9|max:9',
             'pair_vcard' => 'required|string|min:9|max:9',
             'description' => 'nullable|string',
-
+            'spare_change' => 'nullable|boolean',
         ];
     }
 }

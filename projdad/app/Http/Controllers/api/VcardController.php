@@ -36,7 +36,7 @@ class VcardController extends Controller
 
         VcardResource::$format = 'detailed';
         return response()->json([
-            'message' => 'success',
+            'message' => 'Vcard criado com sucesso',
             'data' => new VcardResource($newVcard)
         ], 200);
     }
@@ -106,7 +106,7 @@ class VcardController extends Controller
         $isPasswordCorrect = Hash::check($request->password, $vcard->password);
         return response()->json([
             'isPasswordCorrect' => $isPasswordCorrect,
-            'message' => $isPasswordCorrect ? 'Password correct' : 'Password incorrect Please try again',
+            'message' => $isPasswordCorrect ? 'Login bem sucedido' : 'Palavra-passe incorrecta, tente novamente',
         ]);
     }
 
@@ -119,7 +119,7 @@ class VcardController extends Controller
         $isConfirmationCodeCorrect = Hash::check($request->confirmation_code, $vcard->confirmation_code);
         return response()->json([
             'isConfirmationCodeCorrect' => $isConfirmationCodeCorrect,
-            'message' => $isConfirmationCodeCorrect ? 'PIN is correct' : 'PIN incorrect Please try again',
+            'message' => $isConfirmationCodeCorrect ? 'PIN correto' : 'PIN incorreto, tente novamente',
         ]);
     }
 
