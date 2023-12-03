@@ -136,9 +136,39 @@ class VcardController extends Controller
         return new VcardResource($vcard);
     }
 
-    public function myTransactions(Vcard $vcard)
+    public function myTransactions(Request $request, Vcard $vcard)
     {
-        $transactions = $vcard->transactions()->orderBy('date', 'desc')->get();
+        
+        $transactions = $vcard->transactions();
+        $filter_by_date = null;
+        $filter_by_type = null;
+        
+        if($request->filter_start_date != null && $request->filter_end_date == null){
+            $transactions = $vcard->transactions()->where('date', '>=', $request->filter_start_date);
+            //return response()->json($transactions);
+        }
+
+        if($request->filter_start_date && $request->filter_end_date){
+            $transactions = $vcard->transactions()->whereBetween('date', [$request->filter_start_date, $request->filter_end_date]);
+        }
+        
+        if($request->filter_by_type != 'T' && $request->filter_by_type){
+            $transactions = $transactions->where('type', $request->filter_by_type);
+        }
+
+        if($request->filter_by_value == "value_asc"){
+            $transactions = $transactions->orderByRaw('CAST(value AS DECIMAL(10,2))');;
+        }
+        else if($request->filter_by_value == "value_desc"){
+            $transactions = $transactions->orderBy('value',"desc");
+        }
+        else if($request->filter_by_value == "date_asc"){
+            $transactions = $transactions->orderBy('datetime');
+        }
+        else{
+            $transactions = $transactions->orderBy('datetime',"desc");
+        }
+        $transactions = $transactions->get();
         return response()->json($transactions);
     }
 }

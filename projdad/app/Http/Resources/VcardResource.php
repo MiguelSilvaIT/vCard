@@ -13,7 +13,7 @@ class VcardResource extends JsonResource
         switch (VcardResource::$format) {
             case 'detailed':   
                 return [
-                    'phone' => $this->phone_number,
+                    'phone_number' => $this->phone_number,
                     'name' => $this->name,
                     'email' => $this->email,
                     'photo' => $this->photo_url,

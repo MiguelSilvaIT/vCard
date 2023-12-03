@@ -27,8 +27,8 @@ Route::middleware('auth:api')->group(function () {
     Route::patch('users/{user}/password', [UserController::class, 'update_password']);
     Route::apiResource('users', UserController::class);
 });
-Route::get('/vcards/{vcard}/transactions', [VcardController::class, 'myTransactions']);
 
+Route::post('/vcards/{vcard}/transactions', [VcardController::class, 'myTransactions']);
 
 Route::post('vcards/{vcard}/checkpassword', [VcardController::class, 'checkPassword']);
 Route::post('vcards/{vcard}/checkconfirmationcode', [VcardController::class, 'checkConfirmationCode']);
@@ -36,10 +36,9 @@ Route::post('vcards/checkphonenumber', [VcardController::class, 'checkphonenumbe
 Route::post('vcards/{vcard}/piggybank', [VcardController::class, 'piggyBank']);
 Route::apiResource('vcards', VcardController::class);
 
-
 Route::apiResource('transactions', TransactionController::class);
 Route::get('vcards/{vcard}', [VcardController::class, 'show']);
-//  Route::APIResource('transactions', [TransactionController::class]);
+//Route::APIResource('transactions', [TransactionController::class]);
 
 Route::get('categories', [CategoryController::class , 'index']);
 Route::get('categories/{category}', [CategoryController::class , 'show']);
