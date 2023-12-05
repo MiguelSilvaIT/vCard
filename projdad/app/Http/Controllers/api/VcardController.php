@@ -20,6 +20,7 @@ class VcardController extends Controller
 
     public function index()
     {
+        VcardResource::$format = 'detailed';
         return VcardResource::collection(Vcard::all());
     }
 

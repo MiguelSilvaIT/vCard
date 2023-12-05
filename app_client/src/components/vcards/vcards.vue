@@ -1,119 +1,89 @@
 <script setup>
-import axios from 'axios'
-import { useToast } from "vue-toastification"
-import { ref, watch } from 'vue'
-import UserDetail from "./UserDetail.vue"
-import { useRouter, onBeforeRouteLeave } from 'vue-router'
+  import axios from 'axios'
+  import { ref, computed, onMounted } from 'vue'
+  import VcardTable from './VcardTable.vue'
+  import {useRouter} from 'vue-router';
 
-const toast = useToast()
 const router = useRouter()
 
-const props = defineProps({
-    id: {
-      type: Number,
-      default: null
-    }
-})
-
-const newVcard = () => {
-    return {
-      id: null,
-      name: '',
-      email: '',
-      gender: 'M',
-      photo_url: null
-    }
-}
-
-const user = ref(newUser())
-const errors = ref(null)
-const confirmationLeaveDialog = ref(null)
-// String with the JSON representation after loading the project (new or edit)
-let originalValueStr = ''
-
-const loadUser = async (id) => {
-  originalValueStr = ''
-  errors.value = null
-  if (!id || (id < 0)) {
-    user.value = newUser()
-  } else {
-      try {
-        const response = await axios.get('users/' + id)
-        user.value = response.data.data
-        originalValueStr = JSON.stringify(user.value)
-      } catch (error) {
+  const loadVcards = () => {
+    // Change later when authentication is implemented
+    axios.get('vcards')
+      .then((response) => {
+        vcards.value = response.data.data
+        console.log(vcards)
+      })
+      .catch((error) => {
         console.log(error)
+      })
+  }
+  
+  
+  const editVcard = (vcard) => {
+    router.push({name: 'Vcard', params: {phone: vcard.phone}})
+  }
+
+
+  const deletedVcard = (deleteVcard) => {
+      let idx = vcards.value.findIndex((t) => t.id === deletedVcard.id)
+      if (idx >= 0) {
+        vcards.value.splice(idx, 1)
       }
   }
-}
 
-const save = async () => {
-  errors.value = null
-  try {
-    const response = await axios.put('users/' + props.id, user.value)
-    user.value = response.data.data
-    originalValueStr = JSON.stringify(user.value)
-    toast.success('User #' + user.value.id + ' was updated successfully.')
-    router.back()
-  } catch (error) {
-    if (error.response.status == 422) {
-      errors.value = error.response.data.errors
-      toast.error('User #' + props.id + ' was not updated due to validation errors!')
-    } else {
-      toast.error('User #' + props.id + ' was not updated due to unknown server error!')
-    }
-  }
-}
-
-const cancel = () => {
-  originalValueStr = JSON.stringify(user.value)
-  router.back()
-}
-
-watch(
-  () => props.id,
-  (newValue) => {
-      loadUser(newValue)
+  /*const props = defineProps({
+    vcardsTitle: {
+      type: String,
+      default: 'Vcards'
     },
-  {immediate: true}  
-)
+    
+  })*/
 
-let nextCallBack = null
-const leaveConfirmed = () => {
-  if (nextCallBack) {
-    nextCallBack()
-  }
-}
+  const vcards = ref([])
+  
+  const filterByEmail = ref(-1)
 
-onBeforeRouteLeave((to, from, next) => {
-  nextCallBack = null
-  let newValueStr = JSON.stringify(user.value)
-  if (originalValueStr != newValueStr) {
-    // Some value has changed - only leave after confirmation
-    nextCallBack = next
-    confirmationLeaveDialog.value.show()
-  } else {
-    // No value has changed, so we can leave the component without confirming
-    next()
-  }
-})
+  
 
+  const filteredVcards = computed( () => {
+    return vcards.value.filter(t =>
+        (filterByEmail.value == -1
+          || filterByEmail.value == t.email
+        ))
+  })
 
+  
+
+  
+  onMounted (() => {
+    loadVcards()
+
+  })
 </script>
 
 <template>
-  <confirmation-dialog
-    ref="confirmationLeaveDialog"
-    confirmationBtn="Discard changes and leave"
-    msg="Do you really want to leave? You have unsaved changes!"
-    @confirmed="leaveConfirmed"
-  >
-  </confirmation-dialog>  
+  <h3 class="mt-5 mb-3">Vcards</h3>
+  <div class="d-flex justify-content-between">
+ 
+  </div>
+  <hr>
 
-  <user-detail
-    :user="user"
-    :errors="errors"
-    @save="save"
-    @cancel="cancel"
-  ></user-detail>
+  <vcard-table
+    :vcards="vcards"
+    @edit="editVcard"
+    @deleted="deletedVcard"
+  ></vcard-table>
 </template>
+
+
+<style scoped>
+.filter-div {
+  min-width: 12rem;
+}
+.total-filtro {
+  margin-top: 0.35rem;
+}
+.btn-addtask {
+  margin-top: 1.85rem;
+}
+</style>

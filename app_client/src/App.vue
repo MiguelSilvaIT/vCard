@@ -137,6 +137,14 @@ const logout = async () => {
             </li>
 
             <li class="nav-item">
+                <router-link class="nav-link" :class="{ active: $route.name === 'Vcards' }" 
+                            :to="{ name: 'Vcards' }">
+                  <i class="bi bi-files"></i>
+                    Vcards
+                </router-link>
+            </li>
+
+            <li class="nav-item">
                 <router-link class="nav-link" :class="{ active: $route.name === 'Users' }" 
                             :to="{ name: 'Users' }">
                   <i class="bi bi-files"></i>
