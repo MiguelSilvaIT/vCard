@@ -7,6 +7,7 @@ use App\Http\Controllers\auth\AuthController;
 use App\Http\Controllers\api\UserController;
 use App\Http\Controllers\api\TransactionController;
 use App\Http\Controllers\api\CategoryController;
+use App\Http\Controllers\api\DADVcardController;
 
 
 /*
@@ -19,6 +20,9 @@ use App\Http\Controllers\api\CategoryController;
 | be assigned to the "api" middleware group. Make something great!
 |
 */
+//DADVcardController
+Route::apiResource('dadvcards', DADVcardController::class);
+Route::get ('dadvcards/me', [DADVcardController::class, 'show_me']);
 
 Route::post('auth/login', [AuthController::class, 'login']);
 Route::middleware('auth:api')->group(function () {
