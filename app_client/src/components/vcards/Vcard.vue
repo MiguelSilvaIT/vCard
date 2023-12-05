@@ -36,10 +36,8 @@ let originalValueStr = ''
 const loadVcard = async (phone) => {
   originalValueStr = ''
   errors.value = null
-  console.log("phone " , phone)
       try {
         const response = await axios.get('vcards/' + phone)
-        console.log("hey " , response.data.data)
 
         //vcard.value = response.data.data
         vcard.value = response.data.data
@@ -53,40 +51,24 @@ const loadVcard = async (phone) => {
 
 
 const save =  () => {
-      if (operation.value == 'insert') 
-      {
-        console.log(vcard.value)
-        
-        axios.post('vcards', vcard.value)
-          .then((response) => {
-            toast.success('Vcard Created')
-            console.dir(response.data.data)
-            // router.back()
 
-          })
-          .catch((error) => {
-            if (error.response.status == 422) {
-              errors.value = error.response.data.errors
-              toast.error("Validation Error")
-          }
-          })
-      } else {
-        axios.put('vcards/' + props.id, vcard.value)
-          .then((response) => {
-            toast.success('Vcard Updated')
-            console.dir(response.data.data)
-            router.back()
+  console.log('save -->' , JSON.stringify({ max_debit: vcard.value.max_debit }))
+  axios.patch('vcards/' + props.phone, JSON.stringify({ max_debit: vcard.value.max_debit }))
+    .then((response) => {
+      toast.success('Vcard Updated')
+      console.dir(response.data.data)
+      router.back()
 
-          })
-          .catch((error) => {
-          if (error.response && error.response.status == 422) {
-            errors.value = error.response.data.errors
-            toast.error("Validation Error")
-          }
-            console.dir(error)
-          })
-      }
+    })
+    .catch((error) => {
+    if (error.response && error.response.status == 422) {
+      errors.value = error.response.data.errors
+      toast.error("Validation Error")
     }
+      console.dir(error)
+    })
+  }
+   
 
 const cancel =  () => {
   originalValueStr = JSON.stringify(vcard.value)
@@ -106,6 +88,36 @@ const deleteVcard =  () => {
       
       console.log(error)
       toast.error('Vcard was not deleted!')      
+    }
+}
+
+const blockVcard =  () => {
+  console.log('blockVcard')
+  try {
+      const response =  axios.patch('vcards/' + props.phone + '/block')
+      console.log(response)
+      toast.success('Vcard #' + props.phone + ' was blocked successfully.')
+      // router.back()
+
+    } catch (error) {
+      
+      console.log(error)
+      toast.error('Vcard was not blocked!')      
+    }
+}
+
+const unblockVcard =  () => {
+  console.log('unblockVcard')
+  try {
+      const response =  axios.patch('vcards/' + props.phone + '/unblock')
+      console.log(response)
+      toast.success('Vcard #' + props.phone + ' was unblocked successfully.')
+      // router.back()
+
+    } catch (error) {
+      
+      console.log(error)
+      toast.error('Vcard was not unblocked!')      
     }
 }
 
@@ -158,5 +170,7 @@ onBeforeRouteLeave((to, from, next) => {
     @save="save"
     @cancel="cancel"
     @deleteVcard = "deleteVcard"
+    @blockVcard = "blockVcard"
+    @unblockVcard = "unblockVcard"
   ></vcard-detail>
 </template>

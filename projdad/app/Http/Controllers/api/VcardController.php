@@ -130,6 +130,27 @@ class VcardController extends Controller
         return new VcardResource($vcard);
     }
 
+    public function update_max_debit(Request $request, Vcard $vcard)
+    {
+        $vcard->max_debit = $request->validated()['max_debit'];
+        $vcard->save();
+        return new VcardResource($vcard);
+    }
+
+    public function block( Vcard $vcard)
+    {
+        $vcard->blocked = 1;
+        $vcard->save();
+        return new VcardResource($vcard);
+    }
+
+    public function unblock( Vcard $vcard)
+    {
+        $vcard->blocked = 0;
+        $vcard->save();
+        return new VcardResource($vcard);
+    }
+
     public function destroy(Vcard $vcard)
     {
         $vcard->transactions()->detach();
