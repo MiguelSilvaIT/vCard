@@ -3,6 +3,7 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use App\Services\Base64Services;
 
 class DADStoreVcardRequest extends FormRequest
 {
@@ -29,5 +30,19 @@ class DADStoreVcardRequest extends FormRequest
             'email' => 'required|email',
             'base64ImagePhoto' => 'nullable|string',
         ];
+    }
+
+    public function withValidator($validator)
+    {
+        $validator->after(function ($validator) {
+            $base64ImagePhoto = $this->base64ImagePhoto ?? null;
+            if ($base64ImagePhoto) {
+                $base64Service = new Base64Services();
+                $mimeType = $base64Service->mimeType($base64ImagePhoto);
+                if (!in_array($mimeType, ['image/png', 'image/jpg', 'image/jpeg'])) {
+                    $validator->errors()->add('base64ImagePhoto', 'File type not supported (only supports "png" and "jpeg" images).');
+                }
+            }
+        });
     }
 }

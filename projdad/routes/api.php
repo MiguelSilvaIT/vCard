@@ -22,6 +22,7 @@ use App\Http\Controllers\api\DADVcardController;
 */
 //DADVcardController
 Route::apiResource('dadvcards', DADVcardController::class);
+Route::get ('dadvcards/me', [DADVcardController::class, 'show_me']);
 
 Route::post('auth/login', [AuthController::class, 'login']);
 Route::middleware('auth:api')->group(function () {
