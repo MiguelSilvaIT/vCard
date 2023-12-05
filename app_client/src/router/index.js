@@ -7,6 +7,9 @@ import User from "../components/users/User.vue"
 import Users from "../components/users/Users.vue"
 import Categories from "../components/categories/Categories.vue"
 import Category from "../components/categories/Category.vue"
+import Vcard from "../components/vcards/Vcard.vue"
+import Vcards from "../components/vcards/Vcards.vue"
+
 
 import { useUserStore } from "../stores/user.js"
 
@@ -77,7 +80,20 @@ const router = createRouter({
       name: "NewCategory",
       component: Category,
       props: { id: -1 },
-  },
+    },
+    {
+      path: '/vcards',
+      name: 'Vcards',
+      component: Vcards,
+    },
+    {
+      path: '/vcards/:phone',
+      name: 'Vcard',
+      component: Vcard,
+      //props: true
+      // Replaced with the following line to ensure that id is a number
+      props: route => ({ phone: parseInt(route.params.phone) })
+    },
   ]
 })
 let handlingFirstRoute = true

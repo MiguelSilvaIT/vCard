@@ -38,7 +38,11 @@ Route::post('vcards/{vcard}/checkpassword', [VcardController::class, 'checkPassw
 Route::post('vcards/{vcard}/checkconfirmationcode', [VcardController::class, 'checkConfirmationCode']);
 Route::post('vcards/checkphonenumber', [VcardController::class, 'checkphonenumber']);
 Route::post('vcards/{vcard}/piggybank', [VcardController::class, 'piggyBank']);
+Route::patch('vcards/{vcard}', [VcardController::class, 'update_max_debit']);
+Route::patch('vcards/{vcard}/block', [VcardController::class, 'block']);
+Route::patch('vcards/{vcard}/unblock', [VcardController::class, 'unblock']);
 Route::apiResource('vcards', VcardController::class);
+
 
 
 Route::apiResource('transactions', TransactionController::class);

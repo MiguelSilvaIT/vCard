@@ -20,6 +20,7 @@ class VcardController extends Controller
 
     public function index()
     {
+        VcardResource::$format = 'detailed';
         return VcardResource::collection(Vcard::all());
     }
 
@@ -126,6 +127,27 @@ class VcardController extends Controller
     public function update(Request $request, Vcard $vcard)
     {
         $vcard->update($request->all());
+        return new VcardResource($vcard);
+    }
+
+    public function update_max_debit(Request $request, Vcard $vcard)
+    {
+        $vcard->max_debit = $request->validated()['max_debit'];
+        $vcard->save();
+        return new VcardResource($vcard);
+    }
+
+    public function block( Vcard $vcard)
+    {
+        $vcard->blocked = 1;
+        $vcard->save();
+        return new VcardResource($vcard);
+    }
+
+    public function unblock( Vcard $vcard)
+    {
+        $vcard->blocked = 0;
+        $vcard->save();
         return new VcardResource($vcard);
     }
 
