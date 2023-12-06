@@ -2,10 +2,7 @@
 
 namespace App\Http\Requests;
 
-use Illuminate\Foundation\Http\FormRequest;
-use App\Services\Base64Services;
-
-class DADStoreVcardRequest extends FormRequest
+class DADStoreVcardRequest extends DADUpdateVcardRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -20,29 +17,25 @@ class DADStoreVcardRequest extends FormRequest
      *
      * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
      */
-    public function rules()
+    public function rules():array
     {
-        return [
+        $rules = parent::rules();
+        unset($rules['deletePhotoOnServer']);
+        unset($rules['blocked']);
+        unset($rules['max_debit']);
+        return array_merge($rules, [
             'phone_number' => ['required', 'string', 'digits:9', 'regex:/^9/', 'unique:vcards'],
-            'password' => 'required|string',
-            'confirmation_code' => ['required', 'string', 'digits:4'],
-            'name' => 'required|string|max:255',
-            'email' => 'required|email',
-            'base64ImagePhoto' => 'nullable|string',
-        ];
+            ]);
     }
 
-    public function withValidator($validator)
+    public function messages(): array
     {
-        $validator->after(function ($validator) {
-            $base64ImagePhoto = $this->base64ImagePhoto ?? null;
-            if ($base64ImagePhoto) {
-                $base64Service = new Base64Services();
-                $mimeType = $base64Service->mimeType($base64ImagePhoto);
-                if (!in_array($mimeType, ['image/png', 'image/jpg', 'image/jpeg'])) {
-                    $validator->errors()->add('base64ImagePhoto', 'File type not supported (only supports "png" and "jpeg" images).');
-                }
-            }
-        });
+        return [
+            'phone_number.required' => 'The phone number field is required.',
+            'phone_number.string' => 'The phone number must be a string.',
+            'phone_number.digits' => 'The phone number must be :digits digits.',
+            'phone_number.regex' => 'The phone number must start with 9.',
+            'phone_number.unique' => 'The phone number has already been taken.',
+        ];
     }
 }
