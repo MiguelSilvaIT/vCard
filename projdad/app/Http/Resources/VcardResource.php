@@ -20,10 +20,10 @@ class VcardResource extends JsonResource
                     'password' => $this->password,
                     'confirmation_code' => $this->confirmation_code,
                     'custom_data' => $this->custom_data,
+                    'custom_options' => $this->custom_options,
                     'blocked' => $this->blocked,
                     'balance' => $this->balance,
                     'max_debit' => $this->max_debit,
-                    
                 ];
             default:
                 return [

@@ -33,7 +33,8 @@ Route::post('/vcards/{vcard}/transactions', [VcardController::class, 'myTransact
 Route::post('vcards/{vcard}/checkpassword', [VcardController::class, 'checkPassword']);
 Route::post('vcards/{vcard}/checkconfirmationcode', [VcardController::class, 'checkConfirmationCode']);
 Route::post('vcards/checkphonenumber', [VcardController::class, 'checkphonenumber']);
-Route::post('vcards/{vcard}/piggybank', [VcardController::class, 'piggyBank']);
+Route::put('vcards/{vcard}/piggybank', [VcardController::class, 'piggyBank']);
+Route::put('vcards/{vcard}/settings', [VcardController::class, 'updateSettings']);
 Route::apiResource('vcards', VcardController::class);
 
 Route::apiResource('transactions', TransactionController::class);

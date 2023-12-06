@@ -44,9 +44,12 @@ class VcardController extends Controller
     public function piggyBank(Request $request, Vcard $vcard)
     {
         $request->validate([
-            'value' => 'required|numeric|min:1',
+            'value' => 'required|numeric|min:0.01',
             'action' => 'required|string'
         ]);
+        //message for the validation
+        
+
         $piggyBank = json_decode($vcard->custom_data, true);
         if ($request->action == 'save'){
             if($request->value > $vcard->balance){
@@ -82,6 +85,21 @@ class VcardController extends Controller
             'message' => 'Dinheiro guardado com sucesso',
             'data' => new VcardResource($vcard)
         ], 200);
+    }
+
+    public function updateSettings(Request $request, Vcard $vcard)
+    {
+        $request->validate([
+            'notification' => 'required|boolean',
+            'spare_change' => 'required|boolean',
+        ]);
+        $vcard->custom_options = json_encode([
+            'notification' => $request->notification,
+            'spare_change' => $request->spare_change,
+        ]);
+        $vcard->save();
+        VcardResource::$format = 'detailed';
+        return new VcardResource($vcard);
     }
 
     public function checkPhoneNumber(Request $request)
@@ -144,12 +162,11 @@ class VcardController extends Controller
         $filter_by_type = null;
         
         if($request->filter_start_date != null && $request->filter_end_date == null){
-            $transactions = $vcard->transactions()->where('date', '>=', $request->filter_start_date);
+            $transactions = $transactions->where('date', '>=', $request->filter_start_date);
             //return response()->json($transactions);
         }
-
-        if($request->filter_start_date && $request->filter_end_date){
-            $transactions = $vcard->transactions()->whereBetween('date', [$request->filter_start_date, $request->filter_end_date]);
+        else if($request->filter_start_date && $request->filter_end_date){
+            $transactions = $transactions->whereBetween('date', [$request->filter_start_date, $request->filter_end_date]);
         }
         
         if($request->filter_by_type != 'T' && $request->filter_by_type){
