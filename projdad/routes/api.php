@@ -7,7 +7,6 @@ use App\Http\Controllers\auth\AuthController;
 use App\Http\Controllers\api\UserController;
 use App\Http\Controllers\api\TransactionController;
 use App\Http\Controllers\api\CategoryController;
-use App\Http\Controllers\api\DADVcardController;
 
 
 /*
@@ -21,12 +20,6 @@ use App\Http\Controllers\api\DADVcardController;
 |
 */
 //DADVcardController
-Route::apiResource('dadvcards', DADVcardController::class);
-Route::patch('dadvcards/alterblockedStatus/{vcard}', [DADVcardController::class, 'alterBlockedStatus']);
-Route::patch('dadvcards/updateMaxDebit/{vcard}', [DADVcardController::class, 'updateMaxDebit']);
-Route::patch('dadvcards/updatePassword/{vcard}', [DADVcardController::class, 'updatePassword']);
-Route::patch('dadvcards/confirmation_code/{vcard}', [DADVcardController::class, 'updateconfirmation_code']);
-
 Route::post('auth/login', [AuthController::class, 'login']);
 Route::middleware('auth:api')->group(function () {
     Route::post('logout', [AuthController::class, 'logout']);
@@ -42,8 +35,9 @@ Route::post('vcards/{vcard}/checkconfirmationcode', [VcardController::class, 'ch
 Route::post('vcards/checkphonenumber', [VcardController::class, 'checkphonenumber']);
 Route::post('vcards/{vcard}/piggybank', [VcardController::class, 'piggyBank']);
 Route::patch('vcards/{vcard}', [VcardController::class, 'update_max_debit']);
-Route::patch('vcards/{vcard}/block', [VcardController::class, 'block']);
-Route::patch('vcards/{vcard}/unblock', [VcardController::class, 'unblock']);
+Route::patch('vcards/alterblockedStatus/{vcard}', [VcardController::class, 'alterBlockedStatus']);
+Route::patch('vcards/updatePassword/{vcard}', [VcardController::class, 'updatePassword']);
+Route::patch('vcards/confirmation_code/{vcard}', [VcardController::class, 'updateconfirmation_code']);
 Route::apiResource('vcards', VcardController::class);
 
 
