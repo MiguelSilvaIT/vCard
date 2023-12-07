@@ -5,8 +5,8 @@ namespace App\Http\Controllers\api;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\DADStoreVcardRequest;
 use App\Http\Requests\DADUpdateVcardRequest;
-use App\Http\Resources\TransactionResource;
-use App\Http\Resources\CategoryResource;
+use App\Http\Requests\UpdateUserPasswordRequest;
+use App\Http\Requests\UpdateVcardPinRequest;
 use App\Http\Resources\VcardResource;
 use App\Models\Vcard;
 use Illuminate\Http\Request;
@@ -14,6 +14,7 @@ use App\Services\Base64Services;
 use Illuminate\Support\Facades\Storage;
 use App\Models\Transaction;
 use App\Models\Category;
+use Illuminate\Support\Facades\Hash;
 
 class DADVcardController extends Controller {
     public function index() {
@@ -81,8 +82,6 @@ class DADVcardController extends Controller {
 
         $vcard->name = $dataToSave['name'];
         $vcard->email = $dataToSave['email'];
-        $vcard->password = $dataToSave['password'];
-        $vcard->confirmation_code = $dataToSave['confirmation_code'];
 
         // Delete previous photo file if a new file is uploaded or the photo is to be deleted
         if($vcard->photo_url && ($deletePhotoOnServer || $base64ImagePhoto)) {
@@ -98,6 +97,50 @@ class DADVcardController extends Controller {
         }
         $vcard->save();
         VcardResource::$format = 'detailed';
+        return response()->json([
+            'message' => 'success',
+            'data' => new VcardResource($vcard)
+        ], 200);
+    }
+
+    public function updatePassword (UpdateUserPasswordRequest $request, $phoneNumber) {
+        //vai buscar o vCard com o phoneNumber recebido
+        $vcard = Vcard::findOrFail($phoneNumber);
+        //validar os dados recebidos
+        $dataToSave = $request->validated();
+        //alterar a password do vCard
+        if(!Hash::check($dataToSave['oldpassword'], $vcard->password)) {
+            //se a password antiga não for igual à que está na BD, devolve erro
+            return response()->json([
+                'message' => 'error',
+                'data' => 'Old password is not correct'
+            ], 400);
+        }
+        $vcard->password = $dataToSave['password'];
+        $vcard->save();
+        //devolver o vCard com a nova password
+        return response()->json([
+            'message' => 'success',
+            'data' => new VcardResource($vcard)
+        ], 200);
+    }
+
+    public function updateconfirmation_code (UpdateVcardPinRequest $request, $phoneNumber){
+        //vai buscar o vCard com o phoneNumber recebido
+        $vcard = Vcard::findOrFail($phoneNumber);
+        //validar os dados recebidos
+        $dataToSave = $request->validated();
+        //alterar o pin do vCard
+        if(!Hash::check($dataToSave['oldconfirmation_code'], $vcard->confirmation_code)) {
+            //se o pin antigo não for igual ao que está na BD, devolve erro
+            return response()->json([
+                'message' => 'error',
+                'data' => 'Old confirmation_code is not correct'
+            ], 400);
+        }
+        $vcard->confirmation_code = $dataToSave['confirmation_code'];
+        $vcard->save();
+        //devolver o vCard com o novo pin
         return response()->json([
             'message' => 'success',
             'data' => new VcardResource($vcard)

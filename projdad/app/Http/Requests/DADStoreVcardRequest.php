@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Http\Requests;
+use Illuminate\Validation\Rules\Password;
 
 class DADStoreVcardRequest extends DADUpdateVcardRequest
 {
@@ -25,6 +26,8 @@ class DADStoreVcardRequest extends DADUpdateVcardRequest
         unset($rules['max_debit']);
         return array_merge($rules, [
             'phone_number' => ['required', 'string', 'digits:9', 'regex:/^9/', 'unique:vcards'],
+            'password' => 'required|confirmed', Password::min(3),
+            'confirmation_code' => 'required|confirmed|digits:4',
             ]);
     }
 
