@@ -82,6 +82,7 @@ const router = createRouter({
       props: { id: -1 },
     },
     {
+
       path: '/vcards',
       name: 'Vcards',
       component: Vcards,
@@ -94,6 +95,12 @@ const router = createRouter({
       // Replaced with the following line to ensure that id is a number
       props: route => ({ phone: parseInt(route.params.phone) })
     },
+
+      path:"/transactions/new",
+      name: "NewTransaction",
+      component: Transaction,
+      props: { id: -1 }
+    }
   ]
 })
 let handlingFirstRoute = true

@@ -69,7 +69,7 @@ class VcardController extends Controller
         //devolve o vCard criado no formato detalhado que mostra: phone, name, photo e balance (formatos no VcardResource.php)
         VcardResource::$format = 'detailed';
         return response()->json([
-            'message' => 'success',
+            'message' => 'Vcard criado com sucesso',
             'data' => new VcardResource($newVcard)
         ], 200);
     }
@@ -77,9 +77,12 @@ class VcardController extends Controller
     public function piggyBank(Request $request, Vcard $vcard)
     {
         $request->validate([
-            'value' => 'required|numeric|min:1',
+            'value' => 'required|numeric|min:0.01',
             'action' => 'required|string'
         ]);
+        //message for the validation
+        
+
         $piggyBank = json_decode($vcard->custom_data, true);
         if ($request->action == 'save'){
             if($request->value > $vcard->balance){
@@ -117,6 +120,21 @@ class VcardController extends Controller
         ], 200);
     }
 
+    public function updateSettings(Request $request, Vcard $vcard)
+    {
+        $request->validate([
+            'notification' => 'required|boolean',
+            'spare_change' => 'required|boolean',
+        ]);
+        $vcard->custom_options = json_encode([
+            'notification' => $request->notification,
+            'spare_change' => $request->spare_change,
+        ]);
+        $vcard->save();
+        VcardResource::$format = 'detailed';
+        return new VcardResource($vcard);
+    }
+
     public function checkPhoneNumber(Request $request)
     {
         $request->validate([
@@ -139,7 +157,7 @@ class VcardController extends Controller
         $isPasswordCorrect = Hash::check($request->password, $vcard->password);
         return response()->json([
             'isPasswordCorrect' => $isPasswordCorrect,
-            'message' => $isPasswordCorrect ? 'Password correct' : 'Password incorrect Please try again',
+            'message' => $isPasswordCorrect ? 'Login bem sucedido' : 'Palavra-passe incorrecta, tente novamente',
         ]);
     }
 
@@ -152,7 +170,7 @@ class VcardController extends Controller
         $isConfirmationCodeCorrect = Hash::check($request->confirmation_code, $vcard->confirmation_code);
         return response()->json([
             'isConfirmationCodeCorrect' => $isConfirmationCodeCorrect,
-            'message' => $isConfirmationCodeCorrect ? 'PIN is correct' : 'PIN incorrect Please try again',
+            'message' => $isConfirmationCodeCorrect ? 'PIN correto' : 'PIN incorreto, tente novamente',
         ]);
     }
 
@@ -308,9 +326,38 @@ class VcardController extends Controller
         }
     }
 
-    public function myTransactions(Vcard $vcard)
+    public function myTransactions(Request $request, Vcard $vcard)
     {
-        $transactions = $vcard->transactions()->orderBy('date', 'desc')->get();
+        
+        $transactions = $vcard->transactions();
+        $filter_by_date = null;
+        $filter_by_type = null;
+        
+        if($request->filter_start_date != null && $request->filter_end_date == null){
+            $transactions = $transactions->where('date', '>=', $request->filter_start_date);
+            //return response()->json($transactions);
+        }
+        else if($request->filter_start_date && $request->filter_end_date){
+            $transactions = $transactions->whereBetween('date', [$request->filter_start_date, $request->filter_end_date]);
+        }
+        
+        if($request->filter_by_type != 'T' && $request->filter_by_type){
+            $transactions = $transactions->where('type', $request->filter_by_type);
+        }
+
+        if($request->filter_by_value == "value_asc"){
+            $transactions = $transactions->orderByRaw('CAST(value AS DECIMAL(10,2))');;
+        }
+        else if($request->filter_by_value == "value_desc"){
+            $transactions = $transactions->orderBy('value',"desc");
+        }
+        else if($request->filter_by_value == "date_asc"){
+            $transactions = $transactions->orderBy('datetime');
+        }
+        else{
+            $transactions = $transactions->orderBy('datetime',"desc");
+        }
+        $transactions = $transactions->get();
         return response()->json($transactions);
     }
 }
