@@ -46,6 +46,11 @@ class CategoryController extends Controller
         return new CategoryResource($newCategory);
     }
 
+    public function store_on_default(StoreUpdateCategoryRequest $request)
+    {
+        
+    }
+
     public function destroy(Category $category)
     {
         $category->delete();

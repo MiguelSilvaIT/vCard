@@ -2,14 +2,14 @@
 
 namespace App\Http\Requests;
 
-use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rules\Password;
 
-class StoreVcardRequest extends FormRequest
+class StoreVcardRequest extends UpdateVcardRequest
 {
     /**
      * Determine if the user is authorized to make this request.
      */
-    public function authorize()
+    public function authorize(): bool
     {
         return true;
     }
@@ -19,33 +19,27 @@ class StoreVcardRequest extends FormRequest
      *
      * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
      */
-    public function rules()
+    public function rules():array
     {
-        return [
-            'phone_number' => 'required|string|min:9|max:9|regex:/^9[0-9]*$/',
-            'password' => 'required|string',
-            'confirmation_code' => 'required|numeric',
-            'balance' => 'required|numeric',
-        ];
+        $rules = parent::rules();
+        unset($rules['deletePhotoOnServer']);
+        unset($rules['blocked']);
+        unset($rules['max_debit']);
+        return array_merge($rules, [
+            'phone_number' => ['required', 'string', 'digits:9', 'regex:/^9/', 'unique:vcards'],
+            'password' => 'required|confirmed', Password::min(3),
+            'confirmation_code' => 'required|confirmed|digits:4',
+            ]);
     }
 
-    /**
-     * Get the error messages for the defined validation rules.
-     */
-    public function messages()
+    public function messages(): array
     {
         return [
-            'phone_number.required' => 'O número de telemóvel é obrigatório',
-            'phone_number.string' => 'O número de telemóvel tem de ser uma string',
-            'phone_number.min' => 'O número de telemóvel tem de ter 9 caracteres',
-            'phone_number.max' => 'O número de telemóvel tem de ter 9 caracteres',
-            'phone_number.regex' => 'O número de telemóvel tem de começar por 9',
-            'password.required' => 'A password é obrigatória',
-            'password.string' => 'A password tem de ser uma string',
-            'confirmation_code.required' => 'O código de confirmação é obrigatório',
-            'confirmation_code.numeric' => 'O código de confirmação tem de ser numérico',
-            'balance.required' => 'O saldo é obrigatório',
-            'balance.numeric' => 'O saldo tem de ser numérico',
+            'phone_number.required' => 'The phone number field is required.',
+            'phone_number.string' => 'The phone number must be a string.',
+            'phone_number.digits' => 'The phone number must be :digits digits.',
+            'phone_number.regex' => 'The phone number must start with 9.',
+            'phone_number.unique' => 'The phone number has already been taken.',
         ];
     }
 }

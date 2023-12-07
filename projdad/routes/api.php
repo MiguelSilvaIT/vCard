@@ -20,6 +20,7 @@ use App\Http\Controllers\api\CategoryController;
 |
 */
 
+
 Route::post('auth/login', [AuthController::class, 'login']);
 Route::middleware('auth:api')->group(function () {
     Route::post('logout', [AuthController::class, 'logout']);
@@ -33,8 +34,13 @@ Route::post('/vcards/{vcard}/transactions', [VcardController::class, 'myTransact
 Route::post('vcards/{vcard}/checkpassword', [VcardController::class, 'checkPassword']);
 Route::post('vcards/{vcard}/checkconfirmationcode', [VcardController::class, 'checkConfirmationCode']);
 Route::post('vcards/checkphonenumber', [VcardController::class, 'checkphonenumber']);
-Route::put('vcards/{vcard}/piggybank', [VcardController::class, 'piggyBank']);
-Route::put('vcards/{vcard}/settings', [VcardController::class, 'updateSettings']);
+
+Route::patch('vcards/{vcard}', [VcardController::class, 'update_max_debit']);
+Route::patch('vcards/alterblockedStatus/{vcard}', [VcardController::class, 'alterBlockedStatus']);
+Route::patch('vcards/updatePassword/{vcard}', [VcardController::class, 'updatePassword']);
+Route::patch('vcards/confirmation_code/{vcard}', [VcardController::class, 'updateconfirmation_code']);
+Route::patch('vcards/{vcard}/piggybank', [VcardController::class, 'piggyBank']);
+Route::patch('vcards/{vcard}/settings', [VcardController::class, 'updateSettings']);
 Route::apiResource('vcards', VcardController::class);
 
 Route::apiResource('transactions', TransactionController::class);
