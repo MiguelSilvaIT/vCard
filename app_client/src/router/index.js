@@ -77,7 +77,13 @@ const router = createRouter({
       name: "NewCategory",
       component: Category,
       props: { id: -1 },
-  },
+    },
+    {
+      path:"/transactions/new",
+      name: "NewTransaction",
+      component: Transaction,
+      props: { id: -1 }
+    }
   ]
 })
 let handlingFirstRoute = true

@@ -54,7 +54,6 @@ class TransactionController extends Controller
             //FALTA ALTERAR O VALOR DO BALANCE DOS VCARDS ENVOLVIDOS
             $vcard->balance = $newTransaction->new_balance;
             $vcard->save();
-
             
             $newPairTransaction->value = $request->value;
             $newPairTransaction->vcard = $request->pair_vcard;
@@ -116,6 +115,8 @@ class TransactionController extends Controller
             'data' => $newTransaction
         ], 200);
     }
+
+    
     
     //update
     public function update(Request $request, Transaction $transaction)

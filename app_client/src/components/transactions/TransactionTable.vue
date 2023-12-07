@@ -4,11 +4,19 @@ import { inject } from "vue";
 const serverBaseUrl = inject("serverBaseUrl");
 
 const props = defineProps({
-  categories: {
+  transactions: {
     type: Array,
     default: () => [],
   },
-  showId: {
+  showVcard: {
+    type: Boolean,
+    default: true,
+  },
+  showPaymentType:{
+    type: Boolean,
+    default: true,
+  },
+  showPaymentReference:{
     type: Boolean,
     default: true,
   },
@@ -16,7 +24,7 @@ const props = defineProps({
     type: Boolean,
     default: true,
   },
-  showName: {
+  showValue: {
     type: Boolean,
     default: true,
   },
@@ -35,8 +43,8 @@ const emit = defineEmits(["edit"]);
 //     : avatarNoneUrl;
 // };
 
-const editClick = (category) => {
-  emit("edit", category);
+const editClick = (transaction) => {
+  emit("edit", transaction);
 };
 </script>
 
@@ -47,21 +55,25 @@ const editClick = (category) => {
   <table class="table">
     <thead>
       <tr>
-        <th v-if="showId" class="align-middle">#</th>
-        <th v-if="showName" class="align-middle">Name</th>
+        <th v-if="showVcard" class="align-middle">Vcard</th>
+        <th v-if="showPaymentType" class="align-middle">Payment Type</th>
+        <th v-if="showPaymentReference" class="align-middle">Payment Reference</th>
         <th v-if="showType" class="align-middle">Type</th>
+        <th v-if="showValue" class="align-middle">Value</th>
       </tr>
     </thead>
     <tbody>
-      <tr v-for="category in categories" :key="category.id">
-        <td v-if="showId" class="align-middle">{{ category.id }}</td>
-        <td v-if="showName" class="align-middle">{{ category.name }}</td>
-        <td v-if="showType" class="align-middle">{{  category.type }}</td>
+      <tr v-for="transaction in transactions" :key="transaction.id">
+        <td v-if="showVcard" class="align-middle">{{ transaction.vcard }}</td>
+        <td v-if="showPaymentType" class="align-middle">{{ transaction.payment_type }}</td>
+        <td v-if="showPaymentReference" class="align-middle">{{ transaction.payment_reference }}</td>
+        <td v-if="showType" class="align-middle">{{ transaction.type }}</td>
+        <td v-if="showValue" class="align-middle">{{  transaction.value }}</td>
         <td class="text-end align-middle" v-if="showEditButton">
           <div class="d-flex justify-content-end">
             <button
               class="btn btn-xs btn-light"
-              @click="editClick(category)"
+              @click="editClick(transaction)"
               v-if="showEditButton"
             >
               <i class="bi bi-xs bi-pencil"></i>
