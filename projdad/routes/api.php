@@ -7,6 +7,7 @@ use App\Http\Controllers\auth\AuthController;
 use App\Http\Controllers\api\UserController;
 use App\Http\Controllers\api\TransactionController;
 use App\Http\Controllers\api\CategoryController;
+use App\Http\Controllers\api\AdminController;
 
 
 /*
@@ -19,7 +20,6 @@ use App\Http\Controllers\api\CategoryController;
 | be assigned to the "api" middleware group. Make something great!
 |
 */
-
 
 Route::post('auth/login', [AuthController::class, 'login']);
 Route::middleware('auth:api')->group(function () {
@@ -55,3 +55,6 @@ Route::put('categories/{category}', [CategoryController::class , 'update']);
 // Route::get('vcards/{vcard}/categories', [CategoryController::class, 'getCategoriesOfVcard']);
 Route::delete('categories/{category}', [CategoryController::class , 'destroy']);
 
+//Admin Routes
+Route::apiResource('admins', AdminController::class);
+Route::patch('admins/updatePassword/{admin}', [AdminController::class, 'updatePassword']);
