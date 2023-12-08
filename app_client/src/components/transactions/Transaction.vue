@@ -4,19 +4,20 @@ import { useToast } from "vue-toastification"
 import { ref, watch , computed} from 'vue'
 import TransactionDetail from "./TransactionDetail.vue"
 import { useRouter, onBeforeRouteLeave } from 'vue-router'
+import { useCategoriesStore } from '../../stores/categories'
 
 const toast = useToast()
 const router = useRouter()
+const categoriesStore = useCategoriesStore()
 
 const props = defineProps({
     id: {
       type: Number,
       default: null
     }
-  
 })
 
-const newCategory = () => {
+const NewTransaction = () => {
     return {
         id: null,
         vcard:'',
@@ -43,10 +44,10 @@ const loadTransactions = async (id) => {
   } else {
       try {
         const response = await axios.get('transactions/' + id)
-        console.log(response.data)
+        console.log("Response",response.data.data)
 
         //category.value = response.data.data
-        transaction.value = response.data
+        transaction.value = response.data.data
         originalValueStr = JSON.stringify(transaction.value)
       } catch (error) {
         console.log(error)
@@ -94,7 +95,7 @@ const save =  () => {
     }
 
 const cancel =  () => {
-  originalValueStr = JSON.stringify(category.value)
+  originalValueStr = JSON.stringify(transaction.value)
   router.back()
 }
 
@@ -123,6 +124,15 @@ watch(
   {immediate: true}  
 )
 
+watch(
+  () => props.id,
+  (newValue) => {
+    categoriesStore.loadCategories(newValue)
+    console.log("Categories",categoriesStore.categories)
+  },
+  {immediate: true} 
+)
+
 let nextCallBack = null
 const leaveConfirmed = () => {
   if (nextCallBack) {
@@ -149,17 +159,18 @@ onBeforeRouteLeave((to, from, next) => {
 </script>
 
 <template>
-  <!-- <confirmation-dialog
+  <confirmation-dialog
     ref="confirmationLeaveDialog"
     confirmationBtn="Discard changes and leave"
     msg="Do you really want to leave? You have unsaved changes!"
     @confirmed="leaveConfirmed"
   >
-  </confirmation-dialog>   -->
-
+  </confirmation-dialog>  
+  
   <transaction-detail
     :operationType="operation"
     :transaction="transaction"
+    :categories="categoriesStore.categories"
     :errors="errors"
     @save="save"
     @cancel="cancel"

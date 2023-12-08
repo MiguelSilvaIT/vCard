@@ -29,25 +29,16 @@ const totalTransactions = computed(() => {
 
 const loadTransactions = async () => {
   try {
-    
-    if(userStore.userType == "V")
-    {
-      const response = await axios.get('vcards/'+userStore.userId+'/transactions')
-      transactions.value = response.data
-    }
-    else
-    {
       const response = await axios.get('transactions')
-      transactions.value = response.data
-    }
-
+      console.log(response.data.data)
+      transactions.value = response.data.data
   } catch (error) {
     console.log(error)
   }
 }
 
 const editTransaction = (transaction) => {
-  router.push({ name: 'Transaction', params: { vcard: transaction.vcard } })
+  router.push({ name: 'Transaction', params: { id: transaction.id } })
 }
 
 const addTransaction = () => {
@@ -55,7 +46,7 @@ const addTransaction = () => {
 }
 
 onMounted(() => {
-  loadCategories()
+  loadTransactions()
 })
 </script>
 
@@ -68,7 +59,7 @@ onMounted(() => {
       Add new transaction
     </button>
   </div>
-  <transaction-table :transactions="transaction" :showId="false" @edit="editTransaction"></transaction-table>
+  <transaction-table :transactions="transactions" :showId="false" @edit="editTransaction"></transaction-table>
 </template>
 
 <style scoped>

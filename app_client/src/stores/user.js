@@ -17,16 +17,18 @@ export const useUserStore = defineStore('user', () => {
         user.value?.photo_url ?
          serverBaseUrl + '/storage/fotos/' + user.value.photo_url:
          avatarNoneUrl)
+         
     async function loadUser() {
         try {
             const response = await axios.get('users/me')
             user.value = response.data.data
-            console.log(user.value.user_type)
+            console.log(user.value)
         } catch (error) {
             clearUser()
             throw error
         }
     }
+
     function clearUser () {
         delete axios.defaults.headers.common.Authorization
         sessionStorage.removeItem('token')
@@ -69,5 +71,5 @@ export const useUserStore = defineStore('user', () => {
         return false
         }
 
-    return { user, userName, userId, userPhotoUrl,userType, loadUser, clearUser, login, logout,restoreToken}
+    return { user, userName, userId, userPhotoUrl, userType, loadUser, clearUser, login, logout,restoreToken}
 })
