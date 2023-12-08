@@ -14,6 +14,9 @@ export const useUserStore = defineStore('user', () => {
 
     console.log("User.value do user.js: " + userId.value)
 
+    const userType  = computed(() => user.value?.user_type ?? "N")
+    
+
     const userPhotoUrl = computed(() =>
         user.value?.photo_url ?
          serverBaseUrl + '/storage/fotos/' + user.value.photo_url:
@@ -22,6 +25,7 @@ export const useUserStore = defineStore('user', () => {
         try {
             const response = await axios.get('users/me')
             user.value = response.data.data
+            console.log(user.value.user_type)
         } catch (error) {
             clearUser()
             throw error

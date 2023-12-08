@@ -4,9 +4,8 @@ namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 use App\Services\Base64Services;
-use Illuminate\Validation\Rules\Password;
 
-class DADUpdateVcardRequest extends FormRequest
+class UpdateVcardRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -26,10 +25,8 @@ class DADUpdateVcardRequest extends FormRequest
         return [
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:vcards,email',
-            'password' => 'required|confirmed', Password::min(3),
-            'confirmation_code' => 'required|confirmed|digits:4',
-            'blocked' => 'required|int|in:0,1',
-            'max_debit' => 'required|int|min:1',
+            'blocked' => 'nullable|int|in:0,1',
+            'max_debit' => 'nullable|int|min:1',
             'base64ImagePhoto' => 'nullable|string',
             'deletePhotoOnServer' => 'nullable|boolean'
         ];
