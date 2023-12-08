@@ -12,32 +12,25 @@ const router = useRouter()
 
 const categories = ref([])
 
-const filterByOwner = ref(-1)
-
-const onChange = () => {
-  //console.log("Valor select box--> " + filterByOwner.value)
-  loadCategories()
-}
-
-
-
-const totalCategories = computed(() => {
-  return categories.value.length
-})
 
 const loadCategories = async () => {
   try {
     
-    if(filterByOwner.value == "my-cat")
-    {
-      const response = await axios.get('vcards/'+userStore.userId+'/categories')
+    // if(filterByOwner.value == "my-cat")
+    // {
+    //   const response = await axios.get('vcards/'+userStore.userId+'/categories')
+    //   categories.value = response.data.data
+    // }
+    // else
+    // {
+    //   const response = await axios.get('categories')
+    //   categories.value = response.data.data
+    // }
+
+   
+      const response = await axios.get(userStore.userType === 'A' ? 'categories/default' : 'categories')
       categories.value = response.data.data
-    }
-    else
-    {
-      const response = await axios.get('categories')
-      categories.value = response.data.data
-    }
+
 
   } catch (error) {
     console.log(error)
@@ -65,16 +58,7 @@ onMounted(() => {
       <i class="bi bi-xs bi-plus-circle"></i>&nbsp;
       Add Category
     </button>
-    <select 
-    class="form-select ml-auto small-select" 
-    aria-label="Default select example"
-    v-model="filterByOwner"
-    @change="onChange()"
-    >
-      <option value="my-cat" selected>My Categories</option>
-      <option value="all-cat" >Default Categories</option>
-   
-    </select>
+
   </div>
   <category-table :categories="categories" :showId="false" @edit="editCategory"></category-table>
 </template>

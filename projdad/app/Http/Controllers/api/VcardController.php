@@ -134,7 +134,10 @@ class VcardController extends Controller
     {
         $vcard->max_debit = $request->validated()['max_debit'];
         $vcard->save();
-        return new VcardResource($vcard);
+        return response()->json([
+            'message' => 'success',
+            'data' => new VcardResource($vcard)
+        ], 200);
     }
 
     public function block( Vcard $vcard)

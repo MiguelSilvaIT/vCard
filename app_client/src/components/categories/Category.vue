@@ -4,9 +4,14 @@ import { useToast } from "vue-toastification"
 import { ref, watch , computed} from 'vue'
 import CategoryDetail from "./CategoryDetail.vue"
 import { useRouter, onBeforeRouteLeave } from 'vue-router'
+import { useUserStore } from "/src/stores/user.js"
 
 const toast = useToast()
 const router = useRouter()
+
+const userStore = useUserStore()
+
+const endpoint = userStore.userType === 'A' ? 'categories/default' : 'categories';
 
 const props = defineProps({
     id: {
@@ -39,8 +44,8 @@ const loadCategory = async (id) => {
     category.value = newCategory()
   } else {
       try {
-        const response = await axios.get('categories/' + id)
-        console.log(response.data.data)
+        const response = await axios.get(`${endpoint}/${id}`)
+        console.log('Categoria Carregada --> ' , response)
 
         //category.value = response.data.data
         category.value = response.data.data
@@ -59,11 +64,12 @@ const save =  () => {
       {
         console.log(category.value)
         
-        axios.post('categories', category.value)
+
+        axios.post(`${endpoint}`, category.value)
           .then((response) => {
             toast.success('Category Created')
             console.dir(response.data.data)
-            // router.back()
+            router.back()
 
           })
           .catch((error) => {
@@ -73,7 +79,8 @@ const save =  () => {
           }
           })
       } else {
-        axios.put('categories/' + props.id, category.value)
+
+        axios.put(`${endpoint}/${category.value.id}`, category.value)
           .then((response) => {
             toast.success('Category Updated')
             console.dir(response.data.data)
@@ -99,10 +106,11 @@ const deleteCategory =  () => {
   console.log('deleteCategory')
   
   try {
-      const response =  axios.delete('categories/' + props.id)
+
+      const response =  axios.delete(`${endpoint}/${category.value.id}`)
       console.log(response)
       toast.success('Categorie #' + props.id + ' was deleted successfully.')
-      // router.back()
+      router.back()
 
     } catch (error) {
       
@@ -133,7 +141,7 @@ onBeforeRouteLeave((to, from, next) => {
   if (originalValueStr != newValueStr) {
     // Some value has changed - only leave after confirmation
     nextCallBack = next
-    confirmationLeaveDialog.value.show()
+    //confirmationLeaveDialog.value.show()
   } else {
     // No value has changed, so we can leave the component without confirming
     next()
