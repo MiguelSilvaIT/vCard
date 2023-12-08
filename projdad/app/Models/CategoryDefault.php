@@ -5,24 +5,22 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use App\Models\Vcard;
 
 
-class Category extends Model
+class CategoryDefault extends Model
 {
     use HasFactory;
     use SoftDeletes;
     public $timestamps = false;
 
+    protected $table = 'default_categories';
+
     protected $fillable = [
         'id',
         'type',
+        'name',
     ];
 
-    public function vcard()
-    {
-        return $this->belongsTo(Vcard::class);
-    }
 
     public function getTypeNameAttribute()
     {

@@ -14,6 +14,8 @@ const toast = useToast()
 
 const userStore = useUserStore()
 
+console.log('userType', userStore.userType)
+
 const logout = async () => {
   if (await userStore.logout()) {
     toast.success('User has logged out of the application.')
@@ -145,7 +147,8 @@ const clickMenuOption = () => {
                 </router-link>
             </li>
 
-            <li class="nav-item">
+           
+            <li class="nav-item" v-if="userStore.userType == 'A'">
                 <router-link class="nav-link" :class="{ active: $route.name === 'Vcards' }" 
                             :to="{ name: 'Vcards' }">
                   <i class="bi bi-files"></i>

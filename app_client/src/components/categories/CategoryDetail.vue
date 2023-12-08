@@ -27,6 +27,7 @@ const props = defineProps({
 const emit = defineEmits(["save", "cancel", "deleteCategory"]);
 
 const editingCategory = ref(props.category)
+//console.log("editingCategory -->" , editingCategory.value)
 
 watch(
   () => props.category,
@@ -45,7 +46,10 @@ const categoryTitle = computed( () => {
   })
 
 const save = () => {
-  editingCategory.value.vcard = userStore.userId
+  if (userStore.userType == 'V'){
+    editingCategory.value.vcard = userStore.userId
+
+  }
   emit("save", editingCategory.value);
 }
 

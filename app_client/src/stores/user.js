@@ -9,6 +9,10 @@ export const useUserStore = defineStore('user', () => {
     const userName = computed(() => user.value?.name ?? 'Anonymous')
     //const phoneNumber = computed(() => user.value.phoneNumber) 
     const userId = computed(() => user.value?.id ?? -1)
+    
+    const userType = computed(() => user.value?.user_type ?? "N")
+
+    console.log("User.value do user.js: " + userId.value)
 
     const userType  = computed(() => user.value?.user_type ?? "N")
     

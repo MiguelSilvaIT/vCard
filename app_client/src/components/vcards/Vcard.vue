@@ -79,9 +79,9 @@ const deleteVcard =  () => {
   console.log('deleteVcard')
   
   try {
-      const response =  axios.delete('vcards/' + props.phone)
+      const response =  axios.delete('dadvcards/' + props.phone)
       console.log(response)
-      toast.success('Vcard #' + props.id + ' was deleted successfully.')
+      toast.success('Vcard #' + props.phone + ' was deleted successfully.')
       // router.back()
 
     } catch (error) {
@@ -94,7 +94,7 @@ const deleteVcard =  () => {
 const blockVcard =  () => {
   console.log('blockVcard')
   try {
-      const response =  axios.patch('vcards/' + props.phone + '/block')
+      const response =  axios.get('dadvcards/alterblockedStatus/' + props.phone)
       console.log(response)
       toast.success('Vcard #' + props.phone + ' was blocked successfully.')
       // router.back()
@@ -109,7 +109,7 @@ const blockVcard =  () => {
 const unblockVcard =  () => {
   console.log('unblockVcard')
   try {
-      const response =  axios.patch('vcards/' + props.phone + '/unblock')
+      const response =  axios.get('dadvcards/alterblockedStatus/' + props.phone)
       console.log(response)
       toast.success('Vcard #' + props.phone + ' was unblocked successfully.')
       // router.back()
