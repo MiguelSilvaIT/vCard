@@ -28,10 +28,10 @@ class CategoryController extends Controller
         return new CategoryResource($category);
     }
 
-    public function getCategoriesOfVcard(Request $request, Vcard $vcard)
-    {
-        return CategoryResource::collection($vcard->categories->sortByDesc('id'));
-    }
+    // public function getCategoriesOfVcard(Request $request, Vcard $vcard)
+    // {
+    //     return CategoryResource::collection($vcard->categories->sortByDesc('id'));
+    // }
 
     public function update(UpdateCategoryRequest $request, Category $category)
     {

@@ -13,6 +13,7 @@ use App\Services\Base64Services;
 use Illuminate\Support\Facades\Storage;
 use App\Http\Requests\UpdateUserPasswordRequest;
 use App\Http\Requests\UpdateVcardconfirmation_codeRequest;
+use App\Http\Resources\CategoryResource;
 
 
 class VcardController extends Controller
@@ -281,8 +282,8 @@ class VcardController extends Controller
         if($vcard->balance != 0) {
             //se tiver, devolve erro
             return response()->json([
-                'message' => 'error',
-                'data' => 'Vcard has balance'
+                'success' => false,
+                'message' => 'Vcard has balance'
             ], 400);
         }
         //vai buscar as Transações e Categorias do vCard
@@ -304,6 +305,7 @@ class VcardController extends Controller
             $vcard->delete();
             //devolver o vCard apagado e a mensagem de sucesso "Soft deleted"
             return response()->json([
+                'success' => 'true',
                 'message' => 'Soft deleted',
                 'data' => new VcardResource($vcard)
             ], 200);
@@ -320,6 +322,7 @@ class VcardController extends Controller
             $vcard->forceDelete();
             //devolver o vCard apagado e a mensagem de sucesso "Hard deleted"
             return response()->json([
+                'success' => 'true',
                 'message' => 'Hard deleted',
                 'data' => new VcardResource($vcard)
             ], 200);
@@ -359,5 +362,11 @@ class VcardController extends Controller
         }
         $transactions = $transactions->get();
         return response()->json($transactions);
+    }
+
+    public function getCategoriesOfVcard(Request $request, Vcard $vcard)
+    {
+        $categories = $vcard->categories;
+        return CategoryResource::collection($vcard->categories->sortByDesc('id'));
     }
 }

@@ -41,6 +41,7 @@ Route::patch('vcards/updatePassword/{vcard}', [VcardController::class, 'updatePa
 Route::patch('vcards/confirmation_code/{vcard}', [VcardController::class, 'updateconfirmation_code']);
 Route::patch('vcards/{vcard}/piggybank', [VcardController::class, 'piggyBank']);
 Route::patch('vcards/{vcard}/settings', [VcardController::class, 'updateSettings']);
+Route::get('vcards/{vcard}/categories', [VcardController::class, 'getCategoriesOfVcard']);
 Route::apiResource('vcards', VcardController::class);
 
 Route::apiResource('transactions', TransactionController::class);
@@ -51,6 +52,6 @@ Route::get('categories', [CategoryController::class , 'index']);
 Route::get('categories/{category}', [CategoryController::class , 'show']);
 Route::post('categories', [CategoryController::class , 'store']);
 Route::put('categories/{category}', [CategoryController::class , 'update']);
-Route::get('vcards/{vcard}/categories', [CategoryController::class, 'getCategoriesOfVcard']);
+// Route::get('vcards/{vcard}/categories', [CategoryController::class, 'getCategoriesOfVcard']);
 Route::delete('categories/{category}', [CategoryController::class , 'destroy']);
 
