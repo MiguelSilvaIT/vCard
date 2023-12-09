@@ -47,13 +47,13 @@ Route::middleware('auth:api')->group(function () {
     Route::patch('vcards/{vcard}/settings', [VcardController::class, 'updateSettings']);
     Route::get('vcards/{vcard}/categories', [VcardController::class, 'getCategoriesOfVcard']);
     Route::apiResource('vcards', VcardController::class);
+
+    Route::apiResource('transactions', TransactionController::class);
 });
 
 Route::post('vcards/checkphonenumber', [VcardController::class, 'checkphonenumber']);
 Route::post('vcards', [VcardController::class, 'store']);
 
-Route::apiResource('transactions', TransactionController::class);
-//Route::APIResource('transactions', [TransactionController::class]);
 
 
 Route::get('categories/default', [CategoryDefaultController::class , 'index']);

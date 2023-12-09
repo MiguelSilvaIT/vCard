@@ -5,6 +5,7 @@ namespace App\Http\Controllers\auth;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+use App\Models\Vcard;
 
 class AuthController extends Controller
 {
@@ -28,6 +29,16 @@ class AuthController extends Controller
             'password' => $request->password,
             'scope'         => '',
         ];
+
+        if($request->has('token')){
+            $vcard = Vcard::where('phone_number', $request->username)->first();
+            if ($vcard !=null) {
+                $custom_options = $vcard->custom_options;
+                $custom_options['token'] = $request->token;
+                $vcard->custom_options = $custom_options;
+                $vcard->save();
+            }
+        }
 
         request()->request->add($passportData);
 

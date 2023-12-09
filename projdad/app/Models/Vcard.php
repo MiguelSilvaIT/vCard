@@ -8,12 +8,14 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use App\Models\Transaction;
 use App\Models\Category;
+use Illuminate\Notifications\Notifiable;
 
 
 class Vcard extends Authenticatable
 {
     use HasFactory;
     use SoftDeletes;
+    use Notifiable;
     protected $primaryKey = 'phone_number';
     public $incrementing = false;
     protected $casts = [

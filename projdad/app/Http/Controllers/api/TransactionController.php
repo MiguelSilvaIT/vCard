@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use App\Http\Requests\StoreTransactionRequest;
 use App\Http\Resources\TransactionResource;
 use App\Models\Transaction;
+use App\Notifications\NewNotification;
 
 class TransactionController extends Controller
 {
@@ -76,16 +77,30 @@ class TransactionController extends Controller
             //update pair_transaction 
             $newTransaction->pair_transaction = $newPairTransaction->id;
             $newTransaction->save();
+
+            //send notification when transaction between vcards is made
+            $notification["message"] = 'Recebeu '.$request->value.'€ recebida de '.$request->vcard;
+            $notification["description"] = $request->description;
+            $notification["read"] = false;
+
+            $expoMessage = new NewNotification($notification);
+            $pair_vcard->notify($expoMessage);
+
+            $custom_data = $pair_vcard->custom_data;
+            $notification["id"] =isset($custom_data['notifications']) ? count($custom_data['notifications']) :0;
+            $custom_data['notifications'][] = $notification;
+            $pair_vcard->custom_data = $custom_data;
+            $pair_vcard->save();
+
             if($request->spare_change){
                 $change = round(ceil($request->value) - $request->value,2);
                 if(ceil($request->value)<$vcard->balance ){
-                    $piggyBank = json_decode($vcard->custom_data, true);
-                    if (isset($piggyBank['value'])) {
-                        $piggyBank['value'] += $change;
-                    } else {
-                        $piggyBank['value'] = $change;
-                    }
-                    $vcard->custom_data = json_encode(['value' => round($piggyBank['value'],2)]);
+                    $custom_data = $vcard->custom_data;
+                    $piggyBank = $custom_data['value'] ?? 0;
+                    
+                    $piggyBank += $change;
+                    $custom_data['value'] = $piggyBank;
+                    $vcard->custom_data = $custom_data;
                     $vcard->save();
                     return response()->json([
                         'success' => true,
@@ -107,6 +122,7 @@ class TransactionController extends Controller
         }
         $newTransaction->payment_reference = $request->payment_ref;
         $newTransaction->save();
+
         $vcard->balance = $newTransaction->new_balance;
         $vcard->save();
         return response()->json([

@@ -83,6 +83,7 @@ class VcardController extends Controller
         ]);
         //message for the validation
         $customData = $vcard->custom_data;
+        $customData["notifications"] = $customData["notifications"] ?? [];  
         $piggyBank = $customData["value"] ?? 0;
 
         // return response()->json([
@@ -113,7 +114,7 @@ class VcardController extends Controller
         
         $customData['value'] = $piggyBank;
         $vcard->custom_data = $customData;
-        $vcard->save();  
+        $vcard->save();
         
         VcardResource::$format = 'detailed';
         return response()->json([
@@ -129,11 +130,10 @@ class VcardController extends Controller
             'notification' => 'required|boolean',
             'spare_change' => 'required|boolean',
         ]);
-        // $vcard->custom_options = json_encode([
-        //     'notification' => $request->notification,
-        //     'spare_change' => $request->spare_change,
-        // ]);
-        $vcard->custom_options = ['notification' => $request->notification, 'spare_change' => $request->spare_change];
+        $custom_options = $vcard->custom_options;
+        $custom_options['notification'] = $request->notification;
+        $custom_options['spare_change'] = $request->spare_change;
+        $vcard->custom_options = $custom_options;
         $vcard->save();
         VcardResource::$format = 'detailed';
         return new VcardResource($vcard);
