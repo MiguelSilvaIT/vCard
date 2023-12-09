@@ -13,8 +13,6 @@ export const useUserStore = defineStore('user', () => {
     const userType = computed(() => user.value?.user_type ?? "N")
 
     console.log("User.value do user.js: " + userId.value)
-
-    const userType  = computed(() => user.value?.user_type ?? "N")
     
 
     const userPhotoUrl = computed(() =>
