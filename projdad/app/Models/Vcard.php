@@ -19,7 +19,10 @@ class Vcard extends Authenticatable
     protected $casts = [
         'password' => 'hashed',
         'confirmation_code' => 'hashed',
+        'custom_options' => 'array',
+        'custom_data' => 'array'
     ];
+
     protected $fillable = [
         'phone_number',
         'name',
@@ -27,9 +30,11 @@ class Vcard extends Authenticatable
         'photo_url',
         'password',
         'confirmation_code',
+        'custom_data',
+        'custom_options',
         'blocked',
         'balance',
-        'max_debit',
+        'max_debit'
     ];
 
     

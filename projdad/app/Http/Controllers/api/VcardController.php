@@ -82,9 +82,14 @@ class VcardController extends Controller
             'action' => 'required|string'
         ]);
         //message for the validation
-        
+        $customData = $vcard->custom_data;
+        $piggyBank = $customData["value"] ?? 0;
 
-        $piggyBank = json_decode($vcard->custom_data, true);
+        // return response()->json([
+        //     'success' => true,
+        //     'message' => 'Dinheiro guardado com sucesso',
+        //     'data' => $piggyBank
+        // ], 200);
         if ($request->action == 'save'){
             if($request->value > $vcard->balance){
                 return response()->json([
@@ -92,25 +97,22 @@ class VcardController extends Controller
                     'data' => ''
                 ], 400);
             }
-            if (isset($piggyBank['value'])) {
-                $piggyBank['value'] += $request->value;
-            } else {
-                $piggyBank['value'] = $request->value;
-            }          
+            $piggyBank += $request->value;       
             $vcard->balance -= $request->value;
         } 
         else if ($request->action == 'withdraw'){
-            if( !isset($piggyBank['value']) || $request->value > $piggyBank['value']) {
-                $piggyBank['value'] = 0;
+            if( $request->value > $piggyBank) {
                 return response()->json([
                     'message' => 'Não é possivel retirar mais do que o valor que tem na poupança',
                     'data' => ''
                 ], 400);
             }
-            $piggyBank['value'] -= $request->value;
+            $piggyBank -= $request->value;
             $vcard->balance += $request->value;
         }
-        $vcard->custom_data = json_encode(['value' => $piggyBank['value']]);
+        
+        $customData['value'] = $piggyBank;
+        $vcard->custom_data = $customData;
         $vcard->save();  
         
         VcardResource::$format = 'detailed';
@@ -127,10 +129,11 @@ class VcardController extends Controller
             'notification' => 'required|boolean',
             'spare_change' => 'required|boolean',
         ]);
-        $vcard->custom_options = json_encode([
-            'notification' => $request->notification,
-            'spare_change' => $request->spare_change,
-        ]);
+        // $vcard->custom_options = json_encode([
+        //     'notification' => $request->notification,
+        //     'spare_change' => $request->spare_change,
+        // ]);
+        $vcard->custom_options = ['notification' => $request->notification, 'spare_change' => $request->spare_change];
         $vcard->save();
         VcardResource::$format = 'detailed';
         return new VcardResource($vcard);
@@ -139,13 +142,13 @@ class VcardController extends Controller
     public function checkPhoneNumber(Request $request)
     {
         $request->validate([
-            'phone_number' => 'required|string|min:9|max:9',
+            'phone_number' => 'required|string|digits:9|starts_with:9',
         ]);
 
         $vcard = Vcard::where('phone_number', $request->phone_number)->first();
         return response()->json([
             'existsVcard' => $vcard != null,
-            'message' => $vcard != null ? 'Vcard exists' : 'Vcard does not exist',
+            'message' => $vcard != null ? 'Vcard existe' : 'Vcard não existe',
         ]);
     }
 
@@ -275,7 +278,7 @@ class VcardController extends Controller
         ], 200);
     }
 
-    public function destroy($phoneNumber) {
+    public function destroy(Request $request ,$phoneNumber) {
         //vai buscar o vCard com o phoneNumber recebido
         $vcard = Vcard::findOrFail($phoneNumber);
         //confirmar se o vCard tem saldo
@@ -317,6 +320,14 @@ class VcardController extends Controller
                 foreach($categories as $category) {
                     $category->forceDelete();
                 }
+            }
+            if($request->taes){
+                $vcard->delete();
+                return response()->json([
+                    'success' => 'true',
+                    'message' => 'Soft deleted',
+                    'data' => new VcardResource($vcard)
+                ], 200);
             }
             //apagar o vCard com hard delete:
             $vcard->forceDelete();

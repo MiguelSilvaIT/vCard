@@ -32,25 +32,27 @@ Route::middleware('auth:api')->group(function () {
         ->middleware('can:update_max_debit');
 
     Route::apiResource('users', UserController::class);
+
+    Route::post('vcards/{vcard}/transactions', [VcardController::class, 'myTransactions']);
+
+    Route::post('vcards/{vcard}/checkpassword', [VcardController::class, 'checkPassword']);
+    Route::post('vcards/{vcard}/checkconfirmationcode', [VcardController::class, 'checkConfirmationCode']);
+    
+    
+    Route::patch('vcards/{vcard}', [VcardController::class, 'update_max_debit']);
+    Route::patch('vcards/alterblockedStatus/{vcard}', [VcardController::class, 'alterBlockedStatus']);
+    Route::patch('vcards/updatePassword/{vcard}', [VcardController::class, 'updatePassword']);
+    Route::patch('vcards/confirmation_code/{vcard}', [VcardController::class, 'updateconfirmation_code']);
+    Route::patch('vcards/{vcard}/piggybank', [VcardController::class, 'piggyBank']);
+    Route::patch('vcards/{vcard}/settings', [VcardController::class, 'updateSettings']);
+    Route::get('vcards/{vcard}/categories', [VcardController::class, 'getCategoriesOfVcard']);
+    Route::apiResource('vcards', VcardController::class);
 });
 
-Route::post('/vcards/{vcard}/transactions', [VcardController::class, 'myTransactions']);
-
-Route::post('vcards/{vcard}/checkpassword', [VcardController::class, 'checkPassword']);
-Route::post('vcards/{vcard}/checkconfirmationcode', [VcardController::class, 'checkConfirmationCode']);
 Route::post('vcards/checkphonenumber', [VcardController::class, 'checkphonenumber']);
-
-Route::patch('vcards/{vcard}', [VcardController::class, 'update_max_debit']);
-Route::patch('vcards/alterblockedStatus/{vcard}', [VcardController::class, 'alterBlockedStatus']);
-Route::patch('vcards/updatePassword/{vcard}', [VcardController::class, 'updatePassword']);
-Route::patch('vcards/confirmation_code/{vcard}', [VcardController::class, 'updateconfirmation_code']);
-Route::patch('vcards/{vcard}/piggybank', [VcardController::class, 'piggyBank']);
-Route::patch('vcards/{vcard}/settings', [VcardController::class, 'updateSettings']);
-Route::get('vcards/{vcard}/categories', [VcardController::class, 'getCategoriesOfVcard']);
-Route::apiResource('vcards', VcardController::class);
+Route::post('vcards', [VcardController::class, 'store']);
 
 Route::apiResource('transactions', TransactionController::class);
-Route::get('vcards/{vcard}', [VcardController::class, 'show']);
 //Route::APIResource('transactions', [TransactionController::class]);
 
 
