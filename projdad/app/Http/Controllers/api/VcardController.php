@@ -356,8 +356,6 @@ class VcardController extends Controller
     {
         
         $transactions = $vcard->transactions();
-        $filter_by_date = null;
-        $filter_by_type = null;
         
         if($request->filter_start_date != null && $request->filter_end_date == null){
             $transactions = $transactions->where('date', '>=', $request->filter_start_date);

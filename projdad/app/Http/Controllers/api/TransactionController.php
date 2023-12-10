@@ -79,7 +79,7 @@ class TransactionController extends Controller
             $newTransaction->save();
 
             //send notification when transaction between vcards is made
-            if($pair_vcard->custom_options['notification']){
+            if(isset($pair_vcard->custom_options['notification']) && $pair_vcard->custom_options['notification']){
                 $notification["message"] = 'Recebeu '.$request->value.'€ recebida de '.$request->vcard;
                 $notification["description"] = $request->description;
                 $notification["read"] = false;
