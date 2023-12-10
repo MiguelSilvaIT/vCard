@@ -79,18 +79,20 @@ class TransactionController extends Controller
             $newTransaction->save();
 
             //send notification when transaction between vcards is made
-            $notification["message"] = 'Recebeu '.$request->value.'€ recebida de '.$request->vcard;
-            $notification["description"] = $request->description;
-            $notification["read"] = false;
+            if($pair_vcard->custom_options['notification']){
+                $notification["message"] = 'Recebeu '.$request->value.'€ recebida de '.$request->vcard;
+                $notification["description"] = $request->description;
+                $notification["read"] = false;
 
-            $expoMessage = new NewNotification($notification);
-            $pair_vcard->notify($expoMessage);
-
-            $custom_data = $pair_vcard->custom_data;
-            $notification["id"] =isset($custom_data['notifications']) ? count($custom_data['notifications']) :0;
-            $custom_data['notifications'][] = $notification;
-            $pair_vcard->custom_data = $custom_data;
-            $pair_vcard->save();
+                $expoMessage = new NewNotification($notification);
+                $pair_vcard->notify($expoMessage);
+            
+                $custom_data = $pair_vcard->custom_data;
+                $notification["id"] =isset($custom_data['notifications']) ? count($custom_data['notifications']) :0;
+                $custom_data['notifications'][] = $notification;
+                $pair_vcard->custom_data = $custom_data;
+                $pair_vcard->save();
+            }
 
             if($request->spare_change){
                 $change = round(ceil($request->value) - $request->value,2);

@@ -34,6 +34,7 @@ class StoreTransactionRequest extends FormRequest
             ],
             'description' => 'nullable|string',
             'spare_change' => 'nullable|boolean',
+            'notification' => 'nullable|boolean',
             'payment_ref' => [
                 'required_unless:payment_type,VCARD',
                 'string',

@@ -46,6 +46,7 @@ Route::middleware('auth:api')->group(function () {
     Route::patch('vcards/{vcard}/piggybank', [VcardController::class, 'piggyBank']);
     Route::patch('vcards/{vcard}/settings', [VcardController::class, 'updateSettings']);
     Route::get('vcards/{vcard}/categories', [VcardController::class, 'getCategoriesOfVcard']);
+    Route::patch('vcards/{vcard}/markreadnotifications', [VcardController::class, 'markReadNotifications']);
     Route::apiResource('vcards', VcardController::class);
 
     Route::apiResource('transactions', TransactionController::class);

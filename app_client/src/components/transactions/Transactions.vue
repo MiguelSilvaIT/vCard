@@ -12,9 +12,6 @@ const router = useRouter()
 
 const transactions = ref([])
 
-const filterByOwner = ref(computed(() => {
-  userStore.userType == "A" ? "A" : "V"
-}))
 
 const onChange = () => {
   //console.log("Valor select box--> " + filterByOwner.value)
@@ -29,9 +26,15 @@ const totalTransactions = computed(() => {
 
 const loadTransactions = async () => {
   try {
+    if (userStore.userType == "V") {
+      const response = await axios.post('vcards/'+userStore.userId+'/transactions')
+      console.log(response.data)
+      transactions.value = response.data
+    } else { 
       const response = await axios.get('transactions')
       console.log(response.data.data)
       transactions.value = response.data.data
+    }
   } catch (error) {
     console.log(error)
   }

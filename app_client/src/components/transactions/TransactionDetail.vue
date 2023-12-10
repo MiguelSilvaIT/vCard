@@ -45,13 +45,6 @@ const transactionTittle = computed( () => {
       return props.operationType == 'insert' ? 'New Transaction' : 'Transaction #' + editingTransaction.value.id
   })
 
-const operationCreacte = computed( () => {
-    if (!editingTransaction.value) {
-        return ''
-      }
-      return props.operationType == 'insert' ? true : false
-    });
-
 const save = () => {
   emit("save", editingTransaction.value);
 }
@@ -73,12 +66,40 @@ const deleteTransaction =  () => {
     <h3 class="mt-5 mb-3">{{transactionTittle}}</h3>
     <hr />
     <div class="d-flex flex-wrap justify-content-between">
-        
       <div class="w-75 pe-4">
-        <div class="mb-3" v-if="!operationCreacte">
-            <label for="inputVcard" class="form-label">Vcard</label>
-            <p class="form-control" >{{editingTransaction.vcard}}</p>          
+        <div class="mb-3">
+          <label
+            for="inputName"
+            class="form-label"
+          >Vcard</label>
+          <input
+            type="text"
+            class="form-control"
+            :class="{ 'is-invalid': errors ? errors['vcard'] : false }"
+            id="inputVcard"
+            placeholder="Transaction Vcard"
+            required
+            v-model="transaction.vcard"
+          >
+          <field-error-message :errors="errors" fieldName="name"></field-error-message>
         </div>
+        <div class="mb-3">
+          <label
+            for="inputName"
+            class="form-label"
+          >Value</label>
+          <input
+            type="text"
+            class="form-control"
+            :class="{ 'is-invalid': errors ? errors['value'] : false }"
+            id="inputValue"
+            placeholder="Transaction Value"
+            required
+            v-model="transaction.Value"
+          >
+          <field-error-message :errors="errors" fieldName="name"></field-error-message>
+        </div>
+        
         <div class="mb-3">
           <label for="inputDescription" class="form-label">Description</label>
           <input type="text" class="form-control" :class="{ 'is-invalid': errors ? errors['description'] : false }"
@@ -96,7 +117,6 @@ const deleteTransaction =  () => {
           </select>
           <field-error-message :errors="errors" fieldName="category_id"></field-error-message>
         </div>
-
       </div>
 
     </div>

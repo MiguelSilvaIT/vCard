@@ -139,6 +139,18 @@ class VcardController extends Controller
         return new VcardResource($vcard);
     }
 
+    public function markReadNotifications(Request $request, Vcard $vcard)
+    {
+        $custom_data = $vcard->custom_data;
+        $custom_data['notifications'] = $request->notifications;
+        $vcard->custom_data = $custom_data;
+        $vcard->save();
+        return response()->json([
+            'message' => 'success',
+            'success' => true
+        ], 200);
+    }
+
     public function checkPhoneNumber(Request $request)
     {
         $request->validate([
