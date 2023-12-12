@@ -57,6 +57,12 @@ const router = createRouter({
       component: Users,
     },
     {
+      path: '/admins/new',
+      name: 'NewUser',
+      component: User,
+      props: { id: -1 }
+    },
+    {
       path: '/users/:id',
       name: 'User',
       component: User,
@@ -139,7 +145,7 @@ router.beforeEach( async (to, from, next) => {
     handlingFirstRoute = false
     await userStore.restoreToken()
     }
-  if ((to.name == 'Login') || (to.name == 'home')) {
+  if ((to.name == 'Login') || (to.name == 'home') || (to.name == 'NewUser')) {
     next()
     return
   }
