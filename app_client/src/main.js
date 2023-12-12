@@ -2,10 +2,17 @@
 import "bootstrap/dist/css/bootstrap.min.css"
 import "bootstrap-icons/font/bootstrap-icons.css"
 import "bootstrap"
+import "./assets/main.css"
 
 import { createApp } from 'vue'
 import { createPinia } from 'pinia'
 import { io } from 'socket.io-client'
+
+import VueDatePicker from '@vuepic/vue-datepicker';
+import '@vuepic/vue-datepicker/dist/main.css'
+import PrimeVue from 'primevue/config';
+import 'primevue/resources/themes/lara-light-green/theme.css'
+
 
 import axios from 'axios'
 
@@ -57,8 +64,11 @@ app.use(Toast, {
 
 app.use(createPinia())
 app.use(router)
+app.use(PrimeVue);
 
 app.component('FieldErrorMessage', FieldErrorMessage)
 app.component('ConfirmationDialog', ConfirmationDialog)
+app.component('VueDatePicker', VueDatePicker);
+
 
 app.mount('#app')

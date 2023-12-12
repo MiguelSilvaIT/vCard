@@ -9,6 +9,7 @@ import Categories from "../components/categories/Categories.vue"
 import Category from "../components/categories/Category.vue"
 import Transaction from "../components/transactions/Transaction.vue"
 import Transactions from "../components/transactions/Transactions.vue"
+import AdminTransaction from "../components/transactions/AdminTransaction.vue"
 import Vcard from "../components/vcards/Vcard.vue"
 import Vcards from "../components/vcards/Vcards.vue"
 
@@ -100,6 +101,7 @@ const router = createRouter({
       path: '/transactions',
       name: 'Transactions',
       component: Transactions,
+    
     },
     {
       path: '/transactions/:id',
@@ -115,6 +117,12 @@ const router = createRouter({
       component: Transaction,
       props: { id: -1 },
     },
+    {
+      path: "/transactions/new",
+      name: "NewCreditTransaction",
+      component: AdminTransaction,
+      props: { id: -1 },
+    }
     // {
     //   path: '/:pathMatch(.*)*',
     //   name: 'NotFound',

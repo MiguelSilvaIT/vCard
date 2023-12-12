@@ -49,7 +49,8 @@ class TransactionController extends Controller
         $newTransaction->payment_type = $request->payment_type;
         if($request->payment_type == 'VCARD'){
             $newPairTransaction = new Transaction();
-            $newTransaction->payment_reference = $request->pair_vcard;
+            $newTransaction->pair_vcard = $request->payment_ref;
+            $newTransaction->payment_reference = $request->payment_ref;
             
             $newTransaction->save();
             //FALTA ALTERAR O VALOR DO BALANCE DOS VCARDS ENVOLVIDOS
@@ -57,7 +58,7 @@ class TransactionController extends Controller
             $vcard->save();
             
             $newPairTransaction->value = $request->value;
-            $newPairTransaction->vcard = $request->pair_vcard;
+            $newPairTransaction->vcard = $request->payment_ref;
             $newPairTransaction->pair_vcard = $request->vcard;
             $newPairTransaction->description = $request->description;
             $newPairTransaction->date = date("Y-m-d");
@@ -79,20 +80,21 @@ class TransactionController extends Controller
             $newTransaction->save();
 
             //send notification when transaction between vcards is made
-            if(isset($pair_vcard->custom_options['notification']) && $pair_vcard->custom_options['notification']){
-                $notification["message"] = 'Recebeu '.$request->value.'€ recebida de '.$request->vcard;
-                $notification["description"] = $request->description;
-                $notification["read"] = false;
+            $custom_data = $pair_vcard->custom_data;
+            $notification["id"] =isset($custom_data['notifications']) ? count($custom_data['notifications']) :0;
+            $custom_data['notifications'][] = $notification;
+            $notification["message"] = 'Recebeu '.$request->value.'€ recebida de '.$request->vcard;
+            $notification["description"] = $request->description;
+            $notification["read"] = false;
 
+            if(isset($pair_vcard->custom_options['notification']) && $pair_vcard->custom_options['notification']){
                 $expoMessage = new NewNotification($notification);
                 $pair_vcard->notify($expoMessage);
-            
-                $custom_data = $pair_vcard->custom_data;
-                $notification["id"] =isset($custom_data['notifications']) ? count($custom_data['notifications']) :0;
-                $custom_data['notifications'][] = $notification;
-                $pair_vcard->custom_data = $custom_data;
-                $pair_vcard->save();
             }
+
+            $pair_vcard->custom_data = $custom_data;
+            $pair_vcard->save();
+            
 
             if($request->spare_change){
                 $change = round(ceil($request->value) - $request->value,2);

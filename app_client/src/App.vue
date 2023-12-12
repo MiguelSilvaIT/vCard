@@ -14,7 +14,7 @@ const toast = useToast()
 
 const userStore = useUserStore()
 
-console.log('userType', userStore.userType)
+// console.log('userType', userStore.userType)
 
 const logout = async () => {
   if (await userStore.logout()) {
