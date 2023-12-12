@@ -10,20 +10,28 @@ export const useUserStore = defineStore('user', () => {
     const userName = computed(() => user.value?.name ?? 'Anonymous')
     //const phoneNumber = computed(() => user.value.phoneNumber) 
     const userId = computed(() => user.value?.id ?? -1)
+    
+    const userType = computed(() => user.value?.user_type ?? "N")
+
+    console.log("User.value do user.js: " + userId.value)
+    
 
     const userPhotoUrl = computed(() =>
         user.value?.photo_url ?
          serverBaseUrl + '/storage/fotos/' + user.value.photo_url:
          avatarNoneUrl)
+         
     async function loadUser() {
         try {
             const response = await axios.get('users/me')
             user.value = response.data.data
+            console.log(user.value)
         } catch (error) {
             clearUser()
             throw error
         }
     }
+
     function clearUser () {
         delete axios.defaults.headers.common.Authorization
         sessionStorage.removeItem('token')
@@ -33,6 +41,7 @@ export const useUserStore = defineStore('user', () => {
     async function login(credentials) {
         try {
             const response = await axios.post('/auth/login', credentials)
+            console.log(response)
             axios.defaults.headers.common.Authorization = "Bearer " + response.data.access_token
             sessionStorage.setItem('token', response.data.access_token)
             await loadUser()
@@ -93,5 +102,5 @@ export const useUserStore = defineStore('user', () => {
         
         
 
-    return { user, userName, userId, userPhotoUrl, loadUser, clearUser, login, logout,restoreToken, getTransactions, changePassword}
+    return { user, userName, userId, userPhotoUrl, userType, loadUser, clearUser, login, logout,restoreToken, getTransactions, changePassword}
 })

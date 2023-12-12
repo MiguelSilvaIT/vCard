@@ -5,7 +5,6 @@ namespace App\Http\Controllers\api;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Category;
-use App\Models\User;
 use App\Models\Vcard;
 use App\Http\Resources\CategoryResource;
 use App\Http\Requests\UpdateCategoryRequest;
@@ -28,10 +27,10 @@ class CategoryController extends Controller
         return new CategoryResource($category);
     }
 
-    public function getCategoriesOfVcard(Request $request, Vcard $vcard)
-    {
-        return CategoryResource::collection($vcard->categories->sortByDesc('id'));
-    }
+    // public function getCategoriesOfVcard(Request $request, Vcard $vcard)
+    // {
+    //     return CategoryResource::collection($vcard->categories->sortByDesc('id'));
+    // }
 
     public function update(UpdateCategoryRequest $request, Category $category)
     {
@@ -44,6 +43,11 @@ class CategoryController extends Controller
         //dump("..INICIO.." + $request + "..FIM..");
         $newCategory = Category::create($request->validated());
         return new CategoryResource($newCategory);
+    }
+
+    public function store_on_default(StoreUpdateCategoryRequest $request)
+    {
+        
     }
 
     public function destroy(Category $category)

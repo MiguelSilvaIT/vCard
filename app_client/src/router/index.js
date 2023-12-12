@@ -7,7 +7,10 @@ import User from "../components/users/User.vue"
 import Users from "../components/users/Users.vue"
 import Categories from "../components/categories/Categories.vue"
 import Category from "../components/categories/Category.vue"
-import VCard from "../components/vcards/Vcards.vue"
+import Transaction from "../components/transactions/Transaction.vue"
+import Transactions from "../components/transactions/Transactions.vue"
+import Vcard from "../components/vcards/Vcard.vue"
+import Vcards from "../components/vcards/Vcards.vue"
 
 import { useUserStore } from "../stores/user.js"
 
@@ -84,17 +87,50 @@ const router = createRouter({
       name: "NewCategory",
       component: Category,
       props: { id: -1 },
-  },
-  {
-    path: "/vcards/:id",
-    name: "VCard",
-    component: VCard,
-    props: route => ({ id: parseInt(route.params.id) })
-  },
+    },
+    {
 
+      path: '/vcards',
+      name: 'Vcards',
+      component: Vcards,
+    },
+    {
+      path: '/vcards/:phone',
+      name: 'Vcard',
+      component: Vcard,
+      //props: true
+      // Replaced with the following line to ensure that id is a number
+      props: route => ({ phone: parseInt(route.params.phone) })
+    },
+    {
+      path: '/transactions',
+      name: 'Transactions',
+      component: Transactions,
+    },
+    {
+      path: '/transactions/:id',
+      name: 'Transaction',
+      component: Transaction,
+      //props: true
+      // Replaced with the following line to ensure that id is a number
+      props: route => ({ id: parseInt(route.params.id) })
+    },
+    {
+      path: "/transactions/new",
+      name: "NewTransaction",
+      component: Transaction,
+      props: { id: -1 },
+    },
+    // {
+    //   path: '/:pathMatch(.*)*',
+    //   name: 'NotFound',
+    //   component: () => import('../views/NotFoundView.vue')
+    // }
   ]
 })
+
 let handlingFirstRoute = true
+
 router.beforeEach( async (to, from, next) => {
   const userStore = useUserStore()
   if (handlingFirstRoute) {

@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use App\Http\Requests\StoreTransactionRequest;
 use App\Http\Resources\TransactionResource;
 use App\Models\Transaction;
+use App\Notifications\NewNotification;
 
 class TransactionController extends Controller
 {
@@ -26,7 +27,6 @@ class TransactionController extends Controller
     public function store(StoreTransactionRequest $request)
     {
         $newTransaction = new Transaction($request->validated());
-        $newPairTransaction = new Transaction();
         $newTransaction->date = date("Y-m-d");
         $newTransaction->datetime = date("Y-m-d H:i:s");
         $newTransaction->type = 'D';
@@ -38,63 +38,95 @@ class TransactionController extends Controller
                 'message' => 'Saldo insuficiente'
             ], 200);
         }
+        if($vcard->max_debit < $request->value){
+            return response()->json([
+                'success' => false,
+                'message' => 'Valor da transação superior ao permitido'
+            ], 200);
+        }
         $newTransaction->old_balance = $vcard->balance;
         $newTransaction->new_balance = $vcard->balance - $request->value;
-        $newTransaction->payment_type = 'VCARD';
-        $newTransaction->payment_reference = $request->pair_vcard;
-        //fix this problem
-        
-        $newTransaction->save();
-        //FALTA ALTERAR O VALOR DO BALANCE DOS VCARDS ENVOLVIDOS
-        $vcard->balance = $newTransaction->new_balance;
-        $vcard->save();
+        $newTransaction->payment_type = $request->payment_type;
+        if($request->payment_type == 'VCARD'){
+            $newPairTransaction = new Transaction();
+            $newTransaction->payment_reference = $request->pair_vcard;
+            
+            $newTransaction->save();
+            //FALTA ALTERAR O VALOR DO BALANCE DOS VCARDS ENVOLVIDOS
+            $vcard->balance = $newTransaction->new_balance;
+            $vcard->save();
+            
+            $newPairTransaction->value = $request->value;
+            $newPairTransaction->vcard = $request->pair_vcard;
+            $newPairTransaction->pair_vcard = $request->vcard;
+            $newPairTransaction->description = $request->description;
+            $newPairTransaction->date = date("Y-m-d");
+            $newPairTransaction->datetime = date("Y-m-d H:i:s");
+            $newPairTransaction->type = 'C';
+            $pair_vcard = $newPairTransaction->vcard_details;
+            $newPairTransaction->old_balance = $pair_vcard->balance;
+            $newPairTransaction->new_balance = $pair_vcard->balance + $request->value;
+            $newPairTransaction->payment_type = 'VCARD';
+            $newPairTransaction->payment_reference = $request->vcard;
+            $newPairTransaction->pair_transaction = $newTransaction->id;
+            $newPairTransaction->save();
+            //FALTA ALTERAR O VALOR DO BALANCE DOS VCARDS ENVOLVIDOS
+            $pair_vcard->balance = $newPairTransaction->new_balance;
+            $pair_vcard->save();
 
-        
-        $newPairTransaction->value = $request->value;
-        $newPairTransaction->vcard = $request->pair_vcard;
-        $newPairTransaction->pair_vcard = $request->vcard;
-        $newPairTransaction->description = $request->description;
-        $newPairTransaction->date = date("Y-m-d");
-        $newPairTransaction->datetime = date("Y-m-d H:i:s");
-        $newPairTransaction->type = 'C';
-        $pair_vcard = $newPairTransaction->vcard_details;
-        $newPairTransaction->old_balance = $pair_vcard->balance;
-        $newPairTransaction->new_balance = $pair_vcard->balance + $request->value;
-        $newPairTransaction->payment_type = 'VCARD';
-        $newPairTransaction->payment_reference = $request->vcard;
-        $newPairTransaction->pair_transaction = $newTransaction->id;
-        $newPairTransaction->save();
-        //FALTA ALTERAR O VALOR DO BALANCE DOS VCARDS ENVOLVIDOS
-        $pair_vcard->balance = $newPairTransaction->new_balance;
-        $pair_vcard->save();
+            //update pair_transaction 
+            $newTransaction->pair_transaction = $newPairTransaction->id;
+            $newTransaction->save();
 
-        //update pair_transaction 
-        $newTransaction->pair_transaction = $newPairTransaction->id;
-        $newTransaction->save();
-        if($request->spare_change){
-            $change = round(ceil($request->value) - $request->value,2);
-            if(ceil($request->value)<$vcard->balance ){
-                
-                $piggyBank = json_decode($vcard->custom_data, true);
-                if (isset($piggyBank['value'])) {
-                    $piggyBank['value'] += $change;
-                } else {
-                    $piggyBank['value'] = $change;
+            //send notification when transaction between vcards is made
+            if(isset($pair_vcard->custom_options['notification']) && $pair_vcard->custom_options['notification']){
+                $notification["message"] = 'Recebeu '.$request->value.'€ recebida de '.$request->vcard;
+                $notification["description"] = $request->description;
+                $notification["read"] = false;
+
+                $expoMessage = new NewNotification($notification);
+                $pair_vcard->notify($expoMessage);
+            
+                $custom_data = $pair_vcard->custom_data;
+                $notification["id"] =isset($custom_data['notifications']) ? count($custom_data['notifications']) :0;
+                $custom_data['notifications'][] = $notification;
+                $pair_vcard->custom_data = $custom_data;
+                $pair_vcard->save();
+            }
+
+            if($request->spare_change){
+                $change = round(ceil($request->value) - $request->value,2);
+                if(ceil($request->value)<$vcard->balance ){
+                    $custom_data = $vcard->custom_data;
+                    $piggyBank = $custom_data['value'] ?? 0;
+                    
+                    $piggyBank += $change;
+                    $custom_data['value'] = $piggyBank;
+                    $vcard->custom_data = $custom_data;
+                    $vcard->save();
+                    return response()->json([
+                        'success' => true,
+                        'message' => "({$change}€) guardados com sucesso nas suas poupanças",
+                        'data' => $newTransaction
+                    ], 200);
                 }
-                $vcard->custom_data = json_encode(['value' => round($piggyBank['value'],2)]);
-                $vcard->save();
                 return response()->json([
                     'success' => true,
-                    'message' => "({$change}€) guardados com sucesso nas suas poupanças",
+                    'message' => " Não possui saldo suficiente para guardar ({$change}€) nas suas poupanças",
                     'data' => $newTransaction
-                ], 200);
+                ], 200); 
             }
             return response()->json([
                 'success' => true,
-                'message' => " Não possui saldo suficiente para guardar ({$change}€) nas suas poupanças",
+                'message' => 'Transação realizada com sucesso',
                 'data' => $newTransaction
             ], 200);
         }
+        $newTransaction->payment_reference = $request->payment_ref;
+        $newTransaction->save();
+
+        $vcard->balance = $newTransaction->new_balance;
+        $vcard->save();
         return response()->json([
             'success' => true,
             'message' => 'Transação realizada com sucesso',
@@ -102,6 +134,8 @@ class TransactionController extends Controller
         ], 200);
     }
 
+    
+    
     //update
     public function update(Request $request, Transaction $transaction)
     {

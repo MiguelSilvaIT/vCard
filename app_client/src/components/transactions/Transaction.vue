@@ -2,34 +2,33 @@
 import axios from 'axios'
 import { useToast } from "vue-toastification"
 import { ref, watch , computed} from 'vue'
-import CategoryDetail from "./CategoryDetail.vue"
+import TransactionDetail from "./TransactionDetail.vue"
 import { useRouter, onBeforeRouteLeave } from 'vue-router'
-import { useUserStore } from "/src/stores/user.js"
+import { useCategoriesStore } from '../../stores/categories'
 
 const toast = useToast()
 const router = useRouter()
-
-const userStore = useUserStore()
-
-const endpoint = userStore.userType === 'A' ? 'categories/default' : 'categories';
+const categoriesStore = useCategoriesStore()
 
 const props = defineProps({
     id: {
       type: Number,
       default: null
     }
-  
 })
 
-const newCategory = () => {
+const NewTransaction = () => {
     return {
-      id: null,
-      type: '',
-      name: '',
+        id: null,
+        vcard:'',
+        payment_type: '',
+        payment_reference: '',
+        type: '',
+        value: ''
     }
 }
 
-const category = ref(newCategory())
+const transaction = ref(NewTransaction())
 
 
 const errors = ref(null)
@@ -37,19 +36,19 @@ const confirmationLeaveDialog = ref(null)
 // String with the JSON representation after loading the project (new or edit)
 let originalValueStr = ''
 
-const loadCategory = async (id) => {
+const loadTransactions = async (id) => {
   originalValueStr = ''
   errors.value = null
   if (!id || (id < 0)) {
-    category.value = newCategory()
+    transaction.value = newTransactions()
   } else {
       try {
-        const response = await axios.get(`${endpoint}/${id}`)
-        console.log('Categoria Carregada --> ' , response)
+        const response = await axios.get('transactions/' + id)
+        console.log("Response",response.data.data)
 
         //category.value = response.data.data
-        category.value = response.data.data
-        originalValueStr = JSON.stringify(category.value)
+        transaction.value = response.data.data
+        originalValueStr = JSON.stringify(transaction.value)
       } catch (error) {
         console.log(error)
       }
@@ -62,14 +61,13 @@ const operation = computed( () => (!props.id || props.id < 0) ? 'insert' : 'upda
 const save =  () => {
       if (operation.value == 'insert') 
       {
-        console.log(category.value)
+        console.log(transaction.value)
         
-
-        axios.post(`${endpoint}`, category.value)
+        axios.post('transactions', transaction.value)
           .then((response) => {
-            toast.success('Category Created')
-            console.dir(response.data.data)
-            router.back()
+            toast.success('Transaction Created')
+            console.dir(response.data)
+            // router.back()
 
           })
           .catch((error) => {
@@ -79,11 +77,10 @@ const save =  () => {
           }
           })
       } else {
-
-        axios.put(`${endpoint}/${category.value.id}`, category.value)
+        axios.put('transactions/' + props.id, transaction.value)
           .then((response) => {
-            toast.success('Category Updated')
-            console.dir(response.data.data)
+            toast.success('Transaction Updated')
+            console.dir(response.data)
             router.back()
 
           })
@@ -98,19 +95,18 @@ const save =  () => {
     }
 
 const cancel =  () => {
-  originalValueStr = JSON.stringify(category.value)
+  originalValueStr = JSON.stringify(transaction.value)
   router.back()
 }
 
-const deleteCategory =  () => {
-  console.log('deleteCategory')
+const deleteTransaction =  () => {
+  console.log('deleteTransaction')
   
   try {
-
-      const response =  axios.delete(`${endpoint}/${category.value.id}`)
+      const response =  axios.delete('transactions/' + props.id)
       console.log(response)
-      toast.success('Categorie #' + props.id + ' was deleted successfully.')
-      router.back()
+      toast.success('Transaction #' + props.id + ' was deleted successfully.')
+      // router.back()
 
     } catch (error) {
       
@@ -123,9 +119,18 @@ const deleteCategory =  () => {
 watch(
   () => props.id,
   (newValue) => {
-      loadCategory(newValue)
+      loadTransactions(newValue)
     },
   {immediate: true}  
+)
+
+watch(
+  () => props.id,
+  (newValue) => {
+    categoriesStore.loadCategories(newValue)
+    console.log("Categories",categoriesStore.categories)
+  },
+  {immediate: true} 
 )
 
 let nextCallBack = null
@@ -137,11 +142,11 @@ const leaveConfirmed = () => {
 
 onBeforeRouteLeave((to, from, next) => {
   nextCallBack = null
-  let newValueStr = JSON.stringify(category.value)
+  let newValueStr = JSON.stringify(transaction.value)
   if (originalValueStr != newValueStr) {
     // Some value has changed - only leave after confirmation
     nextCallBack = next
-    //confirmationLeaveDialog.value.show()
+    confirmationLeaveDialog.value.show()
   } else {
     // No value has changed, so we can leave the component without confirming
     next()
@@ -154,20 +159,21 @@ onBeforeRouteLeave((to, from, next) => {
 </script>
 
 <template>
-  <!-- <confirmation-dialog
+  <confirmation-dialog
     ref="confirmationLeaveDialog"
     confirmationBtn="Discard changes and leave"
     msg="Do you really want to leave? You have unsaved changes!"
     @confirmed="leaveConfirmed"
   >
-  </confirmation-dialog>   -->
-
-  <category-detail
+  </confirmation-dialog>  
+  
+  <transaction-detail
     :operationType="operation"
-    :category="category"
+    :transaction="transaction"
+    :categories="categoriesStore.categories"
     :errors="errors"
     @save="save"
     @cancel="cancel"
-    @deleteCategory = "deleteCategory"
-  ></category-detail>
+    @deleteTransaction = "deleteTransaction"
+  ></transaction-detail>
 </template>

@@ -1,18 +1,19 @@
 <script setup>
 import { inject } from "vue";
+import avatarNoneUrl from '@/assets/avatar-none.png'
 
 const serverBaseUrl = inject("serverBaseUrl");
 
 const props = defineProps({
-  categories: {
+  vcards: {
     type: Array,
     default: () => [],
   },
-  showId: {
+  showPhoneNumber: {
     type: Boolean,
     default: true,
   },
-  showType: {
+  showEmail: {
     type: Boolean,
     default: true,
   },
@@ -35,8 +36,8 @@ const emit = defineEmits(["edit"]);
 //     : avatarNoneUrl;
 // };
 
-const editClick = (category) => {
-  emit("edit", category);
+const editClick = (vcard) => {
+  emit("edit", vcard);
 };
 </script>
 
@@ -47,21 +48,21 @@ const editClick = (category) => {
   <table class="table">
     <thead>
       <tr>
-        <th v-if="showId" class="align-middle">#</th>
+        <th v-if="showPhoneNumber" class="align-middle">Phone Number</th>
         <th v-if="showName" class="align-middle">Name</th>
-        <th v-if="showType" class="align-middle">Type</th>
+        <th v-if="showEmail" class="align-middle">Email</th>
       </tr>
     </thead>
     <tbody>
-      <tr v-for="category in categories" :key="category.id">
-        <td v-if="showId" class="align-middle">{{ category.id }}</td>
-        <td v-if="showName" class="align-middle">{{ category.name }}</td>
-        <td v-if="showType" class="align-middle">{{  category.type }}</td>
+      <tr v-for="vcard in vcards" :key="vcard.phone">
+        <td v-if="showPhoneNumber" class="align-middle">{{ vcard.phone }}</td>
+        <td v-if="showName" class="align-middle">{{ vcard.name }}</td>
+        <td v-if="showEmail" class="align-middle">{{  vcard.email }}</td>
         <td class="text-end align-middle" v-if="showEditButton">
           <div class="d-flex justify-content-end">
             <button
               class="btn btn-xs btn-light"
-              @click="editClick(category)"
+              @click="editClick(vcard)"
               v-if="showEditButton"
             >
               <i class="bi bi-xs bi-pencil"></i>
@@ -71,6 +72,7 @@ const editClick = (category) => {
       </tr>
     </tbody>
   </table>
+  
 </template>
 
 <style scoped>

@@ -1,4 +1,5 @@
 <script setup>
+
 import { ref, watch, computed, inject } from "vue";
 
 import { useUserStore } from "/src/stores/user.js"
@@ -22,9 +23,11 @@ const props = defineProps({
   },
 });
 
+
 const emit = defineEmits(["save", "cancel", "deleteCategory"]);
 
 const editingCategory = ref(props.category)
+//console.log("editingCategory -->" , editingCategory.value)
 
 watch(
   () => props.category,
@@ -38,11 +41,15 @@ const categoryTitle = computed( () => {
     if (!editingCategory.value) {
         return ''
       }
-      return props.operationType == 'insert' ? 'New Task' : 'Task #' + editingTask.value.id
+      // console.log(editingCategory.value)
+      return props.operationType == 'insert' ? 'New Category' : 'Category #' + editingCategory.value.id
   })
 
 const save = () => {
-  editingCategory.value.vcard = userStore.userId
+  if (userStore.userType == 'V'){
+    editingCategory.value.vcard = userStore.userId
+
+  }
   emit("save", editingCategory.value);
 }
 
@@ -59,7 +66,7 @@ const deleteCategory =  () => {
 
 <template>
   <form class="row g-3 needs-validation" novalidate @submit.prevent="save">
-    <h3 class="mt-5 mb-3">Category #{{ editingCategory.id }}</h3>
+    <h3 class="mt-5 mb-3">{{categoryTitle}}</h3>
     <hr />
     <div class="d-flex flex-wrap justify-content-between">
       <div class="w-75 pe-4">
