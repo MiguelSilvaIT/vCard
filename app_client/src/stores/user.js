@@ -4,6 +4,7 @@ import { defineStore } from 'pinia'
 import avatarNoneUrl from '@/assets/avatar-none.png'
 
 export const useUserStore = defineStore('user', () => {
+
     const serverBaseUrl = inject('serverBaseUrl')
     const user = ref(null)
     const userName = computed(() => user.value?.name ?? 'Anonymous')
@@ -62,7 +63,23 @@ export const useUserStore = defineStore('user', () => {
         }
         clearUser()
         return false
-        }
+    }
 
-    return { user, userName, userId, userPhotoUrl, loadUser, clearUser, login, logout,restoreToken}
+    async function getTransactions() {
+        try {
+          const response = await axios.post('vcards/' + userId.value + '/transactions', {
+            userId: userId.value
+          });
+          const sortedTransactions = response.data.sort((a, b) => new Date(b.datetime) - new Date(a.datetime));
+          return sortedTransactions.slice(0, 6);
+        } catch (error) {
+          console.error('Failed to load transactions:', error);
+          return [];
+        }
+    }
+
+        
+        
+
+    return { user, userName, userId, userPhotoUrl, loadUser, clearUser, login, logout,restoreToken, getTransactions}
 })

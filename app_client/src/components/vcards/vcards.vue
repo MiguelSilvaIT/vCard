@@ -2,7 +2,7 @@
 import axios from 'axios'
 import { useToast } from "vue-toastification"
 import { ref, watch } from 'vue'
-import UserDetail from "./UserDetail.vue"
+import UserDetail from "../users/UserDetail.vue"
 import { useRouter, onBeforeRouteLeave } from 'vue-router'
 
 const toast = useToast()
