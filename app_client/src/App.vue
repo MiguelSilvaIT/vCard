@@ -40,9 +40,10 @@ const logout = async () => {
       <div class="collapse navbar-collapse justify-content-end">
         <ul class="navbar-nav">
           <li class="nav-item">
-            <a class="nav-link" href="#"><i class="bi bi-person-check-fill"></i>
+            <router-link class="nav-link" :class="{ active: $route.name === 'NewUser'}" :to="{ name: 'NewUser' }" @click="clickMenuOption">
+              <i class="bi bi-person-check-fill"></i>
               Register
-            </a>
+            </router-link >
           </li>
           <li class="nav-item">
             <router-link class="nav-link" :class="{ active: $route.name === 'Login' }" 
