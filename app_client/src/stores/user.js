@@ -4,6 +4,7 @@ import { defineStore } from 'pinia'
 import avatarNoneUrl from '@/assets/avatar-none.png'
 
 export const useUserStore = defineStore('user', () => {
+
     const serverBaseUrl = inject('serverBaseUrl')
     const user = ref(null)
     const userName = computed(() => user.value?.name ?? 'Anonymous')
@@ -11,8 +12,6 @@ export const useUserStore = defineStore('user', () => {
     const userId = computed(() => user.value?.id ?? -1)
     
     const userType = computed(() => user.value?.user_type ?? "N")
-
-    console.log("User.value do user.js: " + userId.value)
     
 
     const userPhotoUrl = computed(() =>
@@ -40,7 +39,7 @@ export const useUserStore = defineStore('user', () => {
     async function login(credentials) {
         try {
             const response = await axios.post('/auth/login', credentials)
-            console.log(response)
+            // console.log(response)
             axios.defaults.headers.common.Authorization = "Bearer " + response.data.access_token
             sessionStorage.setItem('token', response.data.access_token)
             await loadUser()
@@ -51,6 +50,18 @@ export const useUserStore = defineStore('user', () => {
             return false
         }
     }
+
+    async function changePassword(credentials) {
+        if (userId.value < 0) {
+          throw "Anonymous users cannot change the password!";
+        }
+        try {
+          await axios.patch(`users/${user.value.id}/password`, credentials);
+          return true;
+        } catch (error) {
+          throw error;
+        }
+      }
 
     async function logout () {
         try {
@@ -71,7 +82,23 @@ export const useUserStore = defineStore('user', () => {
         }
         clearUser()
         return false
-        }
+    }
 
-    return { user, userName, userId, userPhotoUrl, userType, loadUser, clearUser, login, logout,restoreToken}
+    async function getTransactions() {
+        try {
+          const response = await axios.post('vcards/' + userId.value + '/transactions', {
+            userId: userId.value
+          });
+          const sortedTransactions = response.data.sort((a, b) => new Date(b.datetime) - new Date(a.datetime));
+          return sortedTransactions.slice(0, 6);
+        } catch (error) {
+          console.error('Failed to load transactions:', error);
+          return [];
+        }
+    }
+
+        
+        
+
+    return { user, userName, userId, userPhotoUrl, userType, loadUser, clearUser, login, logout,restoreToken, getTransactions, changePassword}
 })

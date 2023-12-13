@@ -10,6 +10,7 @@ import Categories from "../components/categories/Categories.vue"
 import Category from "../components/categories/Category.vue"
 import Transaction from "../components/transactions/Transaction.vue"
 import Transactions from "../components/transactions/Transactions.vue"
+import AdminTransaction from "../components/transactions/AdminTransaction.vue"
 import Vcard from "../components/vcards/Vcard.vue"
 import Vcards from "../components/vcards/Vcards.vue"
 import Administrator from "../components/administrators/Administrator.vue"
@@ -59,6 +60,12 @@ const router = createRouter({
       component: Users,
     },
     {
+      path: '/admins/new',
+      name: 'NewUser',
+      component: User,
+      props: { id: -1 }
+    },
+    {
       path: '/users/:id',
       name: 'User',
       component: User,
@@ -103,6 +110,7 @@ const router = createRouter({
       path: '/transactions',
       name: 'Transactions',
       component: Transactions,
+    
     },
     {
       path: '/transactions/:id',
@@ -137,7 +145,14 @@ const router = createRouter({
       name: "NewAdministrator",
       component: Administrator,
       props: { id: -1 },
+    },
+    {
+      path: "/transactions/new",
+      name: "NewCreditTransaction",
+      component: AdminTransaction,
+      props: { id: -1 },
     }
+
   ]
 })
 
@@ -149,7 +164,7 @@ router.beforeEach( async (to, from, next) => {
     handlingFirstRoute = false
     await userStore.restoreToken()
     }
-  if ((to.name == 'Login') || (to.name == 'home')) {
+  if ((to.name == 'Login') || (to.name == 'home') || (to.name == 'NewUser')) {
     next()
     return
   }

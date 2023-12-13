@@ -4,11 +4,11 @@ import { useToast } from "vue-toastification"
 import { ref, watch , computed} from 'vue'
 import TransactionDetail from "./TransactionDetail.vue"
 import { useRouter, onBeforeRouteLeave } from 'vue-router'
-import { useCategoriesStore } from '../../stores/categories'
+import { useUserStore } from '../../stores/user'
 
+const userStore = useUserStore()
 const toast = useToast()
 const router = useRouter()
-const categoriesStore = useCategoriesStore()
 
 const props = defineProps({
     id: {
@@ -21,10 +21,12 @@ const NewTransaction = () => {
     return {
         id: null,
         vcard:'',
-        payment_type: '',
-        payment_reference: '',
-        type: '',
-        value: ''
+        payment_type: 'VCARD',
+        payment_ref: '', 
+        type: computed(() => userStore.userType === 'A' ? '' : 'D'),
+        description: '',
+        category_id: null,
+        value: null
     }
 }
 
@@ -40,13 +42,11 @@ const loadTransactions = async (id) => {
   originalValueStr = ''
   errors.value = null
   if (!id || (id < 0)) {
-    transaction.value = newTransactions()
+    transaction.value = NewTransaction()
   } else {
       try {
         const response = await axios.get('transactions/' + id)
-        console.log("Response",response.data.data)
-
-        //category.value = response.data.data
+        // console.log("Response",response.data.data)
         transaction.value = response.data.data
         originalValueStr = JSON.stringify(transaction.value)
       } catch (error) {
@@ -55,65 +55,68 @@ const loadTransactions = async (id) => {
   }
 }
 
+
 const operation = computed( () => (!props.id || props.id < 0) ? 'insert' : 'update')
 
 
 const save =  () => {
-      if (operation.value == 'insert') 
-      {
-        console.log(transaction.value)
-        
-        axios.post('transactions', transaction.value)
-          .then((response) => {
-            toast.success('Transaction Created')
-            console.dir(response.data)
-            // router.back()
-
-          })
-          .catch((error) => {
-            if (error.response.status == 422) {
-              errors.value = error.response.data.errors
-              toast.error("Validation Error")
-          }
-          })
-      } else {
-        axios.put('transactions/' + props.id, transaction.value)
-          .then((response) => {
-            toast.success('Transaction Updated')
-            console.dir(response.data)
-            router.back()
-
-          })
-          .catch((error) => {
-          if (error.response && error.response.status == 422) {
-            errors.value = error.response.data.errors
-            toast.error("Validation Error")
-          }
-            console.dir(error)
-          })
-      }
+  if (operation.value == 'insert') 
+  {
+    console.log(transaction.value)
+    transaction.value.vcard = userStore.userId.toString()
+    
+    if(transaction.value.payment_type == 'VCARD'){
+      transaction.value.pair_vcard = transaction.value.payment_ref
     }
+    axios.post('transactions', transaction.value)
+      .then((response) => {
+        toast.success('Transaction Created')
+        console.dir(response.data)
+        router.back()
+      })
+      .catch((error) => {
+        if (error.response.status == 422) {
+          errors.value = error.response.data.errors
+          toast.error("Validation Error")
+      }
+      })
+  } else {
+    axios.put('transactions/' + props.id, transaction.value)
+      .then((response) => {
+        toast.success('Transaction Updated')
+        console.dir(response.data)
+        router.back()
+      })
+      .catch((error) => {
+      if (error.response && error.response.status == 422) {
+        errors.value = error.response.data.errors
+        toast.error("Validation Error")
+      }
+        console.dir(error)
+      })
+  }
+}
 
 const cancel =  () => {
   originalValueStr = JSON.stringify(transaction.value)
   router.back()
 }
 
-const deleteTransaction =  () => {
-  console.log('deleteTransaction')
+// const deleteTransaction =  () => {
+//   console.log('deleteTransaction')
   
-  try {
-      const response =  axios.delete('transactions/' + props.id)
-      console.log(response)
-      toast.success('Transaction #' + props.id + ' was deleted successfully.')
-      // router.back()
+//   try {
+//       const response =  axios.delete('transactions/' + props.id)
+//       console.log(response)
+//       toast.success('Transaction #' + props.id + ' was deleted successfully.')
+//       // router.back()
 
-    } catch (error) {
+//     } catch (error) {
       
-      console.log(error)
-      toast.error('Category was not deleted!')      
-    }
-}
+//       console.log(error)
+//       toast.error('Category was not deleted!')      
+//     }
+// }
 
 
 watch(
@@ -124,14 +127,7 @@ watch(
   {immediate: true}  
 )
 
-watch(
-  () => props.id,
-  (newValue) => {
-    categoriesStore.loadCategories(newValue)
-    console.log("Categories",categoriesStore.categories)
-  },
-  {immediate: true} 
-)
+
 
 let nextCallBack = null
 const leaveConfirmed = () => {
@@ -170,10 +166,8 @@ onBeforeRouteLeave((to, from, next) => {
   <transaction-detail
     :operationType="operation"
     :transaction="transaction"
-    :categories="categoriesStore.categories"
     :errors="errors"
     @save="save"
     @cancel="cancel"
-    @deleteTransaction = "deleteTransaction"
   ></transaction-detail>
 </template>

@@ -26,7 +26,7 @@ class TransactionResource extends JsonResource
             'payment_type' => $this->payment_type,
             'payment_reference' => $this->payment_reference,
             'pair_vcard' => $this->pair_vcard,
-            'category' => $this->category,
+            'category_id' => $this->category_id,
             'description' => $this->description,
         ];
     }

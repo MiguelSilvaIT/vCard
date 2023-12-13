@@ -14,7 +14,7 @@ const toast = useToast()
 
 const userStore = useUserStore()
 
-console.log('userType', userStore.userType)
+// console.log('userType', userStore.userType)
 
 const logout = async () => {
   if (await userStore.logout()) {
@@ -41,8 +41,7 @@ const clickMenuOption = () => {
   <nav class="navbar navbar-expand-md navbar-dark bg-dark sticky-top flex-md-nowrap p-0 shadow">
     <div class="container-fluid">
       <router-link class="navbar-brand col-md-3 col-lg-2 me-0 px-3" :to="{ name: 'home' }" @click="clickMenuOption">
-                <img src="@/assets/logo.svg" alt="" width="30" height="24"
-        class="d-inline-block align-text-top">
+        <img src="@/assets/vCard.png" alt="" class="d-inline-block align-text-top" id="image">
           Vcard
       </router-link>
       <button id="buttonSidebarExpandId" class="navbar-toggler" type="button" data-bs-toggle="collapse"
@@ -53,9 +52,10 @@ const clickMenuOption = () => {
       <div class="collapse navbar-collapse justify-content-end">
         <ul class="navbar-nav">
           <li class="nav-item" v-show="!userStore.user">
-            <a class="nav-link" href="#"><i class="bi bi-person-check-fill"></i>
+            <router-link class="nav-link" :class="{ active: $route.name === 'NewUser'}" :to="{ name: 'NewUser' }" @click="clickMenuOption">
+              <i class="bi bi-person-check-fill"></i>
               Register
-            </a>
+            </router-link >
           </li>
           <li class="nav-item" v-show="!userStore.user">
             <router-link class="nav-link" :class="{ active: $route.name === 'Login' }" 
@@ -209,7 +209,11 @@ const clickMenuOption = () => {
 
 <style>
 @import "./assets/dashboard.css";
-
+#image {
+  max-width: 100px;
+  height: fit-content;
+  
+}
 .avatar-img {
   margin: -1.2rem 0.8rem -2rem 0.8rem;
   width: 3.3rem;
