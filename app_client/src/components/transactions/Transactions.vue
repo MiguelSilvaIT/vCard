@@ -24,8 +24,6 @@ const filters = ref({
   filterByPaymentType: null
 });
 
-const errors = ref(null)
-
 const date = ref(null);
 
 const today = ref(new Date());
@@ -47,9 +45,7 @@ const type = [
   { value: 'C', name: 'Credit' },
 ];
 
-const totalTransactions = computed(() => {
-  return transactions.value.length
-})
+
 
 const loadTransactions = async () => {
   console.log("Filtros",filters.value);
@@ -137,7 +133,7 @@ const handleDate = (modelData) => {
       </div>
     </div>
     <div class="g-3 mb-4 d-flex justify-content-end ">
-        <Button label="Filter" type="submit" @click="save" class="mr-5" ></Button>
+        <Button label="Filter" type="submit" class="mr-5" ></Button>
     </div>
   </form>
   <transaction-table :transactions="transactions" :showId="false" @edit="editTransaction"></transaction-table>

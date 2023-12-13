@@ -15,7 +15,7 @@ const props = defineProps({
   },
   showVcard: {
     type: Boolean,
-    default: true,
+    default: false,
   },
   showPaymentType:{
     type: Boolean,
@@ -50,12 +50,34 @@ const editClick = (transaction) => {
   emit("edit", transaction);
 };
 
-const formatCurrency = (value) => {
-  return  new Intl.NumberFormat("pt-PT", {
+
+const stockClass = (type) => {
+  if( type === 'D'){
+    return [
+      'text-danger'
+    ];
+  }
+  return [
+    'text-success'
+  ];
+};
+
+const formatCurrency = (value,type) => {
+  const format = new Intl.NumberFormat("pt-PT", {
     style: "currency",
     currency: "EUR",
   }).format(value);
+  if(type === 'D'){
+    return `- ${format}`;
+  }
+  else{
+    return  `+ ${format}` ;
+  }
+  
 };
+
+console.log(formatCurrency(100, 'D')); // Outputs: "- €100.00"
+console.log(formatCurrency(100, 'C'));
 </script>
 
 <template>
@@ -66,7 +88,9 @@ const formatCurrency = (value) => {
       <Column v-if="showType" field="type" header="Type"></Column>
       <Column v-if="showValue" field="value" sortable header=" Value">
         <template #body="slotProps">
-            {{ formatCurrency(slotProps.data.value) }}
+          <div :class="stockClass(slotProps.data.type)">
+            {{ formatCurrency(slotProps.data.value, slotProps.data.type) }}
+          </div>
         </template></Column>
       <Column v-if="showDate" field="date" sortable header="Date"></Column>
       <Column v-if="showEditButton" header="Edit" class="text-end">

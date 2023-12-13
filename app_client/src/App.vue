@@ -156,16 +156,23 @@ const clickMenuOption = () => {
                 </router-link>
             </li>
 
-            <li class="nav-item">
+            <li class="nav-item" v-if="userStore.userType == 'A'" >
                 <router-link class="nav-link" :class="{ active: $route.name === 'Users' }" 
                               :to="{ name: 'Users' }" @click="clickMenuOption">
                   <i class="bi bi-files"></i>
                     Administrators
                 </router-link>
             </li>
-            <li class="nav-item">
+            <li v-if="userStore.userType == 'V'" class="nav-item">
                 <router-link class="nav-link" :class="{ active: $route.name === 'Transactions' }" 
                               :to="{ name: 'Transactions' }" @click="clickMenuOption">
+                  <i class="bi bi-files"></i>
+                    Transactions
+                </router-link>
+            </li>
+            <li v-if="userStore.userType == 'A'" class="nav-item">
+                <router-link class="nav-link" :class="{ active: $route.name === 'CreditTransaction' }" 
+                              :to="{ name: 'CreditTransaction' }" @click="clickMenuOption">
                   <i class="bi bi-files"></i>
                     Transactions
                 </router-link>

@@ -27,7 +27,7 @@ const props = defineProps({
 console.log("Props",props)
 
 
-const emit = defineEmits(["save", "cancel", "deleteTransaction"]);
+const emit = defineEmits(["save", "cancel"]);
 
 const editingTransaction = ref(props.transaction)
 const category = ref(null)
@@ -74,15 +74,9 @@ const save = () => {
 const cancel = () => {
   emit("cancel", editingTransaction.value);
 }
-
-const deleteTransaction =  () => {
-  emit("deleteTransaction", editingTransaction.value);
-}
-
 </script>
 
 <template>
-    
   <form class="row g-3 needs-validation" v-if = "operation == 'insert'" novalidate @submit.prevent="save">
     <h3 class="mt-5 mb-3">{{transactionTittle}}</h3>
     <hr />

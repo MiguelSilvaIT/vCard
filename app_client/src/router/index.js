@@ -124,8 +124,8 @@ const router = createRouter({
       props: { id: -1 },
     },
     {
-      path: "/transactions/new",
-      name: "NewCreditTransaction",
+      path: "/creditTransactions/new",
+      name: "CreditTransaction",
       component: AdminTransaction,
       props: { id: -1 },
     }
@@ -151,6 +151,16 @@ router.beforeEach( async (to, from, next) => {
   }
   if (!userStore.user) {
     next({ name: 'Login' })
+    return
+  }
+  if(((to.name == 'CreditTransaction')) && (userStore.userType == 'V')){
+    return
+  }
+  if(((to.name == 'Transactions')||(to.name == 'Transaction')) && (userStore.userType == 'A')){
+    return
+  }
+  if(((to.name == 'Users')||(to.name == 'User')||(to.name == 'VcardsV')||(to.name == 'Vcard') ) && (userStore.userType == 'V')){
+    
     return
   }
   next()

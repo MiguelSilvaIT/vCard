@@ -23,15 +23,23 @@ const NewTransaction = () => {
         vcard:'',
         payment_type: 'VCARD',
         payment_ref: '', 
-        type: computed(() => userStore.userType === 'A' ? '' : 'D'),
+        type:'D',
         description: '',
         category_id: null,
         value: null
     }
 }
 
-const transaction = ref(NewTransaction())
+const NewExternalTransaction = () => {
+    return {
+        type: 'VCARD',
+        reference: '', 
+        value: null
+    }
+}
 
+const transaction = ref(NewTransaction())
+const externalTransaction = ref(NewExternalTransaction())
 
 const errors = ref(null)
 const confirmationLeaveDialog = ref(null)
@@ -55,11 +63,9 @@ const loadTransactions = async (id) => {
   }
 }
 
-
 const operation = computed( () => (!props.id || props.id < 0) ? 'insert' : 'update')
 
-
-const save =  () => {
+const save =  async () => {
   if (operation.value == 'insert') 
   {
     console.log(transaction.value)
@@ -68,18 +74,37 @@ const save =  () => {
     if(transaction.value.payment_type == 'VCARD'){
       transaction.value.pair_vcard = transaction.value.payment_ref
     }
-    axios.post('transactions', transaction.value)
-      .then((response) => {
-        toast.success('Transaction Created')
-        console.dir(response.data)
-        router.back()
-      })
-      .catch((error) => {
-        if (error.response.status == 422) {
-          errors.value = error.response.data.errors
-          toast.error("Validation Error")
+    try{
+    const response = await axios.post('transactions', transaction.value)
+      console.dir(response.data)
+      if(transaction.value.payment_type != "VCARD"){
+        externalTransaction.value.type = transaction.value.payment_type
+        externalTransaction.value.reference = transaction.value.payment_ref
+        externalTransaction.value.value = transaction.value.value
+        if(response.data.success){
+          axios.post('https://dad-202324-payments-api.vercel.app/api/credit', externalTransaction.value)
+              .then((response) => {
+                  toast.success('Transaction Created')
+                  console.dir(response.data)
+                  router.back()
+              })
+              .catch((error) => {
+                  if (error.response.status == 422) {
+                  errors.value = error.response.data.errors
+                  toast.error("Validation Error")
+              }
+          })
+        }
       }
-      })
+      else{
+        toast.success('Transaction Created')
+        router.back()
+      }
+    }
+    catch(error){
+      errors.value = error.response.data.errors
+      console.log(error)
+    }
   } else {
     axios.put('transactions/' + props.id, transaction.value)
       .then((response) => {

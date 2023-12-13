@@ -29,7 +29,6 @@ class TransactionController extends Controller
         $newTransaction = new Transaction($request->validated());
         $newTransaction->date = date("Y-m-d");
         $newTransaction->datetime = date("Y-m-d H:i:s");
-        $newTransaction->type = 'D';
         // check vcard balance using the relationship between vcard and transaction
         $vcard = $newTransaction->vcard_details;
         if($vcard->balance < $request->value){
