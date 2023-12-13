@@ -68,7 +68,12 @@ const loadTransactions = async () => {
     }
   } catch (error) {
     console.log(error)
+    clearTransactions()
   }
+}
+
+const clearTransactions = () => {
+  transactions.value = []
 }
 
 const editTransaction = (transaction) => {
