@@ -5,11 +5,12 @@ import { ref, computed, onMounted } from 'vue'
 import CategoryTable from "./CategoryTable.vue"
 
 import { useUserStore } from "/src/stores/user.js"
+import { useCategoriesStore } from '../../stores/categories'
 
 const userStore = useUserStore()
 
 const router = useRouter()
-
+const categoriesStore = useCategoriesStore()
 const categories = ref([])
 
 
@@ -36,6 +37,9 @@ const loadCategories = async () => {
     console.log(error)
   }
 }
+const deleteCategory = (category) => {
+  categoriesStore.deleteCategory(category)
+}
 
 const editCategory = (category) => {
   router.push({ name: 'Category', params: { id: category.id } })
@@ -48,19 +52,19 @@ const addCategory = () => {
 onMounted(() => {
   loadCategories()
 })
+
 </script>
 
 <template>
   <h3 class="mt-5 mb-3">Categories</h3>
   <hr>
-  <div class="mx-2 mt-2 d-flex justify-content-between">
+  <div class="mx-2 mt-2  mb-5 d-flex justify-content-between">
     <button type="button" class="btn btn-success px-4 btn-addprj" @click="addCategory">
       <i class="bi bi-xs bi-plus-circle"></i>&nbsp;
       Add Category
     </button>
-
   </div>
-  <category-table :categories="categories" :showId="false" @edit="editCategory"></category-table>
+  <category-table :categories="categories" @edit="editCategory" @delete="deleteCategory"></category-table>
 </template>
 
 <style scoped>

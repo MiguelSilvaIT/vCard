@@ -20,7 +20,9 @@ const loadUsers = async () => {
     console.log(error)
   }
 }
-
+const deleteUser = (user) => {
+  ////
+}
 const editUser = (user) => {
   router.push({ name: 'User', params: { id: user.id } })
 }
@@ -37,6 +39,7 @@ onMounted (() => {
     :users="users"
     :showId="true"
     @edit="editUser"
+    @delete="deleteUser"
   ></user-table>
 </template>
 

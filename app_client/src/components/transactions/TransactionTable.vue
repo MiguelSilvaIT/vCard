@@ -116,7 +116,7 @@ const transactionCategory = (id) => {
           </div>
         </template></Column>
       <Column v-if="showDate" field="date" sortable header="Date"></Column>
-      <Column v-if="showEditButton" header="Edit" class="text-end">
+      <Column v-if="showEditButton" header="Edit">
           <template #body="slotProps">
               <button
                 class="btn btn-xs btn-light"

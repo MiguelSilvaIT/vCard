@@ -30,15 +30,23 @@ const props = defineProps({
     type: Boolean,
     default: true,
   },
+  showDeleteButton: {
+    type: Boolean,
+    default: true,
+  },
 });
 
 const filters = ref({
   global: { value: null, matchMode: FilterMatchMode.CONTAINS },
 });
-const emit = defineEmits(["edit"]);
+const emit = defineEmits(["edit","delete"]);
 
 const editClick = (user) => {
   emit("edit", user);
+};
+
+const deleteClick = (user) => {
+  emit("delete", user);
 };
 </script>
 
@@ -57,7 +65,7 @@ const editClick = (user) => {
       <template #loading> Loading customers data. Please wait. </template>
       <Column v-if="showName" sortable field="name" header="Name"></Column>
       <Column v-if="showEmail" sortable field="email" header="E-mail"></Column>
-      <Column v-if="showEditButton" header="Edit" class="text-end">
+      <Column v-if="showEditButton" header="Edit">
           <template #body="slotProps">
               <button
                 class="btn btn-xs btn-light"
@@ -65,6 +73,18 @@ const editClick = (user) => {
                 v-if="showEditButton"
               >
                 <i class="bi bi-xs bi-pencil"></i>
+              </button>
+          </template>
+          <i class="pi pi-trash"></i>
+      </Column>
+      <Column v-if="showDeleteButton" header="Delete">
+          <template #body="slotProps">
+              <button
+                class="btn btn-xs btn-light"
+                @click="deleteClick(slotProps.data)"
+                v-if="showDeleteButton"
+              >
+              <i class="pi pi-trash"></i>
               </button>
           </template>
       </Column>

@@ -1,5 +1,10 @@
 <script setup>
-import { inject } from "vue";
+import { ref, inject } from "vue";
+import DataTable from 'primevue/datatable';
+import Column from 'primevue/column';
+import { FilterMatchMode } from 'primevue/api';
+import InputText from 'primevue/inputtext';
+import 'primeicons/primeicons.css'
 
 const serverBaseUrl = inject("serverBaseUrl");
 
@@ -24,16 +29,21 @@ const props = defineProps({
     type: Boolean,
     default: true,
   },
- 
+  showDeleteButton: {
+    type: Boolean,
+    default: true,
+  },
 });
 
-const emit = defineEmits(["edit"]);
+const emit = defineEmits(["edit", "delete"]);
 
-// const photoFullUrl = (user) => {
-//   return user.photo_url
-//     ? serverBaseUrl + "/storage/fotos/" + user.photo_url
-//     : avatarNoneUrl;
-// };
+const filters = ref({
+  global: { value: null, matchMode: FilterMatchMode.CONTAINS },
+});
+
+const deleteClick = (category) => {
+  emit("delete", category);
+};
 
 const editClick = (category) => {
   emit("edit", category);
@@ -41,36 +51,44 @@ const editClick = (category) => {
 </script>
 
 <template>
-
-  
-
-  <table class="table">
-    <thead>
-      <tr>
-        <th v-if="showId" class="align-middle">#</th>
-        <th v-if="showName" class="align-middle">Name</th>
-        <th v-if="showType" class="align-middle">Type</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr v-for="category in categories" :key="category.id">
-        <td v-if="showId" class="align-middle">{{ category.id }}</td>
-        <td v-if="showName" class="align-middle">{{ category.name }}</td>
-        <td v-if="showType" class="align-middle">{{  category.type }}</td>
-        <td class="text-end align-middle" v-if="showEditButton">
-          <div class="d-flex justify-content-end">
-            <button
-              class="btn btn-xs btn-light"
-              @click="editClick(category)"
-              v-if="showEditButton"
-            >
-              <i class="bi bi-xs bi-pencil"></i>
-            </button>
+  <DataTable v-model:filters="filters" :value="categories" removableSort  paginator :rows="10" stripedRows 
+    :globalFilterFields="['id','name', 'email']">
+      <template #header>
+          <div class="flex justify-content-end">
+              <span class="p-input-icon-left">
+                  <i class="pi pi-search" />
+                  <InputText v-model="filters['global'].value" placeholder="Keyword Search" />
+              </span>
           </div>
-        </td>
-      </tr>
-    </tbody>
-  </table>
+      </template>
+      <template #empty> No customers found. </template>
+      <template #loading> Loading customers data. Please wait. </template>
+      <Column v-if="showId" sortable field="id" header="Id"></Column>
+      <Column v-if="showName" sortable field="name" header="Name"></Column>
+      <Column v-if="showType" sortable field="type" header="Type"></Column>
+      <Column v-if="showEditButton" header="Edit">
+          <template #body="slotProps">
+              <button
+                class="btn btn-xs btn-light"
+                @click="editClick(slotProps.data)"
+                v-if="showEditButton"
+              >
+                <i class="bi bi-xs bi-pencil"></i>
+              </button>
+          </template>
+      </Column>
+      <Column v-if="showDeleteButton" header="Delete">
+          <template #body="slotProps">
+            <button
+                class="btn btn-xs btn-light"
+                @click="deleteClick(slotProps.data)"
+                v-if="showDeleteButton"
+              >
+                <i class="pi pi-trash"></i>
+            </button>
+          </template>
+      </Column>
+    </DataTable>
 </template>
 
 <style scoped>

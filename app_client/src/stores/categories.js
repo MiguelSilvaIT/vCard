@@ -53,9 +53,13 @@ export const useCategoriesStore = defineStore('categories', () => {
     async function insertCategory(newCategory) {
         // Note that when an error occours, the exception should be
         // catch by the function that called the insertProject
-        const response = await axios.post('categories', newCategory)
-        categories.value.push(response.data.data)
-        return response.data.data
+        try{
+            const response = await axios.post('categories', newCategory)
+            categories.value.push(response.data.data)
+        }
+        catch(error){
+            throw error
+        }
     }
 
     async function updateCategory(updateCategory) {
@@ -72,7 +76,7 @@ export const useCategoriesStore = defineStore('categories', () => {
     async function deleteCategory( deleteCategory) {
         // Note that when an error occours, the exception should be
         // catch by the function that called the deleteProject
-        const response = await axios.delete('projects/' + deleteCategory.id)
+        const response = await axios.delete('categories/' + deleteCategory.id)
         let idx = categories.value.findIndex((t) => t.id === response.data.data.id)
         if (idx >= 0) {
             categories.value.splice(idx, 1)
@@ -91,5 +95,4 @@ export const useCategoriesStore = defineStore('categories', () => {
         deleteCategory,
         loadCategory
     }
-
 })
