@@ -74,4 +74,5 @@ Route::delete('categories/{category}', [CategoryController::class , 'destroy']);
 
 //Admin Routes
 Route::apiResource('admins', AdminController::class);
+
 Route::patch('admins/updatePassword/{admin}', [AdminController::class, 'updatePassword']);

@@ -1,6 +1,7 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import HomeView from '../views/HomeView.vue'
 import Dashboard from "../components/Dashboard.vue"
+import Report from "../components/Reports.vue"
 import Login from "../components/auth/Login.vue"
 import ChangePassword from "../components/auth/ChangePassword.vue"
 import User from "../components/users/User.vue"
@@ -11,6 +12,8 @@ import Transaction from "../components/transactions/Transaction.vue"
 import Transactions from "../components/transactions/Transactions.vue"
 import Vcard from "../components/vcards/Vcard.vue"
 import Vcards from "../components/vcards/Vcards.vue"
+import Administrator from "../components/administrators/Administrator.vue"
+import Administrators from "../components/administrators/Administrators.vue"
 
 import { useUserStore } from "../stores/user.js"
 
@@ -33,7 +36,7 @@ const router = createRouter({
     {
       path: '/reports',
       name: 'Reports',
-      component: () => import('../views/AboutView.vue')
+      component: Report
     },
     {
       path: '/auth/login',
@@ -115,11 +118,26 @@ const router = createRouter({
       component: Transaction,
       props: { id: -1 },
     },
-    // {
-    //   path: '/:pathMatch(.*)*',
-    //   name: 'NotFound',
-    //   component: () => import('../views/NotFoundView.vue')
-    // }
+    {
+      path: '/administrators',
+      name: 'Administrators',
+      component: Administrators,
+    },
+    {
+      path: '/administrators/:id',
+      name: 'Administrator',
+      component: Administrator,
+      //props: true
+      // Replaced with the following line to ensure that id is a number
+      props: route => ({ id: parseInt(route.params.id) })
+    },
+    
+    {
+      path: "/administrators/new",
+      name: "NewAdministrator",
+      component: Administrator,
+      props: { id: -1 },
+    }
   ]
 })
 
