@@ -5,26 +5,24 @@ import { useUserStore } from "/src/stores/user.js";
 import { useToast } from "vue-toastification";
 
 const userStore = useUserStore()
+const toast = useToast()
 
 const balanceValue = ref(0);
-const transactions = ref([]);
 const piggyBalanceValue = ref(0);
+const totalBalanceValue = ref(0);
+const transactions = ref([]);
 const amount = ref('');
 const errors = ref(null);
 const balance = computed(() => balanceValue.value);
 const piggyBalance = computed(() => piggyBalanceValue.value);
-const totalBalance = computed(() => {
-  const balance = parseFloat(balanceValue.value);
-  const piggyBalance = parseFloat(piggyBalanceValue.value);
-
-  return isNaN(balance) || isNaN(piggyBalance) ? 0 : balance + piggyBalance;
-});
+const totalBalance = computed(() => totalBalanceValue.value);
 
 const loadBalance = async () => {
   try {
     const response = await axios.get('vcards/' + userStore.userId)
     balanceValue.value = response.data.data.balance
     piggyBalanceValue.value = response.data.data.custom_data.value
+    totalBalanceValue.value = response.data.data.balance + response.data.data.custom_data.value
   } catch (error) {
     console.log(error)
   }
@@ -48,6 +46,10 @@ const UpdatePiggy = async (value, currentAction) => {
   try {
     const response = await axios.patch('vcards/' + userStore.userId + '/piggybank', requestData);
     console.log(response.data);
+    balanceValue.value = response.data.data.balance;
+    piggyBalanceValue.value = response.data.data.custom_data.value;
+    toast.success("Saldo atualizado com sucesso");
+    errors.value = null;
     return response.data;
   } catch (error) {
     if (error.response.status == 422) {
@@ -75,7 +77,7 @@ onMounted(() => {
           </div>
           <div class="bg-light">
             <!-- Aqui você pode inserir o saldo do usuário -->
-            <h5 class="card-title text-success ms-3">{{ totalBalance.toFixed(2) }} EUR</h5>
+            <h5 class="card-title text-success ms-3">{{ parseFloat(totalBalance).toFixed(2) }} EUR</h5>
             <p class="card-text ms-3 mb-3">Disponível</p>
           </div>
         </div>
@@ -123,6 +125,7 @@ onMounted(() => {
             <h5 class="card-title text-success ms-3">{{ parseFloat(balance).toFixed(2) }} EUR</h5>
             <p class="card-text ms-3 mb-3">Saldo Disponível para transações</p>
           </div>
+          <field-error-message :errors="errors" fieldName="value" class="align-self-center"></field-error-message>
           <form novalidate @submit.prevent="UpdatePiggy" class="forms">
               <label for="numberInput" class="margin_right">Quantidade</label>
               <input v-model="amount" 
@@ -132,7 +135,6 @@ onMounted(() => {
                       class="card" 
                       :class="{ 'p-invalid': errors ? errors['value'] : false }"
                       required>
-              <field-error-message :errors="errors" fieldName="value"></field-error-message>
             </form>
           <div class="col">
             <div class="card-body d-flex justify-content-between">
