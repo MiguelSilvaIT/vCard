@@ -1,7 +1,7 @@
 <script setup>
 import axios from 'axios'
 import { useToast } from "vue-toastification"
-import { ref, watch , computed} from 'vue'
+import { ref, watch , computed, inject} from 'vue'
 import TransactionDetail from "./TransactionDetail.vue"
 import { useRouter, onBeforeRouteLeave } from 'vue-router'
 import { useUserStore } from '../../stores/user'
@@ -9,6 +9,7 @@ import { useUserStore } from '../../stores/user'
 const userStore = useUserStore()
 const toast = useToast()
 const router = useRouter()
+const socket = inject('socket')
 
 const props = defineProps({
     id: {
@@ -72,6 +73,9 @@ const save =  () => {
       .then((response) => {
         toast.success('Transaction Created')
         console.dir(response.data)
+        console.log("Socket",transaction.value)
+        socket.emit('newTransaction', transaction.value)
+        console.log("Sent socket")
         router.back()
       })
       .catch((error) => {

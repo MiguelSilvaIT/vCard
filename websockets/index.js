@@ -16,4 +16,19 @@ io.on("connection", (socket) => {
   socket.on("echo", (message) => {
     socket.emit("echo", message);
   });
+
+  socket.on('loggedIn', function (user) {
+    socket.join(user.id.toString())
+    if (user.type == 'A') {
+      socket.join('administrator')
+    }
+  })
+  socket.on('loggedOut', function (user) {
+    socket.leave(user.id)
+    socket.leave('administrator')
+  })
+  socket.on('newTransaction', function (transaction) {
+    socket.in(transaction.pair_vcard).emit('newTransaction', transaction);
+  })
+  
 });

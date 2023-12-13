@@ -1,10 +1,11 @@
 <script setup>
 import axios from 'axios';
-import { computed, onMounted, ref } from 'vue';
+import { computed, onMounted, ref, inject } from 'vue';
 import { useUserStore } from "/src/stores/user.js";
 import { useToast } from "vue-toastification";
 
 const userStore = useUserStore()
+const socket = inject('socket')
 const toast = useToast()
 
 const balanceValue = ref(0);
@@ -22,7 +23,7 @@ const loadBalance = async () => {
     const response = await axios.get('vcards/' + userStore.userId)
     balanceValue.value = response.data.data.balance
     piggyBalanceValue.value = response.data.data.custom_data.value
-    totalBalanceValue.value = response.data.data.balance + response.data.data.custom_data.value
+    totalBalanceValue.value = parseFloat(balanceValue.value) + parseFloat(piggyBalanceValue.value)
   } catch (error) {
     console.log(error)
   }
@@ -35,6 +36,13 @@ const loadTransactions = async () => {
     console.log(error)
   }
 }
+
+socket.on('newTransaction', (novatransaction) => {
+  console.log("Nova transação", novatransaction)
+  toast.info(`Recebeu ${novatransaction.value}€ de ${novatransaction.vcard}!`)
+  loadTransactions()
+  loadBalance()
+})
 
 const UpdatePiggy = async (value, currentAction) => {
 
