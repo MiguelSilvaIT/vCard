@@ -101,7 +101,6 @@ const handleDate = (modelData) => {
     filters.value.filter_end_date = new Date(modelData[1]).toISOString().split('T')[0];
   }
     console.log("Filtros",filters.value);
-  // do something else with the data
 }
 
 </script>
@@ -110,7 +109,7 @@ const handleDate = (modelData) => {
   <h3 class="mt-5 mb-3">Transactions</h3>
   <hr>
   <div class="mx-2 mt-2 mb-5 d-flex justify-content-between">
-    <Button type="button" class="btn btn-success px-4 btn-addprj mr-5" @click="addTransaction">
+    <Button type="button" class="btn btn-success px-4 btn-addprj" @click="addTransaction">
       <i class="bi bi-xs bi-plus-circle"></i>&nbsp;
       Add new transaction
     </Button>

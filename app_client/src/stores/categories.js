@@ -26,23 +26,25 @@ export const useCategoriesStore = defineStore('categories', () => {
     }
 
     async function loadCategories(transaction_type) {
-        try {
-            if(userStore.userType == "V"){
-                try{
-                    const response = await axios.get('vcards/'+userStore.userId+'/categories', {params: {'transaction_type': transaction_type}})
-                    categories.value = response.data.data
-                }
-                catch(error){
-                    clearCategories()
-                    throw error
-                }
+        if(userStore.userType == "V"){
+            try{
+                const response = await axios.get('vcards/'+userStore.userId+'/categories', {params: {'transaction_type': transaction_type}})
+                categories.value = response.data.data
             }
-            const response = await axios.get('default/categories', {params: {'transaction_type': transaction_type}})
-            categories.value = response.data.data
-            return categories.value
-        } catch (error) {
-            clearCategories()
-            throw error
+            catch(error){
+                clearCategories()
+                throw error
+            }
+        }
+        else{
+            try{
+                const response = await axios.get('default/categories', {params: {'transaction_type': transaction_type}})
+                categories.value = response.data.data
+            }
+            catch(error){
+                clearCategories()
+                throw error
+            }
         }
     }
 
@@ -76,12 +78,16 @@ export const useCategoriesStore = defineStore('categories', () => {
     async function deleteCategory( deleteCategory) {
         // Note that when an error occours, the exception should be
         // catch by the function that called the deleteProject
-        const response = await axios.delete('categories/' + deleteCategory.id)
-        let idx = categories.value.findIndex((t) => t.id === response.data.data.id)
-        if (idx >= 0) {
-            categories.value.splice(idx, 1)
+        try{
+            const response = await axios.delete('categories/' + deleteCategory.id)
+            let idx = categories.value.findIndex((t) => t.id === response.data.data.id)
+            if (idx >= 0) {
+                categories.value.splice(idx, 1)
+            }
         }
-        return response.data.data
+        catch(error){
+            throw error
+        }
     }  
 
     return { 

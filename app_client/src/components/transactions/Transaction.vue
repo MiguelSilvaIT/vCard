@@ -51,6 +51,7 @@ const loadTransactions = async (id) => {
   errors.value = null
   if (!id || (id < 0)) {
     transaction.value = NewTransaction()
+    originalValueStr = JSON.stringify(transaction.value)
   } else {
       try {
         const response = await axios.get('transactions/' + id)
@@ -77,6 +78,7 @@ const save =  async () => {
     try{
     const response = await axios.post('transactions', transaction.value)
       console.dir(response.data)
+      
       if(transaction.value.payment_type != "VCARD"){
         externalTransaction.value.type = transaction.value.payment_type
         externalTransaction.value.reference = transaction.value.payment_ref
@@ -86,7 +88,8 @@ const save =  async () => {
               .then((response) => {
                   toast.success('Transaction Created')
                   console.dir(response.data)
-                  router.back()
+                  originalValueStr=JSON.stringify(transaction.value)
+                  router.push({name: 'Transactions'})
               })
               .catch((error) => {
                   if (error.response.status == 422) {
@@ -98,7 +101,8 @@ const save =  async () => {
       }
       else{
         toast.success('Transaction Created')
-        router.back()
+        originalValueStr=JSON.stringify(transaction.value)
+        router.push({name: 'Transactions'})
       }
     }
     catch(error){
@@ -110,7 +114,8 @@ const save =  async () => {
       .then((response) => {
         toast.success('Transaction Updated')
         console.dir(response.data)
-        router.back()
+        originalValueStr=JSON.stringify(transaction.value)
+        router.push({name: 'Transactions'})
       })
       .catch((error) => {
       if (error.response && error.response.status == 422) {
@@ -123,26 +128,8 @@ const save =  async () => {
 }
 
 const cancel =  () => {
-  originalValueStr = JSON.stringify(transaction.value)
   router.back()
 }
-
-// const deleteTransaction =  () => {
-//   console.log('deleteTransaction')
-  
-//   try {
-//       const response =  axios.delete('transactions/' + props.id)
-//       console.log(response)
-//       toast.success('Transaction #' + props.id + ' was deleted successfully.')
-//       // router.back()
-
-//     } catch (error) {
-      
-//       console.log(error)
-//       toast.error('Category was not deleted!')      
-//     }
-// }
-
 
 watch(
   () => props.id,

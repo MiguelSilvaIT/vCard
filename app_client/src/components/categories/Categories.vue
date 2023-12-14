@@ -3,42 +3,45 @@ import axios from 'axios'
 import { useRouter } from 'vue-router'
 import { ref, computed, onMounted } from 'vue'
 import CategoryTable from "./CategoryTable.vue"
+import { useToast } from "vue-toastification"
 
 import { useUserStore } from "/src/stores/user.js"
-import { useCategoriesStore } from '../../stores/categories'
 
 const userStore = useUserStore()
 
 const router = useRouter()
-const categoriesStore = useCategoriesStore()
 const categories = ref([])
+const toast = useToast()
 
+const endpoint = userStore.userType === 'A' ? 'categories/default' : 'vcards/'+userStore.userId+'/categories';
 
-const loadCategories = async () => {
-  try {
-    
-    // if(filterByOwner.value == "my-cat")
-    // {
-    //   const response = await axios.get('vcards/'+userStore.userId+'/categories')
-    //   categories.value = response.data.data
-    // }
-    // else
-    // {
-    //   const response = await axios.get('categories')
-    //   categories.value = response.data.data
-    // }
-
-   
-      const response = await axios.get(userStore.userType === 'A' ? 'categories/default' : 'categories')
-      categories.value = response.data.data
-
-
-  } catch (error) {
-    console.log(error)
-  }
+const loadCategories= async () => {
+    try{
+        const response = await axios.get(`${endpoint}`)
+        categories.value = response.data.data
+    }
+    catch(error){
+        clearCategories()
+        throw error
+    }
 }
+
 const deleteCategory = (category) => {
-  categoriesStore.deleteCategory(category)
+  try {
+    if(userStore.userType == 'V')
+      axios.delete(`categories/${category.id}`)
+    else{
+      axios.delete(`default/categories/${category.id}`)
+    }
+      let idx = categories.value.findIndex((t) => t.id === category.id)
+      if (idx >= 0) {
+          categories.value.splice(idx, 1)
+      }
+      toast.success('Category #' + category.id + ' was deleted successfully.')
+    } catch (error) {
+      console.log(error)
+      toast.error('Category was not deleted!')      
+    }
 }
 
 const editCategory = (category) => {
@@ -52,19 +55,19 @@ const addCategory = () => {
 onMounted(() => {
   loadCategories()
 })
-
+const showId = computed(() => userStore.userType === 'A')
 </script>
 
 <template>
   <h3 class="mt-5 mb-3">Categories</h3>
   <hr>
-  <div class="mx-2 mt-2  mb-5 d-flex justify-content-between">
+  <div class="mx-2 mt-2  mb-4 d-flex justify-content-between">
     <button type="button" class="btn btn-success px-4 btn-addprj" @click="addCategory">
       <i class="bi bi-xs bi-plus-circle"></i>&nbsp;
       Add Category
     </button>
   </div>
-  <category-table :categories="categories" @edit="editCategory" @delete="deleteCategory"></category-table>
+  <category-table :categories="categories" :show-id="showId" @edit="editCategory" @delete="deleteCategory"></category-table>
 </template>
 
 <style scoped>

@@ -9,7 +9,7 @@ import 'primeicons/primeicons.css'
 const serverBaseUrl = inject("serverBaseUrl");
 
 const props = defineProps({
-  categories: {
+  administrators: {
     type: Array,
     default: () => [],
   },
@@ -17,7 +17,7 @@ const props = defineProps({
     type: Boolean,
     default: true,
   },
-  showType: {
+  showEmail: {
     type: Boolean,
     default: true,
   },
@@ -25,34 +25,65 @@ const props = defineProps({
     type: Boolean,
     default: true,
   },
-  showEditButton: {
-    type: Boolean,
-    default: true,
-  },
+
   showDeleteButton: {
     type: Boolean,
     default: true,
   },
+ 
 });
 
-const emit = defineEmits(["edit", "delete"]);
+const emit = defineEmits([ "delete"]);
+
 
 const filters = ref({
   global: { value: null, matchMode: FilterMatchMode.CONTAINS },
 });
 
-const deleteClick = (category) => {
-  emit("delete", category);
-};
 
-const editClick = (category) => {
-  emit("edit", category);
+const deleteClick = (administrator) => {
+  emit("delete", administrator);
 };
 </script>
+<!-- 
+<template>
+
+  
+
+  <table class="table">
+    <thead>
+      <tr>
+        <th v-if="showId" class="align-middle">#</th>
+        <th v-if="showName" class="align-middle">Name</th>
+        <th v-if="showEmail" class="align-middle">Email</th>
+        <th v-if="showDeleteButton" class="align-middle"></th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr v-for="administrator in administrators" :key="administrator.id">
+        <td v-if="showId" class="align-middle">{{ administrator.id }}</td>
+        <td v-if="showName" class="align-middle">{{ administrator.name }}</td>
+        <td v-if="showEmail" class="align-middle">{{  administrator.email }}</td>
+
+        <td class="text-end align-middle" v-if="showDeleteButton">
+          <div class="d-flex justify-content-end">
+            <button
+              class="btn btn-xs btn-light"
+              @click="deleteClick(administrator)"
+              v-if="showDeleteButton"
+            >
+              <i class="bi bi-xs bi-trash"></i>
+            </button>
+          </div>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</template> -->
 
 <template>
-  <DataTable v-model:filters="filters" sortField="id" :sortOrder="1" :value="categories"  paginator :rows="10" stripedRows 
-    :globalFilterFields="['id','name', 'type']">
+  <DataTable v-model:filters="filters" :value="administrators" removableSort  paginator :rows="10" stripedRows 
+    :globalFilterFields="['name', 'email']">
       <template #header>
           <div class="flex justify-content-end">
               <span class="p-input-icon-left">
@@ -63,29 +94,18 @@ const editClick = (category) => {
       </template>
       <template #empty> No customers found. </template>
       <template #loading> Loading customers data. Please wait. </template>
-      <Column v-if="showId" sortable field="id" header="Id"></Column>
+      <Column  v-if="showId" sortable field="id" header="Id"></Column>
       <Column v-if="showName" sortable field="name" header="Name"></Column>
-      <Column v-if="showType" sortable field="type" header="Type"></Column>
-      <Column v-if="showEditButton" header="Edit">
-          <template #body="slotProps">
-              <button
-                class="btn btn-xs btn-light"
-                @click="editClick(slotProps.data)"
-                v-if="showEditButton"
-              >
-                <i class="bi bi-xs bi-pencil"></i>
-              </button>
-          </template>
-      </Column>
+      <Column v-if="showEmail" sortable field="email" header="E-mail"></Column>
       <Column v-if="showDeleteButton" header="Delete">
           <template #body="slotProps">
-            <button
+              <button
                 class="btn btn-xs btn-light"
                 @click="deleteClick(slotProps.data)"
                 v-if="showDeleteButton"
               >
-                <i class="pi pi-trash"></i>
-            </button>
+              <i class="pi pi-trash"></i>
+              </button>
           </template>
       </Column>
     </DataTable>

@@ -6,6 +6,7 @@ import CategoryDetail from "./CategoryDetail.vue"
 import { useRouter, onBeforeRouteLeave } from 'vue-router'
 import { useUserStore } from "/src/stores/user.js"
 
+
 const toast = useToast()
 const router = useRouter()
 
@@ -42,12 +43,10 @@ const loadCategory = async (id) => {
   errors.value = null
   if (!id || (id < 0)) {
     category.value = newCategory()
+    originalValueStr = JSON.stringify(category.value)
   } else {
       try {
         const response = await axios.get(`${endpoint}/${id}`)
-        console.log('Categoria Carregada --> ' , response)
-
-        //category.value = response.data.data
         category.value = response.data.data
         originalValueStr = JSON.stringify(category.value)
       } catch (error) {
@@ -60,65 +59,43 @@ const operation = computed( () => (!props.id || props.id < 0) ? 'insert' : 'upda
 
 
 const save =  () => {
-      if (operation.value == 'insert') 
-      {
-        console.log(category.value)
-        
-
-        axios.post(`${endpoint}`, category.value)
-          .then((response) => {
-            toast.success('Category Created')
-            console.dir(response.data.data)
-            router.back()
-
-          })
-          .catch((error) => {
-            if (error.response.status == 422) {
-              errors.value = error.response.data.errors
-              toast.error("Validation Error")
-          }
-          })
-      } else {
-
-        axios.put(`${endpoint}/${category.value.id}`, category.value)
-          .then((response) => {
-            toast.success('Category Updated')
-            console.dir(response.data.data)
-            router.back()
-
-          })
-          .catch((error) => {
-          if (error.response && error.response.status == 422) {
-            errors.value = error.response.data.errors
-            toast.error("Validation Error")
-          }
-            console.dir(error)
-          })
+  if (operation.value == 'insert') 
+  {
+    axios.post(`${endpoint}`, category.value)
+      .then((response) => {
+        toast.success('Category Created')
+        console.dir(response.data.data)
+        originalValueStr = JSON.stringify(category.value)
+        router.push({name:'Categories'})
+      })
+      .catch((error) => {
+        if (error.response.status == 422) {
+          errors.value = error.response.data.errors
+          toast.error("Validation Error")
       }
-    }
+      })
+  } else {
+    axios.put(`${endpoint}/${category.value.id}`, category.value)
+      .then((response) => {
+        toast.success('Category Updated')
+        console.dir(response.data.data)
+        originalValueStr = JSON.stringify(category.value)
+        router.push({name:'Categories'})
+
+      })
+      .catch((error) => {
+      if (error.response && error.response.status == 422) {
+        errors.value = error.response.data.errors
+        toast.error("Validation Error")
+      }
+        console.dir(error)
+      })
+  }
+}
 
 const cancel =  () => {
-  originalValueStr = JSON.stringify(category.value)
   router.back()
 }
-
-const deleteCategory =  () => {
-  console.log('deleteCategory')
-  
-  try {
-
-      const response =  axios.delete(`${endpoint}/${category.value.id}`)
-      console.log(response)
-      toast.success('Categorie #' + props.id + ' was deleted successfully.')
-      router.back()
-
-    } catch (error) {
-      
-      console.log(error)
-      toast.error('Category was not deleted!')      
-    }
-}
-
 
 watch(
   () => props.id,
@@ -141,26 +118,23 @@ onBeforeRouteLeave((to, from, next) => {
   if (originalValueStr != newValueStr) {
     // Some value has changed - only leave after confirmation
     nextCallBack = next
-    //confirmationLeaveDialog.value.show()
+    confirmationLeaveDialog.value.show()
   } else {
     // No value has changed, so we can leave the component without confirming
     next()
   }
 })
 
-
-
-
 </script>
 
 <template>
-  <!-- <confirmation-dialog
+  <confirmation-dialog
     ref="confirmationLeaveDialog"
     confirmationBtn="Discard changes and leave"
     msg="Do you really want to leave? You have unsaved changes!"
     @confirmed="leaveConfirmed"
   >
-  </confirmation-dialog>   -->
+  </confirmation-dialog>  
 
   <category-detail
     :operationType="operation"

@@ -157,8 +157,8 @@ const clickMenuOption = () => {
             </li>
 
             <li class="nav-item" v-if="userStore.userType == 'A'" >
-                <router-link class="nav-link" :class="{ active: $route.name === 'Users' }" 
-                              :to="{ name: 'Users' }" @click="clickMenuOption">
+                <router-link class="nav-link" :class="{ active: $route.name === 'Administrators' }" 
+                              :to="{ name: 'Administrators' }" @click="clickMenuOption">
                   <i class="bi bi-files"></i>
                     Administrators
                 </router-link>

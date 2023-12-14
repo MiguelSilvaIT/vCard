@@ -78,42 +78,42 @@ const cancel = () => {
 
 <template>
   <form class="row g-3 needs-validation" v-if = "operation == 'insert'" novalidate @submit.prevent="save">
-    <h3 class="mt-5 mb-3">{{transactionTittle}}</h3>
+    <h3 class="mt-5 mb-2">{{transactionTittle}}</h3>
     <hr />
-    <div class="d-flex flex-wrap justify-content-between">
+    <div class="d-flex flex-wrap mt-4 justify-content-between">
       <div class="w-75 pe-4">
-        <div class="mb-4">
+        <div class="mb-5">
           <span class="p-float-label">
             <InputText type="text" v-model="userStore.userId" disabled />
             <label for="number-input">Transaction Vcard</label>
           </span> 
         </div>
-        <div class="col mb-4 ms-xs-3">
+        <div class="col mb-5 ms-xs-3">
           <span class="p-float-label">
             <InputNumber v-model="editingTransaction.value" inputId="currency-germany" mode="currency" currency="EUR" locale="ge-GE" />
             <label for="number-input">Transaction Value</label>
           </span> 
         </div>
-        <div class="col mb-4 ms-xs-3">
+        <div class="col mb-5 ms-xs-3">
           <div class="p-float-label">
             <Dropdown v-model="editingTransaction.payment_type" :options="payment_type" optionLabel="value" optionValue="value"/>
             <label for="dd-paymentType">Select Payment Type</label>
           </div>
         </div>
-        <div class="col mb-4 ms-xs-3">
+        <div class="col mb-5 ms-xs-3">
           <div class="p-float-label">
             <InputText type="text" v-model="editingTransaction.payment_ref" :class="{ 'p-invalid': errors ? errors['payment_ref'] : false }"/>
             <label for="dd-paymentType">Payment Reference</label>
             <field-error-message :errors="errors" fieldName="payment_ref"></field-error-message>
           </div>
         </div>     
-        <div class="mb-4">
+        <div class="mb-5">
           <span class="p-float-label">
             <InputText type="text" v-model="editingTransaction.description" />
             <label for="number-input">Description</label>
           </span>
         </div>
-        <div class="mb-4 ">
+        <div class="mb-5 ">
           <span class="p-float-label">
             <Dropdown v-model="editingTransaction.category_id" :options="categoriesStore.categories" optionLabel="name" optionValue="id"/>
             <label for="number-input">Category</label>

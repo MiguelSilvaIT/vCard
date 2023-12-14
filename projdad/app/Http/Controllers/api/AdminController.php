@@ -56,6 +56,15 @@ class AdminController extends Controller
         ], 200);
     }
 
+    public function destroy(Admin $admin)
+    {
+        $admin->delete();
+
+        return response()->json([
+            'message' => 'Admin eliminado com sucesso'
+        ], 200);
+    }
+
     public function updatePassword (UpdateUserPasswordRequest $request, Admin $admin) {
         //validar os dados recebidos
         $dataToSave = $request->validated();
@@ -75,6 +84,8 @@ class AdminController extends Controller
             'data' => new AdminResource($admin)
         ], 200);
     }
+
+  
 }
 
 
