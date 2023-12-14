@@ -16,6 +16,8 @@ const userStore = useUserStore()
 
 // console.log('userType', userStore.userType)
 
+console.log('id', userStore.userId)
+
 const logout = async () => {
   if (await userStore.logout()) {
     toast.success('User has logged out of the application.')
@@ -40,9 +42,8 @@ const clickMenuOption = () => {
 <template>
   <nav class="navbar navbar-expand-md navbar-dark bg-dark sticky-top flex-md-nowrap p-0 shadow">
     <div class="container-fluid">
-      <router-link class="navbar-brand col-md-3 col-lg-2 me-0 px-3" :to="{ name: 'home' }" @click="clickMenuOption">
+      <router-link class="col-md-3 col-lg-2 me-0 px-3" :to="{ name: 'home' }" @click="clickMenuOption">
         <img src="@/assets/vCard.png" alt="" class="d-inline-block align-text-top" id="image">
-          Vcard
       </router-link>
       <button id="buttonSidebarExpandId" class="navbar-toggler" type="button" data-bs-toggle="collapse"
         data-bs-target="#sidebarMenu" aria-controls="sidebarMenu" aria-expanded="false" aria-label="Toggle navigation">
@@ -52,7 +53,7 @@ const clickMenuOption = () => {
       <div class="collapse navbar-collapse justify-content-end">
         <ul class="navbar-nav">
           <li class="nav-item" v-show="!userStore.user">
-            <router-link class="nav-link" :class="{ active: $route.name === 'NewUser'}" :to="{ name: 'NewUser' }" @click="clickMenuOption">
+            <router-link class="nav-link" :class="{ active: $route.name === 'NewVcard'}" :to="{ name: 'NewVcard' }" @click="clickMenuOption">
               <i class="bi bi-person-check-fill"></i>
               Register
             </router-link >
@@ -75,8 +76,8 @@ const clickMenuOption = () => {
             <ul class="dropdown-menu dropdown-menu-dark dropdown-menu-end" aria-labelledby="navbarDropdownMenuLink">
               <li>
                 <router-link class="dropdown-item"
-                            :class="{ active: $route.name == 'User' && $route.params.id == userStore.userId }"
-                            :to="{ name: 'User', params: { id: userStore.userId } }" @click="clickMenuOption">
+                            :class="{ active: $route.name == 'Vcard' && $route.params.phone_number == userStore.userId }"
+                            :to="{ name: 'Vcard', params: { phone_number: userStore.userId } }" @click="clickMenuOption">
                   <i class="bi bi-person-square"></i>
                   Profile
                 </router-link>
@@ -85,7 +86,14 @@ const clickMenuOption = () => {
                 <router-link class="dropdown-item" :class="{ active: $route.name === 'ChangePassword' }" 
                             :to="{ name: 'ChangePassword' }" @click="clickMenuOption">
                   <i class="bi bi-key-fill"></i>
-                  Change password
+                  Change Password
+                </router-link>
+              </li>
+              <li>
+                <router-link class="dropdown-item" :class="{ active: $route.name === 'ChangeConfirmationCode' }" 
+                            :to="{ name: 'ChangeConfirmationCode' }" @click="clickMenuOption">
+                <i class="bi bi-123"></i>
+                  Change Confirmation Code
                 </router-link>
               </li>
               <li>
