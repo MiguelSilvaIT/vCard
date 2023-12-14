@@ -1,5 +1,10 @@
 <script setup>
 import { inject } from "vue";
+import DataTable from 'primevue/datatable';
+import Column from 'primevue/column';
+// import ColumnGroup from 'primevue/columngroup';   // optional
+// import Row from 'primevue/row';
+
 
 const serverBaseUrl = inject("serverBaseUrl");
 
@@ -28,6 +33,10 @@ const props = defineProps({
     type: Boolean,
     default: true,
   },
+  showDate: {
+    type: Boolean,
+    default: true,
+  },
   showEditButton: {
     type: Boolean,
     default: true,
@@ -37,52 +46,41 @@ const props = defineProps({
 
 const emit = defineEmits(["edit"]);
 
-// const photoFullUrl = (user) => {
-//   return user.photo_url
-//     ? serverBaseUrl + "/storage/fotos/" + user.photo_url
-//     : avatarNoneUrl;
-// };
-
 const editClick = (transaction) => {
   emit("edit", transaction);
+};
+
+const formatCurrency = (value) => {
+  return  new Intl.NumberFormat("pt-PT", {
+    style: "currency",
+    currency: "EUR",
+  }).format(value);
 };
 </script>
 
 <template>
-
-  
-
-  <table class="table">
-    <thead>
-      <tr>
-        <th v-if="showVcard" class="align-middle">Vcard</th>
-        <th v-if="showPaymentType" class="align-middle">Payment Type</th>
-        <th v-if="showPaymentReference" class="align-middle">Payment Reference</th>
-        <th v-if="showType" class="align-middle">Type</th>
-        <th v-if="showValue" class="align-middle">Value</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr v-for="transaction in transactions" :key="transaction.id">
-        <td v-if="showVcard" class="align-middle">{{ transaction.vcard }}</td>
-        <td v-if="showPaymentType" class="align-middle">{{ transaction.payment_type }}</td>
-        <td v-if="showPaymentReference" class="align-middle">{{ transaction.payment_reference }}</td>
-        <td v-if="showType" class="align-middle">{{ transaction.type }}</td>
-        <td v-if="showValue" class="align-middle">{{  transaction.value }}</td>
-        <td class="text-end align-middle" v-if="showEditButton">
-          <div class="d-flex justify-content-end">
-            <button
-              class="btn btn-xs btn-light"
-              @click="editClick(transaction)"
-              v-if="showEditButton"
-            >
-              <i class="bi bi-xs bi-pencil"></i>
-            </button>
-          </div>
-        </td>
-      </tr>
-    </tbody>
-  </table>
+  <DataTable :value="transactions" paginator sortField="date" :sortOrder="-1" :rows="30" stripedRows >
+      <Column v-if="showVcard" field="vcard" header="Vcard"></Column>
+      <Column v-if="showPaymentType" field="payment_type" header="Payment Type"></Column>
+      <Column v-if="showPaymentReference" field="payment_reference" header="Payment Reference"></Column>
+      <Column v-if="showType" field="type" header="Type"></Column>
+      <Column v-if="showValue" field="value" sortable header=" Value">
+        <template #body="slotProps">
+            {{ formatCurrency(slotProps.data.value) }}
+        </template></Column>
+      <Column v-if="showDate" field="date" sortable header="Date"></Column>
+      <Column v-if="showEditButton" header="Edit" class="text-end">
+          <template #body="slotProps">
+              <button
+                class="btn btn-xs btn-light"
+                @click="editClick(slotProps.data)"
+                v-if="showEditButton"
+              >
+                <i class="bi bi-xs bi-pencil"></i>
+              </button>
+          </template>
+      </Column>
+  </DataTable>
 </template>
 
 <style scoped>
@@ -91,8 +89,4 @@ button {
   margin-right: 3px;
 }
 
-.img_photo {
-  width: 3.2rem;
-  height: 3.2rem;
-}
 </style>

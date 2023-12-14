@@ -2,7 +2,12 @@
 import { ref, watch, computed, inject } from "vue";
 
 import { useUserStore } from "/src/stores/user.js"
+import InputNumber from 'primevue/inputnumber';
+import Dropdown from 'primevue/dropdown';
+import InputText from 'primevue/inputtext';
+import { useCategoriesStore } from '../../stores/categories'
 
+const categoriesStore = useCategoriesStore()
 const userStore = useUserStore()
 
 const props = defineProps({
@@ -14,38 +19,55 @@ const props = defineProps({
       type: String,
       default: 'insert'  // insert / update
   },
-  categories: {
-      type: Array,
-      required: true
-    },
   errors: {
       type: Object,
       required: false,
     },
 });
 console.log("Props",props)
+
+
 const emit = defineEmits(["save", "cancel", "deleteTransaction"]);
 
 const editingTransaction = ref(props.transaction)
+const category = ref(null)
 
 watch(
   () => props.transaction,
   (newTransaction) => {
     editingTransaction.value = newTransaction
-    console.log(props.transaction)
+    if(props.transaction.type != null)
+      categoriesStore.loadCategories(props.transaction.type)
+    console.log("Editing Transaction",editingTransaction.value.type)
   },
   { immediate: true }
 )
 
+const payment_type = [
+  
+  { value: 'VCARD'},
+  { value: 'MBWAY' },
+  { value: 'PAYPAL' },
+  { value: 'IBAN'},
+  { value: 'VISA' },
+  { value: 'MB' }
+];
+
+
+
 const transactionTittle = computed( () => {
     if (!editingTransaction.value) {
-        return ''
-      }
+      return ''
+    }
     //   console.log("Transaction",editingTransaction.value.data)
-      return props.operationType == 'insert' ? 'New Transaction' : 'Transaction #' + editingTransaction.value.id
-  })
+    return props.operationType == 'insert' ? 'New Transaction' : 'Transaction #' + editingTransaction.value.id
+})
 
+const operation = computed( () => props.operationType == 'insert' ? 'insert' : 'update')
+
+// console.log("Operation",operation.value)
 const save = () => {
+  console.log("Editing Transaction",editingTransaction.value)
   emit("save", editingTransaction.value);
 }
 
@@ -57,73 +79,82 @@ const deleteTransaction =  () => {
   emit("deleteTransaction", editingTransaction.value);
 }
 
-
 </script>
 
 <template>
     
-  <form class="row g-3 needs-validation" novalidate @submit.prevent="save">
+  <form class="row g-3 needs-validation" v-if = "operation == 'insert'" novalidate @submit.prevent="save">
     <h3 class="mt-5 mb-3">{{transactionTittle}}</h3>
     <hr />
     <div class="d-flex flex-wrap justify-content-between">
       <div class="w-75 pe-4">
-        <div class="mb-3">
-          <label
-            for="inputName"
-            class="form-label"
-          >Vcard</label>
-          <input
-            type="text"
-            class="form-control"
-            :class="{ 'is-invalid': errors ? errors['vcard'] : false }"
-            id="inputVcard"
-            placeholder="Transaction Vcard"
-            required
-            v-model="transaction.vcard"
-          >
-          <field-error-message :errors="errors" fieldName="name"></field-error-message>
+        <div class="mb-4">
+          <span class="p-float-label">
+            <InputText type="text" v-model="userStore.userId" disabled />
+            <label for="number-input">Transaction Vcard</label>
+          </span> 
         </div>
-        <div class="mb-3">
-          <label
-            for="inputName"
-            class="form-label"
-          >Value</label>
-          <input
-            type="text"
-            class="form-control"
-            :class="{ 'is-invalid': errors ? errors['value'] : false }"
-            id="inputValue"
-            placeholder="Transaction Value"
-            required
-            v-model="transaction.Value"
-          >
-          <field-error-message :errors="errors" fieldName="name"></field-error-message>
+        <div class="col mb-4 ms-xs-3">
+          <span class="p-float-label">
+            <InputNumber v-model="editingTransaction.value" inputId="currency-germany" mode="currency" currency="EUR" locale="ge-GE" />
+            <label for="number-input">Transaction Value</label>
+          </span> 
         </div>
-        
-        <div class="mb-3">
-          <label for="inputDescription" class="form-label">Description</label>
-          <input type="text" class="form-control" :class="{ 'is-invalid': errors ? errors['description'] : false }"
-            id="inputDescription" placeholder="Transaction Description" required v-model="editingTransaction.description" />
-          <field-error-message :errors="errors" fieldName="description"></field-error-message>
+        <div class="col mb-4 ms-xs-3">
+          <div class="p-float-label">
+            <Dropdown v-model="editingTransaction.payment_type" :options="payment_type" optionLabel="value" optionValue="value"/>
+            <label for="dd-paymentType">Select Payment Type</label>
+          </div>
         </div>
-        <div class="mb-3 ms-xs-3 flex-grow-1">
-          <label for="inputCategory" class="form-label">Category</label>
-          <select class="form-select" id="inputCategory" v-model="editingTransaction.value.category_id">
-            <option
-                v-for="cat in categories"
-                :key="cat.id"
-                :value="cat.id"
-                >{{cat.name}}</option>
-          </select>
-          <field-error-message :errors="errors" fieldName="category_id"></field-error-message>
+        <div class="col mb-4 ms-xs-3">
+          <div class="p-float-label">
+            <InputText type="text" v-model="editingTransaction.payment_ref" :class="{ 'p-invalid': errors ? errors['payment_ref'] : false }"/>
+            <label for="dd-paymentType">Payment Reference</label>
+            <field-error-message :errors="errors" fieldName="payment_ref"></field-error-message>
+          </div>
+        </div>     
+        <div class="mb-4">
+          <span class="p-float-label">
+            <InputText type="text" v-model="editingTransaction.description" />
+            <label for="number-input">Description</label>
+          </span>
+        </div>
+        <div class="mb-4 ">
+          <span class="p-float-label">
+            <Dropdown v-model="editingTransaction.category_id" :options="categoriesStore.categories" optionLabel="name" optionValue="id"/>
+            <label for="number-input">Category</label>
+          </span>
         </div>
       </div>
-
     </div>
     <div class="mb-3 d-flex justify-content-end">
       <button type="button" class="btn btn-primary px-5" @click="save">Save</button>
       <button type="button" class="btn btn-light px-5" @click="cancel">Cancel</button>
-      <button type="button" class="btn btn-danger px-5" @click="deleteTransaction">Delete</button>
+    </div>
+  </form>
+
+  <form class="row g-3 needs-validation" v-if = "operation != 'insert'" novalidate @submit.prevent="save">
+    <h3 class="mt-5 mb-3">{{transactionTittle}}</h3>
+    <hr />
+    <div class="d-flex flex-wrap justify-content-between">
+      <div class="w-75 pe-4">
+        <div class="mb-4">
+          <span class="p-float-label">
+            <InputText type="text" v-model="transaction.description" />
+            <label for="number-input">Description</label>
+          </span>
+        </div>
+        <div class="mb-4 ">
+          <span class="p-float-label">
+            <Dropdown v-model="transaction.category_id" :options="categoriesStore.categories" optionLabel="name" optionValue="id"/>
+            <label for="number-input">Category</label>
+          </span>
+        </div>
+      </div>
+    </div>
+    <div class="mb-3 d-flex justify-content-end">
+      <button type="button" class="btn btn-primary px-5" @click="save">Save</button>
+      <button type="button" class="btn btn-light px-5" @click="cancel">Cancel</button>
     </div>
   </form>
 </template>
@@ -131,5 +162,11 @@ const deleteTransaction =  () => {
 <style scoped>
 .total_hours {
   width: 26rem;
+}
+.formLabel {
+  font-size: 12px;
+    opacity: 0.7;
+    margin-bottom: 6px;
+    margin-left: 12px;
 }
 </style>

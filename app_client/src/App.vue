@@ -14,7 +14,7 @@ const toast = useToast()
 
 const userStore = useUserStore()
 
-console.log('userType', userStore.userType)
+// console.log('userType', userStore.userType)
 
 console.log('id', userStore.userId)
 
@@ -165,8 +165,8 @@ const clickMenuOption = () => {
             </li>
 
             <li class="nav-item">
-                <router-link class="nav-link" :class="{ active: $route.name === 'Users' }" 
-                              :to="{ name: 'Users' }" @click="clickMenuOption">
+                <router-link class="nav-link" :class="{ active: $route.name === 'Administrators' }" 
+                              :to="{ name: 'Administrators' }" @click="clickMenuOption">
                   <i class="bi bi-files"></i>
                     Administrators
                 </router-link>

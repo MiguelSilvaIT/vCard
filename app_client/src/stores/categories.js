@@ -12,16 +12,15 @@ export const useCategoriesStore = defineStore('categories', () => {
         return categories.value.length
     })
     
-    async function loadCategories() {
+    async function loadCategories(transaction_type) {
         try {
-            
             if(userStore.userType == "V"){
-                const response = await axios.get('vcards/'+userStore.userId+'/categories')
+                const response = await axios.get('vcards/'+userStore.userId+'/categories', {params: {'transaction_type': transaction_type}})
                 categories.value = response.data.data
-                console.log(categories.value)
+                // console.log(categories.value)
                 return categories.value
             }
-            const response = await axios.get('categories')
+            const response = await axios.get('default/categories', {params: {'transaction_type': transaction_type}})
             categories.value = response.data.data
             return categories.value
         } catch (error) {

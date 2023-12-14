@@ -370,15 +370,22 @@ class VcardController extends Controller
         if ($request->filter_by_type != 'T' && $request->filter_by_type) {
             $transactions = $transactions->where('type', $request->filter_by_type);
         }
-
-        if ($request->filter_by_value == "value_asc") {
-            $transactions = $transactions->orderByRaw('CAST(value AS DECIMAL(10,2))');;
-        } else if ($request->filter_by_value == "value_desc") {
-            $transactions = $transactions->orderBy('value', "desc");
-        } else if ($request->filter_by_value == "date_asc") {
-            $transactions = $transactions->orderBy('datetime');
-        } else {
-            $transactions = $transactions->orderBy('datetime', "desc");
+        if ($request->filter_payment_type != null) {
+            $transactions = $transactions->where('payment_type', $request->filter_payment_type);
+        }
+        switch ($request->filter_by_value) {
+            case 'value_asc':
+                $transactions = $transactions->orderByRaw('CAST(value AS DECIMAL(10,2))');;
+                break;
+            case 'value_desc':
+                $transactions = $transactions->orderBy('value', "desc");
+                break;
+            case 'date_asc':
+                $transactions = $transactions->orderBy('datetime');
+                break;
+            default:
+                $transactions = $transactions->orderBy('datetime', "desc");
+                break;
         }
         $transactions = $transactions->get();
         return response()->json($transactions);
@@ -386,7 +393,11 @@ class VcardController extends Controller
 
     public function getCategoriesOfVcard(Request $request, Vcard $vcard)
     {
-        $categories = $vcard->categories;
-        return CategoryResource::collection($vcard->categories->sortByDesc('id'));
+        if ($request->transaction_type && in_array($request->transaction_type, ['C', 'D'])) {
+            $categories = $vcard->categories->where('type', $request->transaction_type);
+        } else {
+            $categories = $vcard->categories;
+        }
+        return CategoryResource::collection($categories);
     }
 }
