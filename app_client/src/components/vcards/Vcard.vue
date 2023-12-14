@@ -1,13 +1,14 @@
 <script setup>
 import axios from 'axios'
 import { useToast } from "vue-toastification"
-import { ref, watch , computed} from 'vue'
+import { ref, watch , inject} from 'vue'
 import { useRouter, onBeforeRouteLeave } from 'vue-router'
 import VcardDetail from "./VcardDetail.vue"
 
 
 const toast = useToast()
 const router = useRouter()
+const socket = inject('socket')
 
 const props = defineProps({
     phone: {
@@ -79,10 +80,9 @@ const deleteVcard =  () => {
   console.log('deleteVcard')
   
   try {
-      const response =  axios.delete('dadvcards/' + props.phone)
+      const response =  axios.delete('vcards/' + props.phone)
       console.log(response)
       toast.success('Vcard #' + props.phone + ' was deleted successfully.')
-      // router.back()
 
     } catch (error) {
       
@@ -94,10 +94,10 @@ const deleteVcard =  () => {
 const blockVcard =  () => {
   console.log('blockVcard')
   try {
-      const response =  axios.get('dadvcards/alterblockedStatus/' + props.phone)
-      console.log(response)
+    console.log(vcard.value.phone_number)
+      const response =  axios.patch('vcards/alterblockedStatus/' + props.phone)
       toast.success('Vcard #' + props.phone + ' was blocked successfully.')
-      // router.back()
+      socket.emit('blockedUser', vcard.value)
 
     } catch (error) {
       
@@ -109,10 +109,9 @@ const blockVcard =  () => {
 const unblockVcard =  () => {
   console.log('unblockVcard')
   try {
-      const response =  axios.get('dadvcards/alterblockedStatus/' + props.phone)
+      const response =  axios.patch('vcards/alterblockedStatus/' + props.phone)
       console.log(response)
       toast.success('Vcard #' + props.phone + ' was unblocked successfully.')
-      // router.back()
 
     } catch (error) {
       

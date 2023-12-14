@@ -30,5 +30,8 @@ io.on("connection", (socket) => {
   socket.on('newTransaction', function (transaction) {
     socket.in(transaction.pair_vcard).emit('newTransaction', transaction);
   })
+  socket.on('blockedUser', function (user) {
+    socket.in(user.phone_number).emit('blockedUser', user);
+  })
   
 });
