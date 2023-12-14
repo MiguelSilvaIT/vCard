@@ -37,41 +37,42 @@ Route::middleware('auth:api')->group(function () {
 
     Route::post('vcards/{vcard}/checkpassword', [VcardController::class, 'checkPassword']);
     Route::post('vcards/{vcard}/checkconfirmationcode', [VcardController::class, 'checkConfirmationCode']);
-    
-    
+
+
     Route::patch('vcards/{vcard}', [VcardController::class, 'update_max_debit']);
     Route::patch('vcards/alterblockedStatus/{vcard}', [VcardController::class, 'alterBlockedStatus']);
-    Route::patch('vcards/updatePassword/{vcard}', [VcardController::class, 'updatePassword']);
-    Route::patch('vcards/confirmation_code/{vcard}', [VcardController::class, 'updateconfirmation_code']);
+    Route::patch('vcards/{vcard}/updatePassword', [VcardController::class, 'updatePassword']);
+    Route::patch('vcards/{vcard}/confirmation_code', [VcardController::class, 'updateconfirmation_code']);
     Route::patch('vcards/{vcard}/piggybank', [VcardController::class, 'piggyBank']);
     Route::patch('vcards/{vcard}/settings', [VcardController::class, 'updateSettings']);
     Route::get('vcards/{vcard}/categories', [VcardController::class, 'getCategoriesOfVcard']);
     Route::patch('vcards/{vcard}/markreadnotifications', [VcardController::class, 'markReadNotifications']);
     Route::apiResource('vcards', VcardController::class);
 
+    Route::patch('admins/{admin}/updatePassword', [AdminController::class, 'updatePassword']);
+
     Route::apiResource('transactions', TransactionController::class);
 });
 
 Route::post('vcards/checkphonenumber', [VcardController::class, 'checkphonenumber']);
+//new vcard
 Route::post('vcards', [VcardController::class, 'store']);
 
 
+Route::get('categories/default', [CategoryDefaultController::class, 'index']);
+Route::get('categories/default/{category}', [CategoryDefaultController::class, 'show']);
+Route::post('categories/default', [CategoryDefaultController::class, 'store']);
+Route::put('categories/default/{category}', [CategoryDefaultController::class, 'update']);
+Route::delete('categories/default/{category}', [CategoryDefaultController::class, 'destroy']);
 
-Route::get('categories/default', [CategoryDefaultController::class , 'index']);
-Route::get('categories/default/{category}', [CategoryDefaultController::class , 'show']);
-Route::post('categories/default', [CategoryDefaultController::class , 'store']);
-Route::put('categories/default/{category}', [CategoryDefaultController::class , 'update']);
-Route::delete('categories/default/{category}', [CategoryDefaultController::class , 'destroy']);
-
-Route::get('categories', [CategoryController::class , 'index']);
-Route::get('categories/{category}', [CategoryController::class , 'show']);
-Route::post('categories', [CategoryController::class , 'store']);
-Route::put('categories/{category}', [CategoryController::class , 'update']);
+Route::get('categories', [CategoryController::class, 'index']);
+Route::get('categories/{category}', [CategoryController::class, 'show']);
+Route::post('categories', [CategoryController::class, 'store']);
+Route::put('categories/{category}', [CategoryController::class, 'update']);
 // Route::get('vcards/{vcard}/categories', [CategoryController::class, 'getCategoriesOfVcard']);
-Route::delete('categories/{category}', [CategoryController::class , 'destroy']);
+Route::delete('categories/{category}', [CategoryController::class, 'destroy']);
 
 
 
 //Admin Routes
 Route::apiResource('admins', AdminController::class);
-Route::patch('admins/updatePassword/{admin}', [AdminController::class, 'updatePassword']);

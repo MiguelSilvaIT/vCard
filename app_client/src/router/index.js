@@ -11,6 +11,7 @@ import Transaction from "../components/transactions/Transaction.vue"
 import Transactions from "../components/transactions/Transactions.vue"
 import Vcard from "../components/vcards/Vcard.vue"
 import Vcards from "../components/vcards/Vcards.vue"
+import ChangeConfirmationCode from "../components/auth/ChangeConfirmationCode.vue"
 
 import { useUserStore } from "../stores/user.js"
 
@@ -44,6 +45,11 @@ const router = createRouter({
       path: '/password',
       name: 'ChangePassword',
       component: ChangePassword
+    },
+    {
+      path: '/confirmation_code',
+      name: 'ChangeConfirmationCode',
+      component: ChangeConfirmationCode
     },
     {
       path: '/dashboard',
@@ -95,12 +101,18 @@ const router = createRouter({
       component: Vcards,
     },
     {
-      path: '/vcards/:phone',
+      path: "/vcards/new",
+      name: "NewVcard",
+      component: Vcard,
+      props: { phone: -1 }
+    },
+    {
+      path: '/vcards/:phone_number',
       name: 'Vcard',
       component: Vcard,
       //props: true
       // Replaced with the following line to ensure that id is a number
-      props: route => ({ phone: parseInt(route.params.phone) })
+      props: route => ({ phone_number: parseInt(route.params.phone_number) })
     },
     {
       path: '/transactions',
@@ -137,7 +149,7 @@ router.beforeEach( async (to, from, next) => {
     handlingFirstRoute = false
     await userStore.restoreToken()
     }
-  if ((to.name == 'Login') || (to.name == 'home') || (to.name == 'NewUser')) {
+  if ((to.name == 'Login') || (to.name == 'home') || (to.name == 'NewVcard')) {
     next()
     return
   }

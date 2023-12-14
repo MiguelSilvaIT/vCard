@@ -19,7 +19,7 @@ class StoreVcardRequest extends UpdateVcardRequest
      *
      * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
      */
-    public function rules():array
+    public function rules(): array
     {
         $rules = parent::rules();
         unset($rules['deletePhotoOnServer']);
@@ -28,8 +28,8 @@ class StoreVcardRequest extends UpdateVcardRequest
         return array_merge($rules, [
             'phone_number' => ['required', 'string', 'digits:9', 'regex:/^9/', 'unique:vcards'],
             'password' => 'required|confirmed', Password::min(3),
-            'confirmation_code' => 'required|confirmed|digits:4',
-            ]);
+            'confirmation_code' => 'required|digits:4',
+        ]);
     }
 
     public function messages(): array

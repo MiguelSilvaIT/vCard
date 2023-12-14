@@ -56,11 +56,12 @@ class AdminController extends Controller
         ], 200);
     }
 
-    public function updatePassword (UpdateUserPasswordRequest $request, Admin $admin) {
+    public function updatePassword(UpdateUserPasswordRequest $request, Admin $admin)
+    {
         //validar os dados recebidos
         $dataToSave = $request->validated();
         //alterar a password do vCard
-        if(!Hash::check($dataToSave['oldpassword'], $admin->password)) {
+        if (!Hash::check($dataToSave['current_password'], $admin->password)) {
             //se a password antiga não for igual à que está na BD, devolve erro
             return response()->json([
                 'message' => 'error',
@@ -76,5 +77,3 @@ class AdminController extends Controller
         ], 200);
     }
 }
-
-

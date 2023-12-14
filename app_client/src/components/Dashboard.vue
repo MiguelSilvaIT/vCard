@@ -73,8 +73,10 @@ onMounted(() => {
           <div class="col-md-6">
               <div class="card mt-4 bg-light">
                   <div class="card-body">
+                    <router-link
+                      class="link-secondary" :to="{ name: 'NewTransaction' }" aria-label="Add new Transactions">
                       <button class="btn btn-dark fs-6 mb-2 rounded-pill w-50 p-1 lead fw-bold">Enviar</button>
-                      <!-- Aqui você pode adicionar mais opções -->
+                    </router-link>
                   </div>
               </div>
           </div>
