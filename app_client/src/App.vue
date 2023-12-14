@@ -74,10 +74,16 @@ const clickMenuOption = () => {
             <!-- only show dropdown when userStore.userId != null -->
             
             <ul class="dropdown-menu dropdown-menu-dark dropdown-menu-end" aria-labelledby="navbarDropdownMenuLink">
-              <li>
-                <router-link class="dropdown-item"
+              <li >
+                <router-link class="dropdown-item" v-show="userStore.userType == 'V'"
                             :class="{ active: $route.name == 'Vcard' && $route.params.phone_number == userStore.userId }"
                             :to="{ name: 'Vcard', params: { phone_number: userStore.userId } }" @click="clickMenuOption">
+                  <i class="bi bi-person-square"></i>
+                  Profile
+                </router-link>
+                <router-link class="dropdown-item" v-show="userStore.userType == 'A' "
+                            :class="{ active: $route.name == 'Administrator' && $route.params.phone_number == userStore.userId }"
+                            :to="{ name: 'Administrator', params: { id: userStore.userId } }" @click="clickMenuOption">
                   <i class="bi bi-person-square"></i>
                   Profile
                 </router-link>
@@ -89,7 +95,7 @@ const clickMenuOption = () => {
                   Change Password
                 </router-link>
               </li>
-              <li>
+              <li v-show="userStore.userType == 'V'">
                 <router-link class="dropdown-item" :class="{ active: $route.name === 'ChangeConfirmationCode' }" 
                             :to="{ name: 'ChangeConfirmationCode' }" @click="clickMenuOption">
                 <i class="bi bi-123"></i>
@@ -115,7 +121,7 @@ const clickMenuOption = () => {
     <div class="row">
       <nav id="sidebarMenu" class="col-md-3 col-lg-2 d-md-block bg-light sidebar collapse">
         <div class="position-sticky pt-3">
-          <ul class="nav flex-column" v-if="userStore.user">
+          <ul class="nav flex-column" v-show="userStore.user">
             <li class="nav-item">
               <router-link class="nav-link" :class="{ active: $route.name === 'Dashboard' }" 
                           :to="{ name: 'Dashboard' }" @click="clickMenuOption"> 
@@ -183,6 +189,10 @@ const clickMenuOption = () => {
                               :to="{ name: 'CreditTransaction' }" @click="clickMenuOption">
                   <i class="bi bi-files"></i>
                     Transactions
+                    <i class="ms-3 bi bi-xs bi-plus-circle"></i>
+                </router-link>
+                <router-link class="link-secondary" :to="{ name: 'NewTransaction' }" aria-label="Add new Transactions">
+                  
                 </router-link>
             </li>
             <li class="nav-item" >

@@ -80,7 +80,7 @@ const editClick = (category) => {
       <Column v-if="showDeleteButton" header="Delete">
           <template #body="slotProps">
             <button
-                class="btn btn-xs btn-light"
+                class="btn btn-xs btn-danger"
                 @click="deleteClick(slotProps.data)"
                 v-if="showDeleteButton"
               >

@@ -82,7 +82,7 @@ const deleteClick = (administrator) => {
 </template> -->
 
 <template>
-  <DataTable v-model:filters="filters" :value="administrators" removableSort  paginator :rows="10" stripedRows 
+  <DataTable v-model:filters="filters" :value="administrators" sortField="id" sortOrder="1"  paginator :rows="10" stripedRows 
     :globalFilterFields="['name', 'email']">
       <template #header>
           <div class="flex justify-content-end">
@@ -100,7 +100,7 @@ const deleteClick = (administrator) => {
       <Column v-if="showDeleteButton" header="Delete">
           <template #body="slotProps">
               <button
-                class="btn btn-xs btn-light"
+                class="btn btn-xs btn-danger"
                 @click="deleteClick(slotProps.data)"
                 v-if="showDeleteButton"
               >

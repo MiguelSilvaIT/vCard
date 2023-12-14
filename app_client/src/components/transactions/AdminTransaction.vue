@@ -44,21 +44,7 @@ const errors = ref(null)
 const confirmationLeaveDialog = ref(null)
 // String with the JSON representation after loading the project (new or edit)
 
-let originalValueStr = ''
-// const loadVcards = async (id) => {
-//     let originalValueStr = ''
-//     errors.value = null
-//     try {
-//         const response = await axios.get('vcards/')
-//         // console.log("Response",response.data.data)
-//         transaction.value = response.data.data
-//         originalValueStr = JSON.stringify(transaction.value)
-//     } catch (error) {
-//         console.log(error)
-//     }
-// }
-
-
+let originalValueStr = JSON.stringify(transaction.value)
 
 const save =  async() => {
     externalTransaction.value.type = transaction.value.payment_type
@@ -73,8 +59,9 @@ const save =  async() => {
             axios.post('transactions', transaction.value)
                 .then((response) => {
                     toast.success('Transaction Created')
+                    originalValueStr = JSON.stringify(transaction.value)
                     console.dir(response.data)
-                    router.back()
+                    router.push({name: 'Dashboard'})
                 })
                 .catch((error) => {
                     if (error.response.status == 422) {
@@ -84,19 +71,17 @@ const save =  async() => {
             })
         }
         else{
-
         }
     }
     catch(error){
         if (error.response.status == 422) {
-                errors.value = error.response.data.errors
-        toast.error("Validation Error")
+            errors.value = error.response.data.errors
+            toast.error("Validation Error")
         }
     }
 }
 
 const cancel =  () => {
-    originalValueStr = JSON.stringify(transaction.value)
     router.back()
 }
 

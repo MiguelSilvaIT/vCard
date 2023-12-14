@@ -19,7 +19,6 @@ const props = defineProps({
       type: Number,
       default: null
     }
-  
 })
 
 const newCategory = () => {
@@ -31,7 +30,6 @@ const newCategory = () => {
 }
 
 const category = ref(newCategory())
-
 
 const errors = ref(null)
 const confirmationLeaveDialog = ref(null)

@@ -48,8 +48,10 @@ Route::middleware('auth:api')->group(function () {
     Route::get('vcards/{vcard}/categories', [VcardController::class, 'getCategoriesOfVcard']);
     Route::patch('vcards/{vcard}/markreadnotifications', [VcardController::class, 'markReadNotifications']);
     Route::apiResource('vcards', VcardController::class);
-
+    
+    //Admin Routes
     Route::patch('admins/{admin}/updatePassword', [AdminController::class, 'updatePassword']);
+    Route::apiResource('admins', AdminController::class);
 
     Route::apiResource('transactions', TransactionController::class);
 });
@@ -74,5 +76,5 @@ Route::delete('categories/{category}', [CategoryController::class, 'destroy']);
 
 
 
-//Admin Routes
-Route::apiResource('admins', AdminController::class);
+
+

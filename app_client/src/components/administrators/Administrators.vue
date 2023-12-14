@@ -28,17 +28,15 @@ const loadAdministrators = async () => {
   }
 }
 
-
-
 const deleteAdministrator = (administrator) => {
   try {
-      const response =  axios.delete(`admins/${administrator.id}`)
-      console.log(response)
+      axios.delete(`admins/${administrator.id}`)
+      let idx = administrators.value.findIndex((t) => t.id === administrator.id)
+      if (idx >= 0) {
+        administrators.value.splice(idx, 1)
+      }
       toast.success('Administrator #' + administrator.id + ' was deleted successfully.')
-      router.back()
-
     } catch (error) {
-      
       console.log(error)
       toast.error('Administrator was not deleted!')      
     }
@@ -64,8 +62,7 @@ onMounted(() => {
 
   </div>
   <administrator-table 
-  :administrators="administrators" 
-  :showId="false" 
+  :administrators="administrators"
   @delete="deleteAdministrator">
   </administrator-table>
 </template>
