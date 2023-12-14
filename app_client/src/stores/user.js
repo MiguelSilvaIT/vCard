@@ -51,17 +51,32 @@ export const useUserStore = defineStore('user', () => {
         }
     }
 
-    async function changePassword(credentials) {
-        if (userId.value < 0) {
-          throw "Anonymous users cannot change the password!";
-        }
-        try {
-          await axios.patch(`users/${user.value.id}/password`, credentials);
-          return true;
-        } catch (error) {
-          throw error;
-        }
+    async function changeVcardPassword(credentials) {
+      try {
+        console.log(user.value.id)
+        await axios.patch(`vcards/${user.value.id}/updatePassword`, credentials);
+      } catch (error) {
+        console.error('Failed to change password:', error);
       }
+    }
+
+    async function changeAdminsPassword(credentials) {
+      try {
+        console.log(user.value.id)  
+        await axios.patch(`admins/${user.value.id}/updatePassword`, credentials);
+      } catch (error) {
+        console.error('Failed to change password:', error);
+      }
+    }
+
+    async function changeConfirmationCode(credentials) {
+      try {
+        console.log(user.value.id)  
+        await axios.patch(`vcards/${user.value.id}/confirmation_code`, credentials);
+      } catch (error) {
+        console.error('Failed to change confirmation code:', error);
+      }
+    }
 
     async function logout () {
         try {
@@ -100,5 +115,5 @@ export const useUserStore = defineStore('user', () => {
         
         
 
-    return { user, userName, userId, userPhotoUrl, userType, loadUser, clearUser, login, logout,restoreToken, getTransactions, changePassword}
+    return { user, userName, userId, userPhotoUrl, userType, changeConfirmationCode, loadUser, clearUser, login, logout,restoreToken, getTransactions, changeVcardPassword, changeAdminsPassword}
 })

@@ -22,7 +22,7 @@ class UpdateVcardconfirmation_codeRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'confirmation_code' => 'required|confirmed|digits:4',
+            'confirmation_code' => 'required|digits:4',
             'oldconfirmation_code' => 'required',
         ];
     }

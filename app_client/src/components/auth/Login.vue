@@ -16,13 +16,12 @@
 
   const emit = defineEmits(['auth/login'])
   const login = async () => {
-    if (await userStore.login(credentials.value)) {
+     if (await userStore.login(credentials.value)) {
       toast.success('User ' + userStore.user.name + ' has entered the application.')
       emit('auth/login')
       router.back()
     } else {
       credentials.value.password = ''
-      toast.error('User credentials are invalid!')
     }
   }
 </script>

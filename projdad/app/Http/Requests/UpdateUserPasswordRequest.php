@@ -7,7 +7,7 @@ use Illuminate\Validation\Rules\Password;
 
 class UpdateUserPasswordRequest extends FormRequest
 {
-     /**
+    /**
      * Determine if the user is authorized to make this request.
      *
      * @return bool
@@ -26,7 +26,7 @@ class UpdateUserPasswordRequest extends FormRequest
     {
         return [
             'password' => ['required', 'confirmed', Password::min(3)],
-            'oldpassword' => 'required',
+            'current_password' => 'required',
         ];
     }
 }
