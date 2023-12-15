@@ -171,7 +171,6 @@ const router = createRouter({
       // Replaced with the following line to ensure that id is a number
       props: route => ({ id: parseInt(route.params.id) })
     },
-    
     {
       path: "/administrators/new",
       name: "NewAdministrator",
