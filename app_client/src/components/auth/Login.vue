@@ -4,7 +4,7 @@
   import { useToast } from "vue-toastification"
   import { useRouter } from 'vue-router'
   import { ref } from 'vue'
-  import { useUserStore } from '../../stores/user.js'
+  import { useUserStore } from '/src/stores/user.js'
   const toast = useToast()
   const router = useRouter()
   const credentials = ref({

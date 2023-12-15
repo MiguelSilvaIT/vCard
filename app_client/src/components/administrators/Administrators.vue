@@ -20,41 +20,23 @@ const administrators = ref([])
 
 const loadAdministrators = async () => {
   try {
-    
-    // if(filterByOwner.value == "my-cat")
-    // {
-    //   const response = await axios.get('vcards/'+userStore.userId+'/administrators')
-    //   administrators.value = response.data.data
-    // }
-    // else
-    // {
-    //   const response = await axios.get('administrators')
-    //   administrators.value = response.data.data
-    // }
-
-   
       const response = await axios.get('admins')
       administrators.value = response.data.data
-
-
   } catch (error) {
+    administrators.value = []
     console.log(error)
   }
 }
 
-
-
 const deleteAdministrator = (administrator) => {
-  
   try {
-
-      const response =  axios.delete(`admins/${administrator.id}`)
-      console.log(response)
+      axios.delete(`admins/${administrator.id}`)
+      let idx = administrators.value.findIndex((t) => t.id === administrator.id)
+      if (idx >= 0) {
+        administrators.value.splice(idx, 1)
+      }
       toast.success('Administrator #' + administrator.id + ' was deleted successfully.')
-      router.back()
-
     } catch (error) {
-      
       console.log(error)
       toast.error('Administrator was not deleted!')      
     }
@@ -72,7 +54,7 @@ onMounted(() => {
 <template>
   <h3 class="mt-5 mb-3">Administrators</h3>
   <hr>
-  <div class="mx-2 mt-2 d-flex justify-content-between">
+  <div class="mx-2 mt-2 mb-4 d-flex justify-content-between">
     <button type="button" class="btn btn-success px-4 btn-addprj" @click="addAdministrator">
       <i class="bi bi-xs bi-plus-circle"></i>&nbsp;
       Add Administrator
@@ -80,8 +62,7 @@ onMounted(() => {
 
   </div>
   <administrator-table 
-  :administrators="administrators" 
-  :showId="false" 
+  :administrators="administrators"
   @delete="deleteAdministrator">
   </administrator-table>
 </template>

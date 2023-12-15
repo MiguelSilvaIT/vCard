@@ -24,15 +24,13 @@ const filters = ref({
   filterByPaymentType: null
 });
 
-const errors = ref(null)
-
 const date = ref(null);
 
 const today = ref(new Date());
 
 
 const payment_type = [
-  
+  { value: ''},
   { value: 'VCARD'},
   { value: 'MBWAY' },
   { value: 'PAYPAL' },
@@ -47,9 +45,6 @@ const type = [
   { value: 'C', name: 'Credit' },
 ];
 
-const totalTransactions = computed(() => {
-  return transactions.value.length
-})
 
 const loadTransactions = async () => {
   console.log("Filtros",filters.value);
@@ -72,7 +67,12 @@ const loadTransactions = async () => {
     }
   } catch (error) {
     console.log(error)
+    clearTransactions()
   }
+}
+
+const clearTransactions = () => {
+  transactions.value = []
 }
 
 const editTransaction = (transaction) => {
@@ -100,7 +100,6 @@ const handleDate = (modelData) => {
     filters.value.filter_end_date = new Date(modelData[1]).toISOString().split('T')[0];
   }
     console.log("Filtros",filters.value);
-  // do something else with the data
 }
 
 </script>
@@ -109,10 +108,10 @@ const handleDate = (modelData) => {
   <h3 class="mt-5 mb-3">Transactions</h3>
   <hr>
   <div class="mx-2 mt-2 mb-5 d-flex justify-content-between">
-    <button type="button" class="btn btn-success px-4 btn-addprj" @click="addTransaction">
+    <Button type="button" class="btn btn-success px-4 btn-addprj" @click="addTransaction">
       <i class="bi bi-xs bi-plus-circle"></i>&nbsp;
       Add new transaction
-    </button>
+    </Button>
   </div>
   <form class="col  needs-validation" @submit.prevent="loadTransactions">
     <div class="row g-3">
@@ -137,7 +136,7 @@ const handleDate = (modelData) => {
       </div>
     </div>
     <div class="g-3 mb-4 d-flex justify-content-end ">
-        <Button label="Filter" type="submit" @click="save" class="mr-5" ></Button>
+        <Button label="Filter" type="submit" class="mr-5" ></Button>
     </div>
   </form>
   <transaction-table :transactions="transactions" :showId="false" @edit="editTransaction"></transaction-table>

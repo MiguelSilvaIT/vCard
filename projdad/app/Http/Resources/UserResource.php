@@ -21,6 +21,7 @@ class UserResource extends JsonResource
             'email' => $this->email,
             'user_type' => $this->user_type,
             'photo_url' => $this->photo_url,
+            'blocked' => $this->blocked,
         ];
     }
 }
