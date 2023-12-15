@@ -35,7 +35,7 @@ Route::middleware('auth:api')->group(function () {
 
     Route::post('vcards/{vcard}/transactions', [VcardController::class, 'myTransactions']);
 
-    Route::post('vcards/{vcard}/checkpassword', [VcardController::class, 'checkPassword']);
+    Route::post('vcards/{vcard}/confirmdelete', [VcardController::class, 'confirmDelete']);
     Route::post('vcards/{vcard}/checkconfirmationcode', [VcardController::class, 'checkConfirmationCode']);
 
 

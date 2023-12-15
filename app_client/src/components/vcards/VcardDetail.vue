@@ -1,16 +1,16 @@
 <script setup>
 import { ref, watch, computed, inject } from "vue";
-
-import ConfirmPopup from 'primevue/confirmpopup';
 import { useUserStore } from "/src/stores/user.js"
-
+import Dialog from 'primevue/dialog'
 import avatarNoneUrl from '@/assets/avatar-none.png'
-
+import Button from 'primevue/button'
+import InputText from 'primevue/inputtext'
+import axios from "axios";
+import { useToast } from "vue-toastification";
 
 const userStore = useUserStore()
 
 const serverBaseUrl = inject("serverBaseUrl");
-
 
 
 const props = defineProps({
@@ -18,28 +18,35 @@ const props = defineProps({
     type: Object,
     required: true,
   },
-
-
+  inserting: {
+    type: Boolean,
+    default: false,
+  },
   errors: {
     type: Object,
     required: false,
   },
 });
 
-const emit = defineEmits(["save", "cancel", "blockVcard", "unblockVcard", "deleteVcard"]);
+const emit = defineEmits(["save", "cancel", "deleteVcard"]);
 
 const editingVcard = ref(props.vcard)
 const inputPhotoFile = ref(null)
 const editingImageAsBase64 = ref(null)
 const deletePhotoOnTheServer = ref(false)
+const toast = useToast()
+const confirmationCode = ref('')
+const password = ref('')
 
+const showDialog = ref(false)
 
 watch(
   () => props.vcard,
   (newVcard) => {
     editingVcard.value = newVcard
   },
-  { immediate: true }
+  { immediate: true },
+  
 )
 
 
@@ -56,8 +63,12 @@ const photoFullUrl = computed(() => {
   }
 })
 
-
-
+const userTitle = computed(()=>{
+  if (!editingVcard.value) {
+    return ''
+  }
+  return props.inserting ? 'Criar um novo vCard' : 'vCard ' + editingVcard.value.phone_number 
+})
 
 const save = () => {
   const userToSave = editingVcard.value
@@ -72,16 +83,6 @@ const cancel = () => {
 
 const deleteVcard = () => {
   emit("deleteVcard", editingVcard.value);
-
-
-}
-
-const blockVcard = () => {
-  emit("blockVcard", editingVcard.value);
-}
-
-const unblockVcard = () => {
-  emit("unblockVcard", editingVcard.value);
 }
 
 const changePhotoFile = () => {
@@ -108,6 +109,7 @@ const changePhotoFile = () => {
     editingImageAsBase64.value = null
   }
 }
+
 const resetToOriginalPhoto = () => {
   deletePhotoOnTheServer.value = false
   inputPhotoFile.value.value = ''
@@ -118,11 +120,24 @@ const cleanPhoto = () => {
   deletePhotoOnTheServer.value = true
 }
 
+const confirmDeletion = async () => {
+  try {
+    const response = await axios.post(`vcards/${editingVcard.value.phone_number}/confirmdelete`, {
+      password: password.value,
+      confirmation_code: confirmationCode.value
+    })
+    deleteVcard()
+    showDialog.value = false
+  } catch (error) {
+    toast.error(error.response.data.message)
+  }
+}
+
 </script>
 
 <template>
   <form class="row g-3 needs-validation" novalidate @submit.prevent="save">
-    <h3 class="mt-5 mb-3">Vcard {{ userStore.userId }}</h3>
+    <h3 class="mt-5 mb-3">{{ userTitle }}</h3>
     <hr />
     <div class="d-flex flex-wrap justify-content-between">
       <div class="w-75 pe-4">
@@ -153,12 +168,68 @@ const cleanPhoto = () => {
           />
           <field-error-message :errors="errors" fieldName="email"></field-error-message>
         </div>
+
+        <div class="mb-3 px-1" v-if="inserting">
+          <label for="inputPhoneNumber" class="form-label">Número de telemóvel</label>
+          <input
+            type="text"
+            class="form-control"
+            :class="{ 'is-invalid': errors ? errors['phone_number'] : false }"
+            id="inputPhoneNumber"
+            placeholder="Número de telemóvel"
+            required
+            v-model="editingVcard.phone_number"
+          />
+          <field-error-message :errors="errors" fieldName="phone_number"></field-error-message>
+        </div>
+
+        <div class="mb-3 px-1" v-if="inserting">
+          <label for="inputPassword" class="form-label">Password</label>
+          <input
+            type="password"
+            class="form-control"
+            :class="{ 'is-invalid': errors ? errors['password'] : false }"
+            id="inputPassword"
+            placeholder="Insira a sua palavra-passe"
+            required
+            v-model="editingVcard.password"
+          />
+          <field-error-message :errors="errors" fieldName="password"></field-error-message>
+        </div>
+
+        <div class="mb-3 px-1" v-if="inserting">
+          <label for="inputPassword" class="form-label">Confirmação da Password</label>
+          <input
+            type="password"
+            class="form-control"
+            :class="{ 'is-invalid': errors ? errors['password_confirmation'] : false }"
+            id="inputPassword"
+            placeholder="Insira a sua palavra-passe novamente"
+            required
+            v-model="editingVcard.password_confirmation"
+          />
+          <field-error-message :errors="errors" fieldName="password_confirmation"></field-error-message>
+        </div>
+
+        <div class="mb-3 px-1" v-if="inserting">
+          <label for="inputEmail" class="form-label">Código de Confirmação</label>
+          <input
+            type="password"
+            class="form-control"
+            :class="{ 'is-invalid': errors ? errors['confirmation_code'] : false }"
+            id="inputEmail"
+            placeholder="Insira o código de confirmação"
+            required
+            v-model="editingVcard.confirmation_code"
+          />
+          <field-error-message :errors="errors" fieldName="confirmation_code"></field-error-message>
+        </div>
         
       </div>
       <div class="w-25">
         <div class="d-flex flex-column">
           <div class="form-control text-center">
-            <img :src="userStore.userPhotoUrl" class="w-100" />
+            <img :src="photoFullUrl" class="w-100" />
           </div>
           <div class="mt-3 d-flex justify-content-between flex-wrap">
             <label for="inputPhoto" class="btn btn-dark flex-grow-1 mx-1">Carregar</label>
@@ -174,9 +245,18 @@ const cleanPhoto = () => {
     <div class="mb-3 d-flex justify-content-end">
       <button type="button" class="btn btn-primary px-5" @click="save">Save</button>
       <button type="button" class="btn btn-light px-5" @click="cancel">Cancel</button>
-
-      <ConfirmPopup class="btn btn-danger px-5" @click="deleteVcard">Delete</ConfirmPopup>
-      
+      <!-- <button type="button" class="btn btn-danger px-5" @click="deleteVcard">Delete</button> -->
+      <button type="button" class="btn btn-danger px-5" @click="showDialog = true">Delete</button>
+      <Dialog header="Apagar vCard" v-model:visible="showDialog" :modal="true" :closable="false">
+        <p>Por favor insira o seu código de confirmação</p>
+        <InputText v-model="confirmationCode" placeholder="Enter confirmation code" type="password"/>
+        <p class="mt-4">Por favor insira a sua password</p>
+        <InputText v-model="password" placeholder="Enter Password" type="password"/>
+        <div class="p-d-flex p-jc-end p-mt-3 mt-4">
+          <Button label="Confirm" class="p-button-danger m-3" @click="confirmDeletion" />
+          <Button label="Cancel" class="p-button-secondary m-3" @click="showDialog = false" />
+        </div>
+      </Dialog>
     </div>
   </form>
   <input type="file" style="visibility:hidden;" id="inputPhoto" ref="inputPhotoFile" @change="changePhotoFile" />
