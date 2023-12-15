@@ -163,17 +163,25 @@ class VcardController extends Controller
         ]);
     }
 
-    public function checkPassword(Request $request, Vcard $vcard)
+    public function confirmDelete(Request $request, Vcard $vcard)
     {
         $request->validate([
             'password' => 'required|string',
+            'confirmation_code' => 'required|string',
         ]);
 
         $isPasswordCorrect = Hash::check($request->password, $vcard->password);
+        $isConfirmationCodeCorrect = Hash::check($request->confirmation_code, $vcard->confirmation_code);
+        if ($isPasswordCorrect && $isConfirmationCodeCorrect) {
+            return response()->json([
+                'confirmPassword' => true,
+                'message' => 'Delete vCard authorized',
+            ], 200);
+        }
         return response()->json([
-            'isPasswordCorrect' => $isPasswordCorrect,
-            'message' => $isPasswordCorrect ? 'Login bem sucedido' : 'Palavra-passe incorrecta, tente novamente',
-        ]);
+            'confirmPassword' => false,
+            'message' => 'Delete vCard unauthorized',
+        ], 400);
     }
 
     public function checkConfirmationCode(Request $request, Vcard $vcard)

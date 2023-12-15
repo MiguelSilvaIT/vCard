@@ -19,7 +19,7 @@
      if (await userStore.login(credentials.value)) {
       toast.success('User ' + userStore.user.name + ' has entered the application.')
       emit('auth/login')
-      router.back()
+      router.push({ name: 'Dashboard' })
     } else {
       credentials.value.password = ''
     }
