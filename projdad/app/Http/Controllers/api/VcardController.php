@@ -18,6 +18,12 @@ use App\Http\Resources\CategoryResource;
 
 class VcardController extends Controller
 {
+
+    public function __construct()
+    {
+        $this->authorizeResource(Vcard::class, 'vcard');
+    }
+
     private function storeBase64AsFile(Vcard $vcard, string $base64String)
     {
         // Store base64 string as file and return the file name

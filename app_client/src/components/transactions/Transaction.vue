@@ -71,7 +71,6 @@ const save =  async () => {
   if (operation.value == 'insert') 
   {
     console.log(transaction.value)
-    transaction.value.vcard = userStore.userId.toString()
     
     if(transaction.value.payment_type == 'VCARD'){
       transaction.value.pair_vcard = transaction.value.payment_ref

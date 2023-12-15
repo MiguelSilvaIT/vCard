@@ -2,21 +2,30 @@
 
 namespace App\Policies;
 
+use App\Models\Vcard;
 use App\Models\User;
 
 class VcardPolicy
 {
-    public function __construct()
+    public function viewAny(User $user)
     {
-        //
+        return $user->user_type == "A";
     }
-    public function update_max_debit(User $user)
+
+    public function view(User $user, Vcard $model)
     {
-        return $user->user_type == 'A' ;
+        return $user->user_type == "A" || $user->id == $model->phone_number;
     }
-    public function view_transactions(User $user, User $model)
+
+    public function update(User $user, Vcard $model)
     {
-        return true;
+        return $user->id == $model->phone_number;
     }
+
+    public function updatePassword(User $user, Vcard $model)
+    {
+    return $user->id == $model->phone_number;
+    }
+
     
 }
