@@ -21,7 +21,7 @@ const props = defineProps({
 const NewTransaction = () => {
     return {
         id: null,
-        vcard:'',
+        vcard:userStore.userId,
         payment_type: 'VCARD',
         payment_ref: '', 
         type:'D',
@@ -77,38 +77,22 @@ const save =  async () => {
       transaction.value.pair_vcard = transaction.value.payment_ref
     }
     try{
-    const response = await axios.post('transactions', transaction.value)
+      const response = await axios.post('transactions', transaction.value)
       console.dir(response.data)
-      
-      if(transaction.value.payment_type != "VCARD"){
-        externalTransaction.value.type = transaction.value.payment_type
-        externalTransaction.value.reference = transaction.value.payment_ref
-        externalTransaction.value.value = transaction.value.value
-        if(response.data.success){
-          axios.post('https://dad-202324-payments-api.vercel.app/api/credit', externalTransaction.value)
-              .then((response) => {
-                  toast.success('Transaction Created')
-                  console.dir(response.data)
-                  originalValueStr=JSON.stringify(transaction.value)
-                  router.push({name: 'Transactions'})
-              })
-              .catch((error) => {
-                  if (error.response.status == 422) {
-                  errors.value = error.response.data.errors
-                  toast.error("Validation Error")
-              }
-          })
-        }
-      }
-      else{
+      if(response.data.success){
         toast.success('Transaction Created')
+        console.dir(response.data)
         originalValueStr=JSON.stringify(transaction.value)
         router.push({name: 'Transactions'})
+      }
+      else{
+        toast.error(response.data.message)
       }
     }
     catch(error){
       errors.value = error.response.data.errors
-      console.log(error)
+    
+      toast.error("Validation Error")
     }
   } else {
     axios.put('transactions/' + props.id, transaction.value)

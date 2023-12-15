@@ -47,37 +47,24 @@ const confirmationLeaveDialog = ref(null)
 let originalValueStr = JSON.stringify(transaction.value)
 
 const save =  async() => {
-    externalTransaction.value.type = transaction.value.payment_type
-    externalTransaction.value.reference = transaction.value.payment_ref
-    externalTransaction.value.value = transaction.value.value
-    // transaction.value.vcard.phone = transaction.value.vcard.phone
+    
     try{
-        const response = await axios.post('https://dad-202324-payments-api.vercel.app/api/debit', externalTransaction.value)
+      const response = await axios.post('transactions', transaction.value)
+      console.dir(response.data)
+      if(response.data.success){
+        toast.success('Transaction Created')
         console.dir(response.data)
-        if(response.data.status == "valid"){
-            console.log("Valid", transaction.value)
-            axios.post('transactions', transaction.value)
-                .then((response) => {
-                    toast.success('Transaction Created')
-                    originalValueStr = JSON.stringify(transaction.value)
-                    console.dir(response.data)
-                    router.push({name: 'Dashboard'})
-                })
-                .catch((error) => {
-                    if (error.response.status == 422) {
-                    errors.value = error.response.data.errors
-                    toast.error("Validation Error")
-                }
-            })
-        }
-        else{
-        }
+        originalValueStr=JSON.stringify(transaction.value)
+        router.push({name: 'Dashboard'})
+      }
+      else{
+        toast.error(response.data.message)
+      }
     }
     catch(error){
-        if (error.response.status == 422) {
-            errors.value = error.response.data.errors
-            toast.error("Validation Error")
-        }
+      errors.value = error.response.data.errors
+    
+      toast.error("Validation Error")
     }
 }
 

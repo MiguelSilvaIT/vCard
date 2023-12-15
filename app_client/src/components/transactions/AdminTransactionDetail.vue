@@ -70,9 +70,10 @@ const cancel = () => {
       <div class="w-75 pe-4">
         <div class="mb-4">
           <span class="p-float-label">
-            <Dropdown v-model="editingTransaction.vcard" editable :options="vcardsStore.vcards" optionLabel="phone" optionValue="phone"/>
-            <!-- <AutoComplete v-model="editingTransaction.vcard" dropdown optionLabel="phone" optionValue="phone" :suggestions="vcardsStore.vcards" /> -->
+            <Dropdown v-model="editingTransaction.vcard" editable :options="vcardsStore.vcards" optionLabel="phone" optionValue="phone"
+                         :class="{ 'p-invalid': errors ? errors['vcard'] : false }"/>
             <label for="number-input">Transaction Vcard</label>
+            <field-error-message :errors="errors" fieldName="vcard"></field-error-message>
           </span> 
         </div>
         <div class="col mb-4 ms-xs-3">
@@ -93,7 +94,7 @@ const cancel = () => {
         </div>
         <div class="col mb-4 ms-xs-3">
           <div class="p-float-label">
-            <InputText type="text" v-model="editingTransaction.payment_ref" :class="{ 'p-invalid': errors ? errors['reference'] : false }"/>
+            <InputText type="text" v-model="editingTransaction.payment_ref" :class="{ 'p-invalid': errors ? errors['payment_ref'] : false }"/>
             <label for="dd-paymentType">Payment Reference</label>
             <field-error-message :errors="errors" fieldName="payment_ref"></field-error-message>
           </div>

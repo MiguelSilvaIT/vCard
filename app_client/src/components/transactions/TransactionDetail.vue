@@ -82,22 +82,20 @@ const cancel = () => {
     <hr />
     <div class="d-flex flex-wrap mt-4 justify-content-between">
       <div class="w-75 pe-4">
-        <div class="mb-5">
-          <span class="p-float-label">
-            <InputText type="text" v-model="userStore.userId" disabled />
-            <label for="number-input">Transaction Vcard</label>
-          </span> 
-        </div>
         <div class="col mb-5 ms-xs-3">
           <span class="p-float-label">
-            <InputNumber v-model="editingTransaction.value" inputId="currency-germany" mode="currency" currency="EUR" locale="ge-GE" />
+            <InputNumber v-model="editingTransaction.value" inputId="currency-germany" mode="currency" currency="EUR" locale="ge-GE" 
+                        :class="{ 'p-invalid': errors ? errors['value'] : false }"/>
             <label for="number-input">Transaction Value</label>
+            <field-error-message :errors="errors" fieldName="value"></field-error-message>
           </span> 
         </div>
         <div class="col mb-5 ms-xs-3">
           <div class="p-float-label">
-            <Dropdown v-model="editingTransaction.payment_type" :options="payment_type" optionLabel="value" optionValue="value"/>
+            <Dropdown v-model="editingTransaction.payment_type" :options="payment_type" optionLabel="value" optionValue="value"
+                          :class="{ 'p-invalid': errors ? errors['payment_type'] : false }"/>
             <label for="dd-paymentType">Select Payment Type</label>
+            <field-error-message :errors="errors" fieldName="payment_type"></field-error-message>
           </div>
         </div>
         <div class="col mb-5 ms-xs-3">

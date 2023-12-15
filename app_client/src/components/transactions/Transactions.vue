@@ -30,7 +30,7 @@ const today = ref(new Date());
 
 
 const payment_type = [
-  
+  { value: ''},
   { value: 'VCARD'},
   { value: 'MBWAY' },
   { value: 'PAYPAL' },
@@ -44,7 +44,6 @@ const type = [
   { value: 'D', name: 'Debit' },
   { value: 'C', name: 'Credit' },
 ];
-
 
 
 const loadTransactions = async () => {
