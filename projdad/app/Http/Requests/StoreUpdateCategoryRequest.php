@@ -3,6 +3,7 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class StoreUpdateCategoryRequest extends FormRequest
 {
@@ -24,7 +25,12 @@ class StoreUpdateCategoryRequest extends FormRequest
     public function rules()
     {
         return [
-            'name'=> 'required',
+            'name'=> ['required',
+                Rule::unique('categories')->where(function ($query) {
+                    return $query->where('vcard', $this->vcard)
+                                ->where('name', '!=', $this->name);
+                }),
+            ],
             'type'=> 'required|in:C,D',
             'vcard'=> 'required',
         ];

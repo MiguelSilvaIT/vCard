@@ -14,16 +14,12 @@ use Illuminate\Support\Facades\Storage;
 use App\Http\Requests\UpdateUserPasswordRequest;
 use App\Http\Requests\UpdateVcardconfirmation_codeRequest;
 use App\Http\Resources\CategoryResource;
+use Illuminate\Support\Facades\Validator;
+use App\Models\DefaultCategory;
 
 
 class VcardController extends Controller
 {
-
-    public function __construct()
-    {
-        $this->authorizeResource(Vcard::class, 'vcard');
-    }
-
     private function storeBase64AsFile(Vcard $vcard, string $base64String)
     {
         // Store base64 string as file and return the file name
@@ -35,19 +31,17 @@ class VcardController extends Controller
 
     public function index()
     {
+        VcardResource::$format = 'detailed';
         return VcardResource::collection(Vcard::all());
     }
 
 
-    public function show($phoneNumber)
+    public function show(Vcard $vcard)
     {
         //devolve o vCard correspondente ao phoneNumber recebido
-        $vcard = Vcard::findOrFail($phoneNumber);
         VcardResource::$format = 'detailed';
         return new VcardResource($vcard);
     }
-
-
 
     public function store(StoreVcardRequest $request)
     {
@@ -75,6 +69,14 @@ class VcardController extends Controller
         }
 
         $newVcard->save();
+        $defaultCategories = DefaultCategory::query()->get();
+        foreach ($defaultCategories as $defaultCategory) {
+            $category = new \App\Models\Category();
+            $category->name = $defaultCategory->name;
+            $category->type = $defaultCategory->type;
+            $category->vcard = $request->phone_number;
+            $category->save();
+        }
 
         //devolve o vCard criado no formato detalhado que mostra: phone, name, photo e balance (formatos no VcardResource.php)
         VcardResource::$format = 'detailed';
@@ -203,9 +205,8 @@ class VcardController extends Controller
         ]);
     }
 
-    public function update(UpdateVcardRequest $request, $phoneNumber)
+    public function update(UpdateVcardRequest $request, Vcard $vcard)
     {
-        $vcard = Vcard::findOrFail($phoneNumber);
         $dataToSave = $request->validated();
 
         $base64ImagePhoto = array_key_exists("base64ImagePhoto", $dataToSave) ?
@@ -248,10 +249,8 @@ class VcardController extends Controller
     }
 
     //método que apenas deve estar disponível para o admin
-    public function alterBlockedStatus($phoneNumber)
+    public function alterBlockedStatus(Vcard $vcard)
     {
-        //Find the vCard with the given phone number
-        $vcard = Vcard::findOrFail($phoneNumber);
         //Invert the blocked status
         $vcard->blocked = !$vcard->blocked;
         $vcard->save();
@@ -261,19 +260,17 @@ class VcardController extends Controller
         ], 200);
     }
 
-    public function updatePassword(UpdateUserPasswordRequest $request, $phoneNumber)
+    public function updatePassword(UpdateUserPasswordRequest $request, Vcard $vcard)
     {
-        //vai buscar o vCard com o phoneNumber recebido
-        $vcard = Vcard::findOrFail($phoneNumber);
         //validar os dados recebidos
         $dataToSave = $request->validated();
         //alterar a password do vCard
         if (!Hash::check($dataToSave['current_password'], $vcard->password)) {
             //se a password antiga não for igual à que está na BD, devolve erro
-            return response()->json([
-                'message' => 'error',
-                'data' => 'Old password is not correct'
-            ], 400);
+            $validator = Validator::make([], []);
+            $validator->errors()->add('current_password', 'Current password is not correct');
+
+            return response()->json(['errors' => $validator->errors()], 422);
         }
         $vcard->password = $dataToSave['password'];
         $vcard->save();
@@ -284,19 +281,17 @@ class VcardController extends Controller
         ], 200);
     }
 
-    public function updateconfirmation_code(UpdateVcardconfirmation_codeRequest $request, $phoneNumber)
+    public function updateconfirmation_code(UpdateVcardconfirmation_codeRequest $request, Vcard $vcard)
     {
-        //vai buscar o vCard com o phoneNumber recebido
-        $vcard = Vcard::findOrFail($phoneNumber);
         //validar os dados recebidos
         $dataToSave = $request->validated();
         //alterar o pin do vCard
         if (!Hash::check($dataToSave['oldconfirmation_code'], $vcard->confirmation_code)) {
             //se o pin antigo não for igual ao que está na BD, devolve erro
-            return response()->json([
-                'message' => 'error',
-                'data' => 'Old confirmation_code is not correct'
-            ], 400);
+            $validator = Validator::make([], []);
+            $validator->errors()->add('oldconfirmation_code', 'Old confirmation code is not correct');
+
+            return response()->json(['errors' => $validator->errors()], 422);
         }
         $vcard->confirmation_code = $dataToSave['confirmation_code'];
         $vcard->save();
@@ -307,10 +302,8 @@ class VcardController extends Controller
         ], 200);
     }
 
-    public function destroy(Request $request, $phoneNumber)
+    public function destroy(Request $request, Vcard $vcard)
     {
-        //vai buscar o vCard com o phoneNumber recebido
-        $vcard = Vcard::findOrFail($phoneNumber);
         //confirmar se o vCard tem saldo
         if ($vcard->balance != 0) {
             //se tiver, devolve erro

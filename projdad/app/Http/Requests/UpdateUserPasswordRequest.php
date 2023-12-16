@@ -29,4 +29,17 @@ class UpdateUserPasswordRequest extends FormRequest
             'current_password' => 'required',
         ];
     }
+
+    /**
+     * Get the error messages for the defined validation rules.
+     */
+    public function messages(): array
+    {
+        return [
+            'password.required' => 'Password is required',
+            'password.confirmed' => 'Password confirmation does not match',
+            'password.min' => 'Password must be at least 3 characters',
+            'current_password.required' => 'Current password is required',
+        ];
+    }
 }

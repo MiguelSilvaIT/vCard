@@ -21,7 +21,7 @@ const props = defineProps({
 const NewTransaction = () => {
     return {
         id: null,
-        vcard:userStore.userId,
+        vcard:userStore.userId.toString(),
         payment_type: 'VCARD',
         payment_ref: '', 
         type:'D',
@@ -90,7 +90,6 @@ const save =  async () => {
     }
     catch(error){
       errors.value = error.response.data.errors
-    
       toast.error("Validation Error")
     }
   } else {

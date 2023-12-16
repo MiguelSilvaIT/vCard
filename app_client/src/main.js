@@ -11,7 +11,8 @@ import { io } from 'socket.io-client'
 import VueDatePicker from '@vuepic/vue-datepicker';
 import '@vuepic/vue-datepicker/dist/main.css'
 import PrimeVue from 'primevue/config';
-import 'primevue/resources/themes/lara-light-green/theme.css'
+import 'primevue/resources/themes/bootstrap4-light-blue/theme.css'
+// import 'primevue/resources/themes/lara-light-green/theme.css'
 import StyleClass from 'primevue/styleclass';
                 
 
@@ -34,9 +35,6 @@ import router from './router'
 
 
 const app = createApp(App)
-
-
-
 
 const serverBaseUrl = import.meta.env.VITE_API_DOMAIN
 const wsConnection = import.meta.env.VITE_WS_CONNECTION

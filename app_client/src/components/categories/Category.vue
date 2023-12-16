@@ -12,7 +12,7 @@ const router = useRouter()
 
 const userStore = useUserStore()
 
-const endpoint = userStore.userType === 'A' ? 'categories/default' : 'categories';
+const endpoint = userStore.userType === 'A' ? 'default_categories' : 'categories';
 
 const props = defineProps({
     id: {
@@ -44,6 +44,7 @@ const loadCategory = async (id) => {
     originalValueStr = JSON.stringify(category.value)
   } else {
       try {
+        console.log(`${endpoint}/${id}`)
         const response = await axios.get(`${endpoint}/${id}`)
         category.value = response.data.data
         originalValueStr = JSON.stringify(category.value)
@@ -79,13 +80,10 @@ const save =  () => {
         console.dir(response.data.data)
         originalValueStr = JSON.stringify(category.value)
         router.push({name:'Categories'})
-
       })
       .catch((error) => {
-      if (error.response && error.response.status == 422) {
         errors.value = error.response.data.errors
         toast.error("Validation Error")
-      }
         console.dir(error)
       })
   }

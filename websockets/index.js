@@ -33,5 +33,4 @@ io.on("connection", (socket) => {
   socket.on('blockedUser', function (user) {
     socket.in(user.phone_number).emit('blockedUser', user);
   })
-  
 });

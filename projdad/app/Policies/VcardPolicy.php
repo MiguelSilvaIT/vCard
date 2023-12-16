@@ -16,16 +16,19 @@ class VcardPolicy
     {
         return $user->user_type == "A" || $user->id == $model->phone_number;
     }
-
+    
     public function update(User $user, Vcard $model)
     {
         return $user->id == $model->phone_number;
     }
 
-    public function updatePassword(User $user, Vcard $model)
+    public function delete(User $user, Vcard $model)
     {
-    return $user->id == $model->phone_number;
+        return $user->user_type == "A" || $user->id == $model->phone_number;
     }
 
-    
+    public function block(User $user, Vcard $model)
+    {
+        return $user->user_type == "A";
+    }
 }

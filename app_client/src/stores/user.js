@@ -77,15 +77,7 @@ export const useUserStore = defineStore('user', () => {
       }
     }
 
-    async function changeConfirmationCode(credentials) {
-      try {
-        console.log(user.value.id)  
-        await axios.patch(`vcards/${user.value.id}/confirmation_code`, credentials);
-      } catch (error) {
-        console.error('Failed to change confirmation code:', error);
-      }
-    }
-
+    
     async function logout () {
         try {
             await axios.post('logout')
@@ -128,5 +120,5 @@ export const useUserStore = defineStore('user', () => {
       logout()
     })
 
-    return { user, userName, userId, userPhotoUrl, userType, changeConfirmationCode, loadUser, clearUser, login, logout,restoreToken, getTransactions, changeVcardPassword, changeAdminsPassword}
+    return { user, userName, userId, userPhotoUrl, userType, loadUser, clearUser, login, logout,restoreToken, getTransactions, changeVcardPassword, changeAdminsPassword}
 })

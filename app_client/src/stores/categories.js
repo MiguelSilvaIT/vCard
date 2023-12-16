@@ -38,7 +38,7 @@ export const useCategoriesStore = defineStore('categories', () => {
         }
         else{
             try{
-                const response = await axios.get('default/categories', {params: {'transaction_type': transaction_type}})
+                const response = await axios.get('default_categories', {params: {'transaction_type': transaction_type}})
                 categories.value = response.data.data
             }
             catch(error){
@@ -51,54 +51,12 @@ export const useCategoriesStore = defineStore('categories', () => {
     function clearCategories() {
         categories.value = []
     }
-
-    async function insertCategory(newCategory) {
-        // Note that when an error occours, the exception should be
-        // catch by the function that called the insertProject
-        try{
-            const response = await axios.post('categories', newCategory)
-            categories.value.push(response.data.data)
-        }
-        catch(error){
-            throw error
-        }
-    }
-
-    async function updateCategory(updateCategory) {
-        // Note that when an error occours, the exception should be
-        // catch by the function that called the updateProject
-        const response = await axios.put('projects/' + updateCategory.id, updateCategory)
-        let idx = categories.value.findIndex((t) => t.id === response.data.data.id)
-        if (idx >= 0) {
-            categories.value[idx] = response.data.data
-        }
-        return response.data.data
-    }
-
-    async function deleteCategory( deleteCategory) {
-        // Note that when an error occours, the exception should be
-        // catch by the function that called the deleteProject
-        try{
-            const response = await axios.delete('categories/' + deleteCategory.id)
-            let idx = categories.value.findIndex((t) => t.id === response.data.data.id)
-            if (idx >= 0) {
-                categories.value.splice(idx, 1)
-            }
-        }
-        catch(error){
-            throw error
-        }
-    }  
-
     return { 
         categories, 
         categoryName,
         totalCategories, 
         loadCategories, 
         clearCategories, 
-        insertCategory, 
-        updateCategory, 
-        deleteCategory,
         loadCategory
     }
 })

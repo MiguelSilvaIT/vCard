@@ -12,6 +12,10 @@ use Illuminate\Support\Facades\Http;
 
 class TransactionController extends Controller
 {
+    public function __construct()
+    {
+        $this->authorizeResource(Transaction::class, 'transaction');
+    }
     //index
     public function index()
     {
@@ -165,7 +169,7 @@ class TransactionController extends Controller
     }
     
     //update
-    public function update(Request $request, Transaction $transaction)
+    public function update( Transaction $transaction, Request $request)
     {
         $transaction->update($request->all());
         return new TransactionResource($transaction);

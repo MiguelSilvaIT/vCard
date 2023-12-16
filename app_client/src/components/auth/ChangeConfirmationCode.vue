@@ -3,33 +3,33 @@ import { useToast } from "vue-toastification"
 import { useRouter } from 'vue-router'
 import { useUserStore } from '../../stores/user.js'
 import { ref } from 'vue'
+import InputText from 'primevue/inputtext'
+import axios from 'axios'
 
 const toast = useToast()
 const router = useRouter()
 const userStore = useUserStore()
 
-const passwords = ref({
+const confirmation_codes = ref({
     confirmation_code: '',
     oldconfirmation_code: ''    
 })
 
 const errors = ref(null)
 
-const emit = defineEmits(['changedPassword'])
 
-const changeConfirmationCode = async () => {
+const changeConfirmationCode = async() => {
+  console.log("CHange",confirmation_codes.value)
   try {
-    await userStore.changeConfirmationCode(passwords.value)
+    const response = await axios.patch(`vcards/${userStore.userId}/confirmation_code`, confirmation_codes.value);
+    console.log("Response",response)      
+    
     toast.success('Confirmation code has been changed.')
-    emit('changedPassword')
-    router.back()
+    router.push({ name: 'Dashboard' })
   } catch (error) {
-    if (error.response.status == 422) {
+    if(error.response.status == 422)
       errors.value = error.response.data.errors
-      toast.error('Password has not been changed due to validation errors!')
-    } else {
-      toast.error('Password has not been changed due to unknown server error!')
-    }
+    toast.error('Error changing confirmation code!')
   }
 }
 </script>
@@ -38,23 +38,29 @@ const changeConfirmationCode = async () => {
   <form class="row g-3 needs-validation" novalidate @submit.prevent="changeConfirmationCode">
     <h3 class="mt-5 mb-3">Change Confirmation Code</h3>
     <hr>
-    <div class="mb-3">
-      <div class="mb-3">
-        <label for="inputCurrentPassword" class="form-label">Current Confirmation Code</label>
-        <input type="password" class="form-control" id="inputCurrentPassword" required
-          v-model="passwords.confirmation_code">
-        <field-error-message :errors="errors" fieldName="confirmation_code"></field-error-message>
-      </div>
-    </div>
-    <div class="mb-3">
-      <div class="mb-3">
-        <label for="inputPassword" class="form-label">New Confirmation Code</label>
-        <input type="password" class="form-control" id="inputPassword" required v-model="passwords.oldconfirmation_code">
-        <field-error-message :errors="errors" fieldName="oldconfirmation_code"></field-error-message>
-      </div>
-    </div>
+    <div class="d-flex flex-wrap justify-content-between">
+      <div class="w-75 pe-4">
+        <div class="mb-5">
+          <span class="p-float-label">
+            <InputText type="password" v-model="confirmation_codes.oldconfirmation_code" 
+                    :class="{ 'is-invalid': errors ? errors['oldconfirmation_code'] : false }"/>
+            <label for="number-input">Old Confirmation Code</label>
+            <field-error-message :errors="errors" fieldName="oldconfirmation_code"></field-error-message>
+          </span>
+        </div>
+     
+        <div class="mb-5">
+          <span class="p-float-label">
+            <InputText type="password" v-model="confirmation_codes.confirmation_code" 
+                    :class="{ 'is-invalid': errors ? errors['confirmation_code'] : false }"/>
+            <label for="number-input">New Confirmation Code</label>
+            <field-error-message :errors="errors" fieldName="confirmation_code"></field-error-message>
+          </span>
+        </div>
     <div class="mb-3 d-flex justify-content-center">
       <button type="button" class="btn btn-primary px-5" @click="changeConfirmationCode">Change Confirmation Code</button>
+    </div>
+      </div>
     </div>
   </form>
 </template>

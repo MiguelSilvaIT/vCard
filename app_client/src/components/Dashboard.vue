@@ -21,6 +21,7 @@ const totalBalance = computed(() => totalBalanceValue.value);
 const loadBalance = async () => {
   try {
     const response = await axios.get('vcards/' + userStore.userId)
+    console.log(response.data.data)
     balanceValue.value = response.data.data.balance
     piggyBalanceValue.value = response.data.data.custom_data.value
     totalBalanceValue.value = parseFloat(balanceValue.value) + parseFloat(piggyBalanceValue.value)

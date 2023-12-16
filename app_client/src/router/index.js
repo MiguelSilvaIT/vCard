@@ -99,7 +99,6 @@ const router = createRouter({
       props: { id: -1 },
     },
     {
-
       path: '/vcards',
       name: 'Vcards',
       component: Vcards,
@@ -172,18 +171,11 @@ const router = createRouter({
       props: route => ({ id: parseInt(route.params.id) })
     },
     {
-      path: "/administrators/new",
-      name: "NewAdministrator",
-      component: Administrator,
-      props: { id: -1 },
-    },
-    {
       path: "/creditTransactions/new",
       name: "CreditTransaction",
       component: AdminTransaction,
       props: { id: -1 },
     }
-
   ]
 })
 
@@ -203,15 +195,19 @@ router.beforeEach( async (to, from, next) => {
     next({ name: 'Login' })
     return
   }
-  if(((to.name == 'CreditTransaction')) && (userStore.userType == 'V')){
-    return
+  if(userStore.userType == 'V'){
+    if((to.name == 'Administrators')||(to.name == 'Administrator')||(to.name == 'CreditTransaction')||(to.name == 'NewAdministrator')
+              ||(to.name == 'CreditTransaction')){
+      next({ name: 'Dashboard' })
+      return
+    }
+    next()
   }
-  if(((to.name == 'Transactions')||(to.name == 'Transaction')) && (userStore.userType == 'A')){
-    return
-  }
-  if(((to.name == 'Users')||(to.name == 'User')||(to.name == 'VcardsV')||(to.name == 'Vcard') ) && (userStore.userType == 'V')){
-    
-    return
+  else{
+    if((to.name == 'Vcard')||(to.name == 'NewVcard')||(to.name == 'NewTransaction')||(to.name == "Dashboard")){
+      next({ name: 'Reports' })
+      return
+    }
   }
   next()
 })

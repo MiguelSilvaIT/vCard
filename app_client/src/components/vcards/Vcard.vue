@@ -16,7 +16,6 @@ const props = defineProps({
       type: Number,
       default: null
     }
-  
 })
 const userStore = useUserStore()
 
@@ -48,7 +47,7 @@ const loadVcard = async (phone) => {
     console.log("aqui" ,vcard.value)
   } else {
       try {
-        const response = await axios.get('vcards/' + phone)
+        const response = await axios.get('/vcards/' + phone)
 
         vcard.value = response.data.data
         originalValueStr = JSON.stringify(vcard.value)
@@ -61,47 +60,47 @@ const loadVcard = async (phone) => {
 const inserting = (phone_number) => !phone_number || (phone_number < 0)
   
 const save = async (vcardToSave) => {
-errors.value = null
-if (inserting(props.phone_number)) {
-  try {
-    console.log("here")
-    const response = await axios.post('vcards', vcardToSave)
-    console.dir(response.data)
-    vcard.value = response.data.data
-    originalValueStr = JSON.stringify(vcard.value)
-    toast.success('Vcard was registered successfully.')
-    socket.emit('insertedUser', vcard.value)
-    
-    router.push({name: 'Login'})
-  } catch (error) {
-    console.log(error)
-    if (error.response.status == 422) {
-      errors.value = error.response.data.errors
-      toast.error('vCard was not registered due to validation errors!')
-    } else {
-      toast.error('vCard was not registered due to unknown server error!')
+  errors.value = null
+  console.log(inserting(props.phone_number))
+  if (inserting(props.phone_number)) {
+    try {
+      const response = await axios.post('/vcards', vcardToSave)
+      console.dir(response.data)
+      vcard.value = response.data.data
+      originalValueStr = JSON.stringify(vcard.value)
+      toast.success('Vcard was registered successfully.')
+      socket.emit('insertedUser', vcard.value)
+      
+      router.push({name: 'Login'})
+    } catch (error) {
+      console.log(error)
+      if (error.response.status == 422) {
+        errors.value = error.response.data.errors
+        toast.error('vCard was not registered due to validation errors!')
+      } else {
+        toast.error('vCard was not registered due to unknown server error!')
+      }
+    }
+  } else {
+    try {
+      const response = await axios.put('vcards/' + props.phone_number, vcardToSave)
+      vcard.value = response.data.data
+      originalValueStr = JSON.stringify(vcard.value)
+      toast.success('vCard ' + vcard.value.phone_number + ' was updated successfully.')
+      router.push({name: 'Dashboard'})
+      if (userStore.userType == 'V') {
+        await userStore.loadUser()
+      }
+      socket.emit('updatedUser', vcard.value)
+    } catch (error) {
+      if (error.response.status == 422) {
+        errors.value = error.response.data.errors
+        toast.error('vCard ' + props.phone_number + ' was not updated due to validation errors!')
+      } else {
+        toast.error('vCard ' + props.phone_number + ' was not updated due to unknown server error!')
+      }
     }
   }
-} else {
-  try {
-    const response = await axios.put('vcards/' + props.phone_number, vcardToSave)
-    vcard.value = response.data.data
-    originalValueStr = JSON.stringify(vcard.value)
-    toast.success('vCard ' + vcard.value.phone_number + ' was updated successfully.')
-    router.push({name: 'Dashboard'})
-    if (userStore.userType == 'V') {
-      await userStore.loadUser()
-    }
-    socket.emit('updatedUser', vcard.value)
-  } catch (error) {
-    if (error.response.status == 422) {
-      errors.value = error.response.data.errors
-      toast.error('vCard ' + props.phone_number + ' was not updated due to validation errors!')
-    } else {
-      toast.error('vCard ' + props.phone_number + ' was not updated due to unknown server error!')
-    }
-  }
-}
 }
 
 const cancel =  () => {

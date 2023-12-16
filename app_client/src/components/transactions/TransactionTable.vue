@@ -62,7 +62,7 @@ const stockClass = (type) => {
     ];
   }
   return [
-    'text-success'
+    'credit_value'
   ];
 };
 
@@ -77,11 +77,7 @@ const formatCurrency = (value,type) => {
   else{
     return  ` +${format}` ;
   }
-  
 };
-
-console.log(formatCurrency(100, 'D')); // Outputs: "- €100.00"
-console.log(formatCurrency(100, 'C'));
 
 const selectedTransaction = ref();
 
@@ -128,44 +124,57 @@ const transactionCategory = (id) => {
           </template>
       </Column>
         <template #expansion="slotProps">
-          <Card>
-            <template #title> Transaction #{{ slotProps.data.id }}</template>
-            <template #content>
-                <p >
-                    <strong>Payment Type:</strong> {{ slotProps.data.payment_type }}
-                </p>
-                <p >
-                    <strong>Payment Reference:</strong> {{ slotProps.data.payment_reference }}
-                </p>
-                <p  >
-                    <strong>Payment Value:</strong>  
-                    <span :class="stockClass(slotProps.data.type)">
-                      {{ formatCurrency(slotProps.data.value, slotProps.data.type) }}
-                    </span>
-                </p>
-                <p >
-                    <strong>Old Balance:</strong> {{ slotProps.data.old_balance }}
-                </p>
-                <p >
-                    <strong>New Balance:</strong> {{ slotProps.data.new_balance }}
-                </p>
-                <p >
-                    <strong>Date:</strong> {{ slotProps.data.date }}
-                </p>
-                <p >
-                    <strong>Type:</strong> {{ slotProps.data.type == 'D' ? 'Debit' : 'Credit'  }}
-                </p>
-                <p  v-if="slotProps.data.description">
-                    <strong>Description:</strong> {{ slotProps.data.description }}
-                </p>
-                <p >
-                    <strong>Sent from:</strong> {{ slotProps.data.vcard }}
-                </p>
-                <p v-if="slotProps.data.category_id">
-                    <strong>Category:</strong> {{transactionCategory(slotProps.data.category_id)}}
-                </p>
-            </template>
-        </Card>
+              <div class="expandedDiv">
+                <h5 class="ms-3">Transaction #{{ slotProps.data.id }}</h5>
+                <div class="contentContainer">
+                  <div>
+                    <p >
+                      <strong>Sent from:</strong> {{ slotProps.data.vcard }}
+                    </p>
+                    <p >
+                      <strong>Payment Type:</strong> {{ slotProps.data.payment_type }}
+                    </p>
+                    <p >
+                        <strong>Payment Reference:</strong> {{ slotProps.data.payment_reference }}
+                    </p>
+                    <p >
+                        <strong>Date:</strong> {{ slotProps.data.date }}
+                    </p>
+                  </div>
+                  <div>
+                    <p >
+                        <strong>Type:</strong> {{ slotProps.data.type == 'D' ? 'Debit' : 'Credit'  }}
+                    </p>
+                    <p  >
+                        <strong>Payment Value:</strong>  
+                        <span :class="stockClass(slotProps.data.type)">
+                          {{ formatCurrency(slotProps.data.value, slotProps.data.type) }}
+                        </span>
+                    </p>
+                    <p >
+                        <strong>Old Balance:</strong> {{ slotProps.data.old_balance }}
+                    </p>
+                    <p >
+                        <strong>New Balance:</strong> 
+                        <span :class="stockClass(slotProps.data.type)">
+                          {{ slotProps.data.new_balance }}
+                        </span>
+                    </p>
+                  </div>
+                  <div class="catDescDetail">
+                    <p  v-if="slotProps.data.description">
+                        <strong>Description:</strong> {{ slotProps.data.description }}
+                    </p>
+                    
+                    <p v-if="slotProps.data.category_id">
+                        <strong>Category:</strong> {{transactionCategory(slotProps.data.category_id)}}
+                    </p>
+                  </div>
+                </div>
+              </div>
+                
+            <!-- </template> -->
+        <!-- </Card> -->
         </template>
     </DataTable>
   <Toast />
@@ -175,5 +184,35 @@ const transactionCategory = (id) => {
 button {
   margin-left: 3px;
   margin-right: 3px;
+}
+
+.credit_value{
+  color: #007bff;
+}
+
+.expandedDiv {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-evenly;
+  min-height: 100px;
+  background-color: white;
+  margin: 5px;
+  border-radius: 4px;
+  border-bottom: 1px solid darkgray;
+  padding: 10px;
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.08), 0 6px 6px rgba(0, 0, 0, 0.1);
+}
+.contentContainer{
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  
+  /* align-items: center; */
+  /* background-color: red; */
+}
+
+.catDescDetail{
+  margin-right: 4px;
+  max-width: 250px;
 }
 </style>

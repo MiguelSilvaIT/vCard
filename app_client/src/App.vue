@@ -74,15 +74,17 @@ const clickMenuOption = () => {
             <!-- only show dropdown when userStore.userId != null -->
             
             <ul class="dropdown-menu dropdown-menu-dark dropdown-menu-end" aria-labelledby="navbarDropdownMenuLink">
-              <li >
-                <router-link class="dropdown-item" v-show="userStore.userType == 'V'"
-                            :class="{ active: $route.name == 'Vcard' && $route.params.phone_number == userStore.userId }"
+              <li  v-show="userStore.userType == 'V'">
+                <router-link class="dropdown-item"
+                            :class="{ active: $route.name == 'Vcard'}"
                             :to="{ name: 'Vcard', params: { phone_number: userStore.userId } }" @click="clickMenuOption">
                   <i class="bi bi-person-square"></i>
                   Profile
                 </router-link>
-                <router-link class="dropdown-item" v-show="userStore.userType == 'A' "
-                            :class="{ active: $route.name == 'Administrator' && $route.params.phone_number == userStore.userId }"
+              </li>
+              <li v-show="userStore.userType == 'A' ">
+                <router-link class="dropdown-item" 
+                            :class="{ active: $route.name == 'Administrator'}"
                             :to="{ name: 'Administrator', params: { id: userStore.userId } }" @click="clickMenuOption">
                   <i class="bi bi-person-square"></i>
                   Profile
@@ -122,38 +124,14 @@ const clickMenuOption = () => {
       <nav id="sidebarMenu" class="col-md-3 col-lg-2 d-md-block bg-light sidebar collapse">
         <div class="position-sticky pt-3">
           <ul class="nav flex-column" v-show="userStore.user">
-            <li class="nav-item">
+            <li class="nav-item" v-show="userStore.userType == 'V'">
               <router-link class="nav-link" :class="{ active: $route.name === 'Dashboard' }" 
                           :to="{ name: 'Dashboard' }" @click="clickMenuOption"> 
                 <i class="bi bi-house"></i>
                 Dashboard
               </router-link>
             </li>
-            <!-- <li class="nav-item">
-                <router-link class="nav-link" :class="{ active: $route.name === 'MyTransactions' }" 
-                            :to="{ name: 'MyTransactions' }">
-                  <i class="bi bi-list-stars"></i>
-                  Transactions
-                </router-link>
-            </li> -->
-            <!-- <li class="nav-item d-flex justify-content-between align-items-center pe-3">
-              <router-link class="nav-link w-100 me-3" :class="{ active: $route.name === 'MyVcard' }" 
-                          :to="{ name: 'MyVcard' }">
-                <i class="bi bi-list-check"></i>
-                Vcard 
-              </router-link>
-              <router-link class="link-secondary" :to="{ name: 'NewTask' }" aria-label="Add a new task">
-                <i class="bi bi-xs bi-plus-circle"></i>
-              </router-link>
-            </li> -->
-            <!-- <li class="nav-item">
-                <router-link class="nav-link" :class="{ active: $route.name === 'Projects' }" 
-                            :to="{ name: 'Projects' }">
-                  <i class="bi bi-files"></i>
-                    Projects
-                </router-link>
-            </li> -->
-            <li class="nav-item">
+            <li class="nav-item" >
                 <router-link class="nav-link" :class="{ active: $route.name === 'Categories' }" 
                             :to="{ name: 'Categories' }">
                   <i class="bi bi-files"></i>
@@ -203,25 +181,6 @@ const clickMenuOption = () => {
               </router-link>
             </li>
           </ul>
-
-          <h6 class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-4
-              mb-1 text-muted" v-if="userStore.userType == 'V'">
-            <span>My Transactions</span>
-              <router-link
-                class="link-secondary" :to="{ name: 'NewTransaction' }" aria-label="Add new Transactions">
-                <i class="bi bi-xs bi-plus-circle"></i>
-              </router-link>
-          </h6>
-          <!-- <ul class="nav flex-column mb-2">
-            <li class="nav-item" v-for="prj in workInProgressProjects" :key="prj.id">
-              <router-link class="nav-link w-100 me-3" 
-                :class="{ active: $route.name == 'ProjectTasks' && $route.params.id == prj.id }"
-                :to="{ name: 'ProjectTasks', params: { id: prj.id } }">
-                <i class="bi bi-file-ruled"></i>
-                {{ prj.name }}
-              </router-link>
-            </li>
-          </ul> -->
         </div>
       </nav>
 

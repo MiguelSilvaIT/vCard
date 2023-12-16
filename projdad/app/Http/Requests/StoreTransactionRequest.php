@@ -33,13 +33,6 @@ class StoreTransactionRequest extends FormRequest
                 'required',
                 'string',
                 Rule::in(['D', 'C']),
-                // function ($atribute,$value,$fail){
-                //     if($this->payment == 'VCARD'){
-                //         if($value == 'C'){
-                //             $fail('Type has to be Debit');
-                //         }
-                //     }
-                // }
             ],
             'category_id' => 'nullable|exists:categories,id',
             'payment_ref' => ['required', 

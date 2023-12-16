@@ -13,7 +13,7 @@ const router = useRouter()
 const categories = ref([])
 const toast = useToast()
 
-const endpoint = userStore.userType === 'A' ? 'categories/default' : 'vcards/'+userStore.userId+'/categories';
+const endpoint = userStore.userType === 'A' ? 'default_categories' : 'vcards/'+userStore.userId+'/categories';
 
 const loadCategories= async () => {
     try{
@@ -31,7 +31,7 @@ const deleteCategory = (category) => {
     if(userStore.userType == 'V')
       axios.delete(`categories/${category.id}`)
     else{
-      axios.delete(`default/categories/${category.id}`)
+      axios.delete(`default_categories/${category.id}`)
     }
       let idx = categories.value.findIndex((t) => t.id === category.id)
       if (idx >= 0) {

@@ -141,35 +141,44 @@ const confirmDeletion = async () => {
     <hr />
     <div class="d-flex flex-wrap justify-content-between">
       <div class="w-75 pe-4">
-        <div class="mb-3">
+        <div class="mb-5">
+          <span class="p-float-label">
+            <InputText type="text" v-model="editingVcard.name" 
+                    :class="{ 'is-invalid': errors ? errors['name'] : false }"/>
+            <label for="number-input">Name</label>
+            <field-error-message :errors="errors" fieldName="name"></field-error-message>
+          </span>
+        </div>
+        <!-- <div class="mb-3">
           <label for="inputName" class="form-label">Nome</label>
           <input
             type="text"
             class="form-control"
-            :class="{ 'is-invalid': errors ? errors['name'] : false }"
+            
             id="inputName"
             placeholder="Nome"
             required
             v-model="editingVcard.name"
           />
-          <field-error-message :errors="errors" fieldName="name"></field-error-message>
+          
+        </div> -->
+        <div class="mb-5">
+          <span class="p-float-label">
+            <InputText type="text" v-model="editingVcard.email" 
+                    :class="{ 'is-invalid': errors ? errors['email'] : false }"/>
+            <label for="number-input">Email</label>
+            <field-error-message :errors="errors" fieldName="email"></field-error-message>
+          </span>
         </div>
-
-        <div class="mb-3 px-1">
-          <label for="inputEmail" class="form-label">Email</label>
-          <input
-            type="email"
-            class="form-control"
-            :class="{ 'is-invalid': errors ? errors['email'] : false }"
-            id="inputEmail"
-            placeholder="Email"
-            required
-            v-model="editingVcard.email"
-          />
-          <field-error-message :errors="errors" fieldName="email"></field-error-message>
+        <div class="mb-5" v-if="inserting">
+          <span class="p-float-label">
+            <InputText type="text" v-model="editingVcard.phone_number" 
+                    :class="{ 'is-invalid': errors ? errors['phone_number'] : false }"/>
+            <label for="number-input">Phone Number</label>
+            <field-error-message :errors="errors" fieldName="phone_number"></field-error-message>
+          </span>
         </div>
-
-        <div class="mb-3 px-1" v-if="inserting">
+        <!-- <div class="mb-3 px-1" v-if="inserting">
           <label for="inputPhoneNumber" class="form-label">Número de telemóvel</label>
           <input
             type="text"
@@ -181,50 +190,32 @@ const confirmDeletion = async () => {
             v-model="editingVcard.phone_number"
           />
           <field-error-message :errors="errors" fieldName="phone_number"></field-error-message>
-        </div>
+        </div> -->
 
-        <div class="mb-3 px-1" v-if="inserting">
-          <label for="inputPassword" class="form-label">Password</label>
-          <input
-            type="password"
-            class="form-control"
-            :class="{ 'is-invalid': errors ? errors['password'] : false }"
-            id="inputPassword"
-            placeholder="Insira a sua palavra-passe"
-            required
-            v-model="editingVcard.password"
-          />
-          <field-error-message :errors="errors" fieldName="password"></field-error-message>
+        <div class="mb-5" v-if="inserting">
+          <span class="p-float-label">
+            <InputText type="password" v-model="editingVcard.password" 
+                    :class="{ 'is-invalid': errors ? errors['password'] : false }"/>
+            <label for="number-input">Password</label>
+            <field-error-message :errors="errors" fieldName="password"></field-error-message>
+          </span>
         </div>
-
-        <div class="mb-3 px-1" v-if="inserting">
-          <label for="inputPassword" class="form-label">Confirmação da Password</label>
-          <input
-            type="password"
-            class="form-control"
-            :class="{ 'is-invalid': errors ? errors['password_confirmation'] : false }"
-            id="inputPassword"
-            placeholder="Insira a sua palavra-passe novamente"
-            required
-            v-model="editingVcard.password_confirmation"
-          />
-          <field-error-message :errors="errors" fieldName="password_confirmation"></field-error-message>
+        <div class="mb-5" v-if="inserting">
+          <span class="p-float-label">
+            <InputText type="password" v-model="editingVcard.password_confirmation" 
+                    :class="{ 'is-invalid': errors ? errors['password_confirmation'] : false }"/>
+            <label for="number-input">Password Confirmation</label>
+            <field-error-message :errors="errors" fieldName="password_confirmation"></field-error-message>
+          </span>
         </div>
-
-        <div class="mb-3 px-1" v-if="inserting">
-          <label for="inputEmail" class="form-label">Código de Confirmação</label>
-          <input
-            type="password"
-            class="form-control"
-            :class="{ 'is-invalid': errors ? errors['confirmation_code'] : false }"
-            id="inputEmail"
-            placeholder="Insira o código de confirmação"
-            required
-            v-model="editingVcard.confirmation_code"
-          />
-          <field-error-message :errors="errors" fieldName="confirmation_code"></field-error-message>
+        <div class="mb-5" v-if="inserting">
+          <span class="p-float-label">
+            <InputText type="password" v-model="editingVcard.confirmation_code" 
+                    :class="{ 'is-invalid': errors ? errors['confirmation_code'] : false }"/>
+            <label for="number-input">Confirmation Code</label>
+            <field-error-message :errors="errors" fieldName="confirmation_code"></field-error-message>
+          </span>
         </div>
-        
       </div>
       <div class="w-25">
         <div class="d-flex flex-column">
@@ -248,9 +239,9 @@ const confirmDeletion = async () => {
       <!-- <button type="button" class="btn btn-danger px-5" @click="deleteVcard">Delete</button> -->
       <button type="button" class="btn btn-danger px-5" @click="showDialog = true">Delete</button>
       <Dialog header="Apagar vCard" v-model:visible="showDialog" :modal="true" :closable="false">
-        <p>Por favor insira o seu código de confirmação</p>
+        <p>Please insert your confirmation code</p>
         <InputText v-model="confirmationCode" placeholder="Enter confirmation code" type="password"/>
-        <p class="mt-4">Por favor insira a sua password</p>
+        <p class="mt-4">Please insert your password </p>
         <InputText v-model="password" placeholder="Enter Password" type="password"/>
         <div class="p-d-flex p-jc-end p-mt-3 mt-4">
           <Button label="Confirm" class="p-button-danger m-3" @click="confirmDeletion" />

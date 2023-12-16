@@ -25,11 +25,9 @@ class UpdateVcardRequest extends FormRequest
     public function rules(): array
     {
         if (isset($this->vcard)) {
-            $vcard = Vcard::where('phone_number', $this->vcard)->first();
-
             return [
                 'name' => 'required|string|max:255',
-                'email' => ['required', 'email', Rule::unique('vcards')->ignore($vcard->phone_number, 'phone_number')],
+                'email' => ['required', 'email', Rule::unique('vcards')->ignore($this->phone_number, 'phone_number')],
                 'blocked' => 'nullable|int|in:0,1',
                 'base64ImagePhoto' => 'nullable|string',
                 'deletePhotoOnServer' => 'nullable|boolean'

@@ -26,4 +26,16 @@ class UpdateVcardconfirmation_codeRequest extends FormRequest
             'oldconfirmation_code' => 'required',
         ];
     }
+
+    /**
+     * Get the error messages for the defined validation rules.
+     */
+    public function messages(): array
+    {
+        return [
+            'confirmation_code.required' => 'Confirmation code is required',
+            'confirmation_code.digits' => 'Confirmation code must be 4 digits',
+            'oldconfirmation_code.required' => 'Old confirmation code is required',
+        ];
+    }
 }
