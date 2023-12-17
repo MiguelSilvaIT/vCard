@@ -1,59 +1,316 @@
-<template>
-    <div>
-        <h1>Estatísticas</h1>
+<script setup>
+import axios from 'axios'
+import { ref, onMounted } from 'vue'
+import { useUserStore } from "/src/stores/user.js"
+import Dropdown from 'primevue/dropdown';
+import Chart from 'primevue/chart';
 
-        <h2>Despesas por mês</h2>
-        <ul>
-            <li v-for="(expense, index) in expenses" :key="index">
-                {{ expense.month }}: R$ {{ expense.amount }}
-            </li>
-        </ul>
+const userStore = useUserStore()
 
-        <h2>Ganhos por mês</h2>
-        <ul>
-            <li v-for="(income, index) in incomes" :key="index">
-                {{ income.month }}: R$ {{ income.amount }}
-            </li>
-        </ul>
+const errors = ref(null)
+const totalExpenses = ref(0)
+const totalEarnings = ref(0)
+const balanceMin = ref(0)
+const balanceMax = ref(0)
+const balanceHistory = ref([])
+const totalTransactions = ref(0)
+const months = ref([])
+const selectedMonth = ref(null)
 
-        <h2>Número de transações por mês</h2>
-        <ul>
-            <li v-for="(transaction, index) in transactions" :key="index">
-                {{ transaction.month }}: {{ transaction.count }} transações
-            </li>
-        </ul>
+const chartData = ref();
+const chartOptions = ref();
 
-        <h2>Histórico do balanço</h2>
-        <div>
-            <!-- Aqui você pode adicionar um gráfico para exibir o histórico do balanço -->
-        </div>
-    </div>
-</template>
+onMounted( async () => {
+  await loadTotalDebit()
+  await loadTotalCredit()
+  await loadMonths()
+  await loadTransactions()
+  await loadBalanceInfo()
+  chartData.value = setChartData()
+  chartOptions.value = setChartOptions()
 
-<script>
-export default {
-    data() {
-        return {
-            expenses: [
-                { month: 'Janeiro', amount: 100 },
-                { month: 'Fevereiro', amount: 200 },
-                { month: 'Março', amount: 150 },
-            ],
-            incomes: [
-                { month: 'Janeiro', amount: 500 },
-                { month: 'Fevereiro', amount: 600 },
-                { month: 'Março', amount: 700 },
-            ],
-            transactions: [
-                { month: 'Janeiro', count: 10 },
-                { month: 'Fevereiro', count: 15 },
-                { month: 'Março', count: 20 },
-            ],
-        };
-    },
+})
+
+const onChange = () => {
+  console.log('selectedMonth -->', selectedMonth.value)
+  loadTotalDebit(selectedMonth.value)
+  loadTotalCredit(selectedMonth.value)
+  loadTransactions(selectedMonth.value)
+
+}
+
+
+const loadBalanceInfo = async () => {
+  errors.value = null
+
+  try {
+    const response = await axios.get('balance/' + userStore.userId)
+    console.log('response.data.data -->', response)
+
+    balanceMin.value = response.data.minBalance
+    balanceMax.value = response.data.maxBalance
+    balanceHistory.value = response.data.allBalances
+
+  } catch (error) {
+    console.log(error)
+  }
+}
+
+
+const setChartData =  () => 
+{
+    const documentStyle = getComputedStyle(document.documentElement);
+    console.log('balanceHistory.value -->', balanceHistory.value.map(item => item.old_balance))
+
+    return {
+        labels: balanceHistory.value.map((item, index) => index + 1),
+        datasets: [
+            {
+                label: 'Balance',
+                data: balanceHistory.value.map(item => item.old_balance),
+                fill: false,
+                borderColor: documentStyle.getPropertyValue('--blue-500'),
+                tension: 0.4
+            },
+        
+        ],
+        
+    };
 };
+
+const setChartOptions = () => {
+    const documentStyle = getComputedStyle(document.documentElement);
+    const textColor = documentStyle.getPropertyValue('--text-color');
+    const textColorSecondary = documentStyle.getPropertyValue('--text-color-secondary');
+    const surfaceBorder = documentStyle.getPropertyValue('--surface-border');
+
+    return {
+        maintainAspectRatio: false,
+        aspectRatio: 0.4,
+        plugins: {
+            legend: {
+                labels: {
+                    color: textColor
+                }
+            }
+        },
+        scales: {
+            x: {
+                ticks: {
+                    color: textColorSecondary
+                },
+                grid: {
+                    color: surfaceBorder
+                }
+            },
+            y: {
+                ticks: {
+                    color: textColorSecondary
+                },
+                grid: {
+                    color: surfaceBorder
+                }
+            }
+        }
+    };
+  };
+
+
+const loadMonths = async () => {
+
+  try {
+    const response = await axios.get('months/')
+
+
+    months.value = response.data
+
+    months.value.unshift({ month: 'Todos' })
+
+    
+
+    //console.log('months.value -->', months.value[0].month)
+  } catch (error) {
+    console.log(error)
+  }
+}
+
+
+const loadTotalDebit = async (month) => {
+  errors.value = null
+
+  if (month && month !== 'Todos') {
+    try {
+      const response = await axios.get('totalDebit/' + userStore.userId + '/' + month)
+      console.log('response.data.data -->', response)
+      totalExpenses.value = response.data
+    } catch (error) {
+      console.log(error)
+    }
+  }
+  else {
+    try {
+      const response = await axios.get('totalDebit/' + userStore.userId)
+      console.log('response.data.data -->', response)
+      totalExpenses.value = response.data
+    } catch (error) {
+      console.log(error)
+    }
+  }
+}
+
+  const loadTotalCredit = async (month) => {
+    errors.value = null
+  
+    if (month && month !== 'Todos') {
+      try {
+        const response = await axios.get('totalCredit/' + userStore.userId + '/' + month)
+        console.log('response.data.data -->', response)
+        totalEarnings.value = response.data
+      } catch (error) {
+        console.log(error)
+      }
+    }
+    else {
+      try {
+        const response = await axios.get('totalCredit/' + userStore.userId)
+        console.log('response.data.data -->', response)
+        totalEarnings.value = response.data
+      } catch (error) {
+        console.log(error)
+      }
+    }
+  }
+
+  const loadTransactions = async (month) =>{
+    errors.value = null
+
+    if (month && month !== 'Todos') {
+      try {
+        const response = await axios.get('totalTransactions/' + userStore.userId + '/' + month)
+        console.log('response.data.data -->', response)
+        totalTransactions.value = response.data
+      } catch (error) {
+        console.log(error)
+      }
+    }
+    else {
+      try {
+        const response = await axios.get('totalTransactions/' + userStore.userId)
+        console.log('response.data.data -->', response)
+        totalTransactions.value = response.data
+      } catch (error) {
+        console.log(error)
+      }
+    }
+  }
+
+
+
 </script>
 
+<template>
+  <div class="statistics-page">
+    <div class="dropdown-container">
+      <Dropdown v-model="selectedMonth" :options="months" optionLabel="month" optionValue="month" @change="onChange()"
+        placeholder="Select a Month" class="w-full md:w-14rem" />
+    </div>
+
+    <div class="statistics-container">
+      <div class="statistics-card card-blue">
+        <div class="card-content">
+          <h3>Despesas Totais</h3>
+          <div class="value">{{ totalExpenses }}</div>
+        </div>
+      </div>
+
+      <div class="statistics-card card-green">
+        <div class="card-content">
+          <h3>Ganhos Totais</h3>
+          <div class="value">{{totalEarnings}}</div>
+        </div>
+      </div>
+
+      <div class="statistics-card card-orange">
+        <div class="card-content">
+          <h3>Transações Realizadas</h3>
+          <div class="value">{{totalTransactions}}</div>
+        </div>
+      </div>
+
+    </div>
+        <Chart type="line" :data="chartData" :options="chartOptions" class="chart-balance" />
+    
+  </div>
+</template>
+
 <style scoped>
-/* Estilos específicos para o componente Reports.vue */
+.statistics-page {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  height: 200vh;
+  margin-top: 50px;
+}
+
+.dropdown-container {
+  position: relative;
+  z-index: 1;
+  /* Garante que o dropdown fique acima dos outros elementos */
+  margin-bottom: 16px;
+}
+
+.statistics-container {
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.statistics-card {
+  background-color: #fff;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  margin: 0 8px 16px 8px;
+  overflow: hidden;
+  width: 200px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s ease-in-out;
+}
+
+.statistics-card:hover {
+  transform: scale(1.05);
+}
+
+.card-content {
+  padding: 16px;
+  text-align: center;
+}
+
+h3 {
+  margin-bottom: 8px;
+  font-size: 1.2em;
+  color: #fff;
+}
+
+.chart-balance {
+  width: 100%;
+  height: 40%; /* Ocupar toda a largura disponível */
+  /* Adicione outras regras de estilo conforme necessário */
+}
+
+.value {
+  font-size: 1.5em;
+  font-weight: bold;
+  color: #fff;
+}
+
+.card-blue {
+  background-color: #3498db;
+}
+
+.card-green {
+  background-color: #2ecc71;
+}
+
+.card-orange {
+  background-color: #e67e22;
+}
 </style>

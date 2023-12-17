@@ -135,18 +135,18 @@ const leaveConfirmed = () => {
   }
 }
 
-onBeforeRouteLeave((to, from, next) => {
-  nextCallBack = null
-  let newValueStr = JSON.stringify(category.value)
-  if (originalValueStr != newValueStr) {
-    // Some value has changed - only leave after confirmation
-    nextCallBack = next
-    //confirmationLeaveDialog.value.show()
-  } else {
-    // No value has changed, so we can leave the component without confirming
-    next()
-  }
-})
+// onBeforeRouteLeave((to, from, next) => {
+//   nextCallBack = null
+//   let newValueStr = JSON.stringify(category.value)
+//   if (originalValueStr != newValueStr) {
+//     // Some value has changed - only leave after confirmation
+//     nextCallBack = next
+//     //confirmationLeaveDialog.value.show()
+//   } else {
+//     // No value has changed, so we can leave the component without confirming
+//     next()
+//   }
+// })
 
 
 

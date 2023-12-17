@@ -7,6 +7,8 @@ use App\Http\Requests\StoreAdminRequest;
 use App\Http\Requests\UpdateAdminRequest;
 use App\Http\Requests\UpdateUserPasswordRequest;
 use App\Models\Admin;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use App\Http\Resources\AdminResource;
 use Illuminate\Support\Facades\Hash;
 
@@ -83,6 +85,33 @@ class AdminController extends Controller
             'message' => 'success',
             'data' => new AdminResource($admin)
         ], 200);
+    }
+
+    public function getSumOfBalances(Request $request) 
+    {
+        $sumOfBalances = DB::table('vcards')->sum('balance');
+        return $sumOfBalances;
+    }
+
+    public function getNumberOfVcards(Request $request) 
+    {
+        $numberOfVcards = DB::table('vcards')->count();
+        return $numberOfVcards;
+    }
+
+    public function getNumberOfBlockedVcards(Request $request) 
+    {
+        $numberOfBlockedVcards = DB::table('vcards')->where('blocked', '=', 1)->count();
+        return $numberOfBlockedVcards;
+    }
+
+    public function getCountOfCreatedVcardsPerMonth(Request $request)
+    {
+        $countOfCreatedVcardsPerMonth = DB::table('vcards')
+            ->select(DB::raw('count(*) as total'))
+            ->groupBy(DB::raw('MONTH(created_at)'))
+            ->get();
+        return $countOfCreatedVcardsPerMonth;
     }
 
   

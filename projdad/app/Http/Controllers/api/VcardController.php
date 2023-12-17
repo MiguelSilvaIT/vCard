@@ -6,6 +6,8 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\UpdateVcardRequest;
 use Illuminate\Http\Request;
 use App\Models\Vcard;
+use App\Models\Transaction;
+use Illuminate\Support\Facades\DB;
 use App\Http\Resources\VcardResource;
 use App\Http\Requests\StoreVcardRequest;
 use Illuminate\Support\Facades\Hash;
@@ -14,14 +16,17 @@ use Illuminate\Support\Facades\Storage;
 use App\Http\Requests\UpdateUserPasswordRequest;
 use App\Http\Requests\UpdateVcardconfirmation_codeRequest;
 use App\Http\Resources\CategoryResource;
+use Illuminate\Support\Carbon;
+
 
 
 class VcardController extends Controller
 {
-    private function storeBase64AsFile(Vcard $vcard, string $base64String) {
+    private function storeBase64AsFile(Vcard $vcard, string $base64String)
+    {
         // Store base64 string as file and return the file name
         $targetDir = storage_path('app/public/fotos');
-        $newfilename = $vcard->phone_number."_".rand(1000, 9999);
+        $newfilename = $vcard->phone_number . "_" . rand(1000, 9999);
         $base64Service = new Base64Services();
         return $base64Service->saveFile($base64String, $targetDir, $newfilename);
     }
@@ -32,16 +37,18 @@ class VcardController extends Controller
     }
 
 
-    public function show($phoneNumber) {
+    public function show($phoneNumber)
+    {
         //devolve o vCard correspondente ao phoneNumber recebido
         $vcard = Vcard::findOrFail($phoneNumber);
         VcardResource::$format = 'detailed';
         return new VcardResource($vcard);
     }
 
-    
 
-    public function store(StoreVcardRequest $request) {
+
+    public function store(StoreVcardRequest $request)
+    {
         //validar os dados recebidos
         $dataToSave = $request->validated();
 
@@ -61,7 +68,7 @@ class VcardController extends Controller
         $newVcard->max_debit = 5000;
 
         //Guarda o nome da foto do vCard na BD e a foto na pasta storage/app/public/fotos
-        if($base64ImagePhoto) {
+        if ($base64ImagePhoto) {
             $newVcard->photo_url = $this->storeBase64AsFile($newVcard, $base64ImagePhoto);
         }
 
@@ -83,7 +90,7 @@ class VcardController extends Controller
         ]);
         //message for the validation
         $customData = $vcard->custom_data;
-        $customData["notifications"] = $customData["notifications"] ?? [];  
+        $customData["notifications"] = $customData["notifications"] ?? [];
         $piggyBank = $customData["value"] ?? 0;
 
         // return response()->json([
@@ -91,18 +98,17 @@ class VcardController extends Controller
         //     'message' => 'Dinheiro guardado com sucesso',
         //     'data' => $piggyBank
         // ], 200);
-        if ($request->action == 'save'){
-            if($request->value > $vcard->balance){
+        if ($request->action == 'save') {
+            if ($request->value > $vcard->balance) {
                 return response()->json([
                     'message' => 'Não é possivel guardar mais do que o valor que tem na conta',
                     'data' => ''
                 ], 400);
             }
-            $piggyBank += $request->value;       
+            $piggyBank += $request->value;
             $vcard->balance -= $request->value;
-        } 
-        else if ($request->action == 'withdraw'){
-            if( $request->value > $piggyBank) {
+        } else if ($request->action == 'withdraw') {
+            if ($request->value > $piggyBank) {
                 return response()->json([
                     'message' => 'Não é possivel retirar mais do que o valor que tem na poupança',
                     'data' => ''
@@ -111,11 +117,11 @@ class VcardController extends Controller
             $piggyBank -= $request->value;
             $vcard->balance += $request->value;
         }
-        
+
         $customData['value'] = $piggyBank;
         $vcard->custom_data = $customData;
         $vcard->save();
-        
+
         VcardResource::$format = 'detailed';
         return response()->json([
             'success' => true,
@@ -190,7 +196,8 @@ class VcardController extends Controller
         ]);
     }
 
-    public function update(UpdateVcardRequest $request, $phoneNumber) {
+    public function update(UpdateVcardRequest $request, $phoneNumber)
+    {
         $vcard = Vcard::findOrFail($phoneNumber);
         $dataToSave = $request->validated();
 
@@ -204,15 +211,15 @@ class VcardController extends Controller
         $vcard->email = $dataToSave['email'];
 
         // Delete previous photo file if a new file is uploaded or the photo is to be deleted
-        if($vcard->photo_url && ($deletePhotoOnServer || $base64ImagePhoto)) {
-            if(Storage::exists('public/fotos/'.$vcard->photo_url)) {
-                Storage::delete('public/fotos/'.$vcard->photo_url);
+        if ($vcard->photo_url && ($deletePhotoOnServer || $base64ImagePhoto)) {
+            if (Storage::exists('public/fotos/' . $vcard->photo_url)) {
+                Storage::delete('public/fotos/' . $vcard->photo_url);
             }
             $vcard->photo_url = null;
         }
 
         // Create a new photo file from base64 content
-        if($base64ImagePhoto) {
+        if ($base64ImagePhoto) {
             $vcard->photo_url = $this->storeBase64AsFile($vcard, $base64ImagePhoto);
         }
         $vcard->save();
@@ -234,7 +241,8 @@ class VcardController extends Controller
     }
 
     //método que apenas deve estar disponível para o admin
-    public function alterBlockedStatus($phoneNumber) {
+    public function alterBlockedStatus($phoneNumber)
+    {
         //Find the vCard with the given phone number
         $vcard = Vcard::findOrFail($phoneNumber);
         //Invert the blocked status
@@ -246,13 +254,14 @@ class VcardController extends Controller
         ], 200);
     }
 
-    public function updatePassword (UpdateUserPasswordRequest $request, $phoneNumber) {
+    public function updatePassword(UpdateUserPasswordRequest $request, $phoneNumber)
+    {
         //vai buscar o vCard com o phoneNumber recebido
         $vcard = Vcard::findOrFail($phoneNumber);
         //validar os dados recebidos
         $dataToSave = $request->validated();
         //alterar a password do vCard
-        if(!Hash::check($dataToSave['oldpassword'], $vcard->password)) {
+        if (!Hash::check($dataToSave['oldpassword'], $vcard->password)) {
             //se a password antiga não for igual à que está na BD, devolve erro
             return response()->json([
                 'message' => 'error',
@@ -268,13 +277,14 @@ class VcardController extends Controller
         ], 200);
     }
 
-    public function updateconfirmation_code (UpdateVcardconfirmation_codeRequest $request, $phoneNumber){
+    public function updateconfirmation_code(UpdateVcardconfirmation_codeRequest $request, $phoneNumber)
+    {
         //vai buscar o vCard com o phoneNumber recebido
         $vcard = Vcard::findOrFail($phoneNumber);
         //validar os dados recebidos
         $dataToSave = $request->validated();
         //alterar o pin do vCard
-        if(!Hash::check($dataToSave['oldconfirmation_code'], $vcard->confirmation_code)) {
+        if (!Hash::check($dataToSave['oldconfirmation_code'], $vcard->confirmation_code)) {
             //se o pin antigo não for igual ao que está na BD, devolve erro
             return response()->json([
                 'message' => 'error',
@@ -290,11 +300,12 @@ class VcardController extends Controller
         ], 200);
     }
 
-    public function destroy(Request $request ,$phoneNumber) {
+    public function destroy(Request $request, $phoneNumber)
+    {
         //vai buscar o vCard com o phoneNumber recebido
         $vcard = Vcard::findOrFail($phoneNumber);
         //confirmar se o vCard tem saldo
-        if($vcard->balance != 0) {
+        if ($vcard->balance != 0) {
             //se tiver, devolve erro
             return response()->json([
                 'success' => false,
@@ -302,18 +313,18 @@ class VcardController extends Controller
             ], 400);
         }
         //vai buscar as Transações e Categorias do vCard
-        $transactions= $vcard->transactions;
+        $transactions = $vcard->transactions;
         $categories = $vcard->categories;
         //se tiver transações, apagar com soft delete:
-        if(!$transactions->isEmpty()) {
+        if (!$transactions->isEmpty()) {
             //se tiver categorias, apagar com soft delete:
-            if(!$categories->isEmpty()){
-                foreach($categories as $category) {
+            if (!$categories->isEmpty()) {
+                foreach ($categories as $category) {
                     $category->delete();
                 }
             }
             //apagar as transações com soft delete:
-            foreach($transactions as $transaction) {
+            foreach ($transactions as $transaction) {
                 $transaction->delete();
             }
             //apagar o vCard com soft delete:
@@ -328,12 +339,12 @@ class VcardController extends Controller
         } else {
             //se não tiver transações
             //se tiver categorias, apagar com hard delete:
-            if(!$categories->isEmpty()){
-                foreach($categories as $category) {
+            if (!$categories->isEmpty()) {
+                foreach ($categories as $category) {
                     $category->forceDelete();
                 }
             }
-            if($request->taes){
+            if ($request->taes) {
                 $vcard->delete();
                 return response()->json([
                     'success' => 'true',
@@ -354,35 +365,35 @@ class VcardController extends Controller
 
     public function myTransactions(Request $request, Vcard $vcard)
     {
-        
+
         $transactions = $vcard->transactions();
-        
-        if($request->filter_start_date != null && $request->filter_end_date == null){
+
+        if ($request->filter_start_date != null && $request->filter_end_date == null) {
             $transactions = $transactions->where('date', '>=', $request->filter_start_date);
             //return response()->json($transactions);
-        }
-        else if($request->filter_start_date && $request->filter_end_date){
+        } else if ($request->filter_start_date && $request->filter_end_date) {
             $transactions = $transactions->whereBetween('date', [$request->filter_start_date, $request->filter_end_date]);
         }
-        
-        if($request->filter_by_type != 'T' && $request->filter_by_type){
+
+        if ($request->filter_by_type != 'T' && $request->filter_by_type) {
             $transactions = $transactions->where('type', $request->filter_by_type);
         }
-        if($request->filter_payment_type != null){
+        if ($request->filter_payment_type != null) {
             $transactions = $transactions->where('payment_type', $request->filter_payment_type);
         }
         switch ($request->filter_by_value) {
             case 'value_asc':
-                $transactions = $transactions->orderByRaw('CAST(value AS DECIMAL(10,2))');;
+                $transactions = $transactions->orderByRaw('CAST(value AS DECIMAL(10,2))');
+                ;
                 break;
             case 'value_desc':
-                $transactions = $transactions->orderBy('value',"desc");
+                $transactions = $transactions->orderBy('value', "desc");
                 break;
             case 'date_asc':
                 $transactions = $transactions->orderBy('datetime');
                 break;
             default:
-                $transactions = $transactions->orderBy('datetime',"desc");
+                $transactions = $transactions->orderBy('datetime', "desc");
                 break;
         }
         $transactions = $transactions->get();
@@ -390,13 +401,122 @@ class VcardController extends Controller
     }
 
     public function getCategoriesOfVcard(Request $request, Vcard $vcard)
-    {      
-        if($request->transaction_type && in_array($request->transaction_type, ['C','D'])){
-            $categories= $vcard->categories->where('type',$request->transaction_type);
-        }
-        else{
-            $categories= $vcard->categories;
+    {
+        if ($request->transaction_type && in_array($request->transaction_type, ['C', 'D'])) {
+            $categories = $vcard->categories->where('type', $request->transaction_type);
+        } else {
+            $categories = $vcard->categories;
         }
         return CategoryResource::collection($categories);
     }
+
+
+
+    //get sum of debit transactions of a vcard per month
+    public function getDebitTransactionsTotal(Request $request, Vcard $vcard)
+    {
+        $total = DB::table('transactions')
+            ->where('vcard', $vcard->phone_number)
+            ->where('type', 'D')
+            ->sum('value');
+
+        return response()->json($total);
+
+    }
+
+    //get sum of credit transactions of a vcard per month
+    public function getDebitTransactionsTotalByMonth(Request $request, Vcard $vcard, $month)
+    {
+        $date = date_parse($month);
+        
+         $total = DB::table('transactions')
+             ->where('vcard', $vcard->phone_number)
+             ->where('type', 'D')
+             ->whereMonth('date' , $date['month'])
+            ->sum('value');
+
+        return $total;
+
+    }
+
+    public function getCreditTransactionsTotal(Request $request, Vcard $vcard)
+    {
+        $total = DB::table('transactions')
+            ->where('vcard', $vcard->phone_number)
+            ->where('type', 'C')
+            ->sum('value');
+
+        return response()->json($total);
+
+    }
+
+    //get sum of credit transactions of a vcard per month
+    public function getCreditTransactionsTotalByMonth(Request $request, Vcard $vcard, $month)
+    {
+        $date = date_parse($month);
+        
+         $total = DB::table('transactions')
+             ->where('vcard', $vcard->phone_number)
+             ->where('type', 'C')
+             ->whereMonth('date' , $date['month'])
+            ->sum('value');
+
+        return $total;
+
+    }
+
+    public function getTotalTransactions(Request $request, Vcard $vcard)
+    {
+        
+         $total = DB::table('transactions')
+             ->where('vcard', $vcard->phone_number)
+            ->count();
+
+        return $total;
+
+    }
+
+    public function getTotalTransactionsByMonth(Request $request, Vcard $vcard, $month)
+    {
+
+        $date = date_parse($month);
+
+        
+         $total = DB::table('transactions')
+             ->where('vcard', $vcard->phone_number)
+             ->whereMonth('date' , $date['month'])
+            ->count();
+
+        return $total;
+
+    }
+
+    public function getBalanceInfo(Request $request, Vcard $vcard)
+    {
+        
+         $minBalance = DB::table('transactions')
+             ->where('vcard', $vcard->phone_number)
+             ->min('old_balance');
+
+        $maxBalance = DB::table('transactions')
+                ->where('vcard', $vcard->phone_number)
+                ->max('old_balance');
+        
+        $allBalances = DB::table('transactions')
+                ->where('vcard', $vcard->phone_number)
+                ->select('old_balance')
+                ->orderBy('datetime')
+                ->get();
+        
+        $response = [
+            'minBalance' => $minBalance,
+            'maxBalance' => $maxBalance,
+            'allBalances' => $allBalances
+        ];
+        
+
+        return $response;
+
+    }
+
 }

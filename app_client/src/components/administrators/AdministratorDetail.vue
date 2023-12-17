@@ -74,7 +74,7 @@ const cancel = () => {
     <div class="mb-3 ms-xs-3 flex-grow-1">
       <label for="inputPassConfirm" class="form-label">Confirm Password</label>
       <input type="password" class="form-control" id="inputPassConfirm" placeholder="Confirm Password" required
-        v-model="newAdministrator.password_confirmed" />
+        v-model="newAdministrator.password_confirmation" />
     </div>
 
     <div class="mb-3 d-flex justify-content-end">
