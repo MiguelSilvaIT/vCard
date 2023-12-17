@@ -3,6 +3,9 @@
 import { ref, watch, computed, inject } from "vue";
 
 import { useUserStore } from "/src/stores/user.js"
+import InputNumber from 'primevue/inputnumber';
+import Dropdown from 'primevue/dropdown';
+import InputText from 'primevue/inputtext';
 
 const userStore = useUserStore()
 
@@ -23,6 +26,10 @@ const props = defineProps({
   },
 });
 
+const categories = [
+  { name: 'Debit', value: 'D' },
+  { name: 'Credit', value: 'C' },
+];
 
 const emit = defineEmits(["save", "cancel", "deleteCategory"]);
 
@@ -66,33 +73,29 @@ const deleteCategory =  () => {
 
 <template>
   <form class="row g-3 needs-validation" novalidate @submit.prevent="save">
-    <h3 class="mt-5 mb-3">{{categoryTitle}}</h3>
+    <h3 class="mt-5 mb-2">{{categoryTitle}}</h3>
     <hr />
-    <div class="d-flex flex-wrap justify-content-between">
+    <div class="d-flex flex-wrap mt-4 justify-content-between">
       <div class="w-75 pe-4">
-        <div class="mb-3">
-          <label for="inputName" class="form-label">Name</label>
-          <input type="text" class="form-control" :class="{ 'is-invalid': errors ? errors['name'] : false }"
-            id="inputName" placeholder="Category Name" required v-model="editingCategory.name" />
-          <field-error-message :errors="errors" fieldName="name"></field-error-message>
+        <div class="col mb-5 ms-xs-3">
+          <div class="p-float-label">
+            <InputText type="text" v-model="editingCategory.name" :class="{ 'p-invalid': errors ? errors['name'] : false }"/>
+            <label for="dd-paymentType">Name</label>
+            <field-error-message :errors="errors" fieldName="name"></field-error-message>
+          </div>
+        </div>    
+        <div class="mb-5 ">
+          <span class="p-float-label">
+            <Dropdown v-model="editingCategory.type" :class="{ 'p-invalid': errors ? errors['type'] : false }" :options="categories" optionLabel="name" optionValue="value"/>
+            <label for="number-input">Type</label>
+            <field-error-message :errors="errors" fieldName="type"></field-error-message>
+          </span>
         </div>
-
-        <div class="mb-3 ms-xs-3 flex-grow-1">
-          <label for="inputType" class="form-label">Type</label>
-          <select class="form-select" id="inputType" v-model="editingCategory.type">
-            <option value="C">Crédito</option>
-            <option value="D">Débito</option>
-          </select>
-        </div>
-
       </div>
-
     </div>
     <div class="mb-3 d-flex justify-content-end">
       <button type="button" class="btn btn-primary px-5" @click="save">Save</button>
       <button type="button" class="btn btn-light px-5" @click="cancel">Cancel</button>
-      <button type="button" class="btn btn-danger px-5" @click="deleteCategory">Delete</button>
-
     </div>
   </form>
 </template>

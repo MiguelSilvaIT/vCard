@@ -3,8 +3,10 @@
   import { ref, computed, onMounted } from 'vue'
   import VcardTable from './VcardTable.vue'
   import {useRouter} from 'vue-router';
+  import { useToast } from "vue-toastification"
 
-const router = useRouter()
+  const toast = useToast()
+  const router = useRouter()
 
   const loadVcards = () => {
     // Change later when authentication is implemented
@@ -24,20 +26,35 @@ const router = useRouter()
   }
 
 
-  const deletedVcard = (deleteVcard) => {
-      let idx = vcards.value.findIndex((t) => t.id === deletedVcard.id)
+  const deletedVcard = (vcard) => {
+    try {
+      axios.delete(`vcards/${vcard.phone_number}`)
+      //fix policy authorization
+      let idx = vcards.value.findIndex((t) => t.phone_number === vcard.phone_number)
       if (idx >= 0) {
         vcards.value.splice(idx, 1)
       }
+      toast.success('Vcard #' + vcard.id + ' was deleted successfully.')
+    } catch (error) {
+      console.log(error)
+      toast.error('Vcard was not deleted!')      
+    }
   }
 
-  /*const props = defineProps({
-    vcardsTitle: {
-      type: String,
-      default: 'Vcards'
-    },
-    
-  })*/
+  const block = (vcard) => {
+    try {
+      const response = axios.patch(`vcards/alterblockedStatus/${vcard.phone_number}`)
+    } catch (error) {
+      console.log(error)
+      toast.error('Vcard was not blocked!')      
+    }
+      let idx = vcards.value.findIndex((t) => t.phone_number === vcard.phone_number)
+      if (idx >= 0) {
+        console.log(vcards.value[idx].blocked)
+        vcards.value[idx].blocked= !vcard.blocked
+      }
+      toast.success('Vcard #' + vcard.phone_number + ' was blocked successfully.')
+  }
 
   const vcards = ref([])
   
@@ -57,7 +74,6 @@ const router = useRouter()
   
   onMounted (() => {
     loadVcards()
-
   })
 </script>
 
@@ -70,6 +86,8 @@ const router = useRouter()
 
   <vcard-table
     :vcards="vcards"
+    @block="block"
+    @delete="deletedVcard"
     @edit="editVcard"
     @deleted="deletedVcard"
   ></vcard-table>

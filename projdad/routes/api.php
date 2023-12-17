@@ -8,8 +8,7 @@ use App\Http\Controllers\api\UserController;
 use App\Http\Controllers\api\TransactionController;
 use App\Http\Controllers\api\CategoryController;
 use App\Http\Controllers\api\AdminController;
-use App\Http\Controllers\api\DADVcardController;
-use App\Http\Controllers\api\CategoryDefaultController;
+use App\Http\Controllers\api\DefaultCategoryController;
 
 
 /*
@@ -23,57 +22,51 @@ use App\Http\Controllers\api\CategoryDefaultController;
 |
 */
 
+
 Route::post('auth/login', [AuthController::class, 'login']);
+Route::post('vcards', [VcardController::class, 'store']);
+Route::post('vcards/checkphonenumber', [VcardController::class, 'checkphonenumber']);
 Route::middleware('auth:api')->group(function () {
     Route::post('logout', [AuthController::class, 'logout']);
     Route::get('users/me', [UserController::class, 'show_me']);
-    Route::patch('users/{user}/password', [UserController::class, 'update_password']);
-    Route::patch('vcards/{vcard}', [VcardController::class, 'update_max_debit'])
-        ->middleware('can:update_max_debit');
-
+    
     Route::apiResource('users', UserController::class);
 
-    Route::post('vcards/{vcard}/transactions', [VcardController::class, 'myTransactions']);
-
-    Route::post('vcards/{vcard}/checkpassword', [VcardController::class, 'checkPassword']);
+    //Vcard Routes
+    Route::post('vcards/{vcard}/transactions', [VcardController::class, 'myTransactions'])->middleware('can:update,vcard');
+    Route::post('vcards/{vcard}/confirmdelete', [VcardController::class, 'confirmDelete'])->middleware('can:update,vcard');
     Route::post('vcards/{vcard}/checkconfirmationcode', [VcardController::class, 'checkConfirmationCode']);
-    
-    
-    Route::patch('vcards/{vcard}', [VcardController::class, 'update_max_debit']);
-    Route::patch('vcards/alterblockedStatus/{vcard}', [VcardController::class, 'alterBlockedStatus']);
-    Route::patch('vcards/updatePassword/{vcard}', [VcardController::class, 'updatePassword']);
-    Route::patch('vcards/confirmation_code/{vcard}', [VcardController::class, 'updateconfirmation_code']);
-    Route::patch('vcards/{vcard}/piggybank', [VcardController::class, 'piggyBank']);
-    Route::patch('vcards/{vcard}/settings', [VcardController::class, 'updateSettings']);
-    Route::get('vcards/{vcard}/categories', [VcardController::class, 'getCategoriesOfVcard']);
+    Route::patch('vcards/{vcard}', [VcardController::class, 'update_max_debit'])->middleware('can:block,vcard');
+    Route::patch('vcards/alterblockedStatus/{vcard}', [VcardController::class, 'alterBlockedStatus'])->middleware('can:block,vcard');
+    Route::patch('vcards/{vcard}/updatePassword', [VcardController::class, 'updatePassword'])->middleware('can:update,vcard');
+    Route::patch('vcards/{vcard}/confirmation_code', [VcardController::class, 'updateconfirmation_code'])->middleware('can:update,vcard');
+    Route::patch('vcards/{vcard}/piggybank', [VcardController::class, 'piggyBank'])->middleware('can:update,vcard');
+    Route::patch('vcards/{vcard}/settings', [VcardController::class, 'updateSettings'])->middleware('can:update,vcard');
+    Route::get('vcards/{vcard}/categories', [VcardController::class, 'getCategoriesOfVcard'])->middleware('can:update,vcard');
     Route::patch('vcards/{vcard}/markreadnotifications', [VcardController::class, 'markReadNotifications']);
-    Route::apiResource('vcards', VcardController::class);
+    Route::get('vcards', [VcardController::class, 'index'])->middleware('can:viewAny,App\Models\Vcard');
+    Route::get('vcards/{vcard}', [VcardController::class, 'show'])->middleware('can:view,vcard');
+    Route::put('vcards/{vcard}', [VcardController::class, 'update'])->middleware('can:update,vcard');
+    Route::delete('vcards/{vcard}', [VcardController::class, 'destroy'])->middleware('can:delete,vcard');
+    
+    //Admin Routes
+    Route::patch('admins/{admin}/updatePassword', [AdminController::class, 'updatePassword'])->middleware('can:update,admin');
+    Route::apiResource('admins', AdminController::class);
 
+    //Transaction Routes
     Route::apiResource('transactions', TransactionController::class);
+
+    //Category Routes
+    Route::apiResource('default_categories', DefaultCategoryController::class);
+    Route::apiResource('categories', CategoryController::class);
 });
 
-Route::post('vcards/checkphonenumber', [VcardController::class, 'checkphonenumber']);
-Route::post('vcards', [VcardController::class, 'store']);
 
 
 
-Route::get('categories/default', [CategoryDefaultController::class , 'index']);
-Route::get('categories/default/{category}', [CategoryDefaultController::class , 'show']);
-Route::post('categories/default', [CategoryDefaultController::class , 'store']);
-Route::put('categories/default/{category}', [CategoryDefaultController::class , 'update']);
-Route::delete('categories/default/{category}', [CategoryDefaultController::class , 'destroy']);
-
-Route::get('categories', [CategoryController::class , 'index']);
-Route::get('categories/{category}', [CategoryController::class , 'show']);
-Route::post('categories', [CategoryController::class , 'store']);
-Route::put('categories/{category}', [CategoryController::class , 'update']);
-// Route::get('vcards/{vcard}/categories', [CategoryController::class, 'getCategoriesOfVcard']);
-Route::delete('categories/{category}', [CategoryController::class , 'destroy']);
 
 
 
-//Admin Routes
-Route::apiResource('admins', AdminController::class);
 
 Route::patch('admins/updatePassword/{admin}', [AdminController::class, 'updatePassword']);
 

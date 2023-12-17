@@ -4,7 +4,7 @@
   import { useToast } from "vue-toastification"
   import { useRouter } from 'vue-router'
   import { ref } from 'vue'
-  import { useUserStore } from '../../stores/user.js'
+  import { useUserStore } from '/src/stores/user.js'
   const toast = useToast()
   const router = useRouter()
   const credentials = ref({
@@ -16,13 +16,12 @@
 
   const emit = defineEmits(['auth/login'])
   const login = async () => {
-    if (await userStore.login(credentials.value)) {
+     if (await userStore.login(credentials.value)) {
       toast.success('User ' + userStore.user.name + ' has entered the application.')
       emit('auth/login')
-      router.back()
+      router.push({ name: 'Dashboard' })
     } else {
       credentials.value.password = ''
-      toast.error('User credentials are invalid!')
     }
   }
 </script>

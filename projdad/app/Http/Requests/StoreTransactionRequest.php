@@ -29,6 +29,11 @@ class StoreTransactionRequest extends FormRequest
             'payment_type' => 'required|string|in:VCARD,MBWAY,PAYPAL,IBAN,MB,VISA',
             'description' => 'nullable|string',
             'spare_change' => 'nullable|boolean',
+            'type' => [
+                'required',
+                'string',
+                Rule::in(['D', 'C']),
+            ],
             'category_id' => 'nullable|exists:categories,id',
             'payment_ref' => ['required', 
             function ($atribute,$value,$fail){
@@ -49,7 +54,7 @@ class StoreTransactionRequest extends FormRequest
                             $fail('Payment reference has to be a valid phone number e.g(9xxxxxxxx)');
                         }
                         if($value === $this->vcard){
-                            $fail('Payment reference has to be different from origin card');
+                            $fail('Payment reference has to be different from origin card e.g(9xxxxxxxx)');
                         }
                         break;
                     case 'PAYPAL':
@@ -59,17 +64,17 @@ class StoreTransactionRequest extends FormRequest
                         break;
                     case 'IBAN':
                         if(!preg_match('/^[a-zA-Z]{2}[0-9]{23}$/',$value)){
-                            $fail('Payment reference has to be a valid IBAN');
+                            $fail('Payment reference has to be a valid IBAN e.g(PT50000000000000000000000)');
                         }
                         break;
                     case 'MB':
                         if(!preg_match('/^[0-9]{5}-[0-9]{9}$/',$value)){
-                            $fail('Payment reference has to be a valid MB reference');
+                            $fail('Payment reference has to be a valid MB reference e.g(12345-123456789)');
                         }
                         break;
                     case 'VISA':
                         if(!preg_match('/^4[0-9]{15}$/',$value)){
-                            $fail('Payment reference has to be a valid VISA card number');
+                            $fail('Payment reference has to be a valid VISA card number e.g(4321567812345678)');
                         }
                         break;
                     default:
@@ -78,45 +83,8 @@ class StoreTransactionRequest extends FormRequest
                 }
             }]
         ];
-        }
-            // 'payment_ref' => [
-            //     'required|string',
-            //     $this->payment_type ==='VCARD' ? 'string|min:9|max:9|regex:/^9[0-9]{8}$/|exists:vcards,phone_number|different:vcard' : 
-            //         ($this->payment_type === 'MBWAY' ? 'regex:/^9[0-9]{8}$/' : 
-            //             ($this->payment_type === 'PAYPAL' ? 'email' : 
-            //                 ($this->payment_type === 'IBAN' ? 'regex:/^[a-zA-Z]{2}[0-9]{23}$/' : 
-            //                     ($this->payment_type === 'MB' ? 'regex:/^[0-9]{5}-[0-9]{9}$/' : 
-            //                         ($this->payment_type === 'VISA' ? 'regex:/^4[0-9]{15}$/' : ''))))),
-            // ],
-            // 'pair_vcard' => [
-            //     'required_unless:payment_type,MBWAY,PAYPAL,IBAN,MB,VISA',
-            //     'string',
-            //     'min:9',
-            //     'max:9',
-            //     'regex:/^[0-9]{9}$/',
-            //     'exists:vcards,phone_number',
-            // ]
-    
-
-    private function getPaymentRefRules()
-    {
-        switch ($this->payment_type) {
-            case 'VCARD':
-                return ['string', 'min:9', 'max:9', 'regex:/^9[0-9]{8}$/', 'exists:vcards,phone_number', 'different:vcard'];
-            case 'MBWAY':
-                return ['regex:/^9[0-9]{8}$/'];
-            case 'PAYPAL':
-                return ['email'];
-            case 'IBAN':
-                return ['regex:/^[a-zA-Z]{2}[0-9]{23}$/'];
-            case 'MB':
-                return ['regex:/^[0-9]{5}-[0-9]{9}$/'];
-            case 'VISA':
-                return ['regex:/^4[0-9]{15}$/'];
-            default:
-                return [];
-        }
     }
+
 
     /**
      * Get the error messages for the defined validation rules.
@@ -126,9 +94,6 @@ class StoreTransactionRequest extends FormRequest
     public function messages(): array
     {
         //give me the error messages for the rules above in english 
-
-
-
         return [
             'value.required' => 'Value is required',
             'value.numeric' => 'Value has to be a number',
@@ -140,6 +105,10 @@ class StoreTransactionRequest extends FormRequest
             'vcard.regex' => 'Origin card has to be a valid phone number',
             'vcard.different' => 'Origin card has to be different from destination card',
             'vcard.exists' => 'Origin card does not exist',
+            'category_id.exists' => 'Category does not exist',
+            'type.required' => 'Type is required',
+            'type.string' => 'Type has to be a string',
+            'type.in' => 'Type has to be Debit or Credit',
             'payment_type.required' => 'Payment type is required',
             'payment_type.string' => 'Payment type has to be a string',
             'payment_type.in' => 'Payment type has to be VCARD, MBWAY, PAYPAL, IBAN, MB or VISA',

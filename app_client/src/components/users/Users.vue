@@ -14,14 +14,15 @@ const totalUsers = computed(() => {
 
 const loadUsers = async () => {
     try {
-      const response = await axios.get('users')
-    users.value = response.data.data
-
+      const response = await axios.get('admins')
+      users.value = response.data.data
   } catch (error) {
     console.log(error)
   }
 }
-
+const deleteUser = (user) => {
+  ////
+}
 const editUser = (user) => {
   router.push({ name: 'User', params: { id: user.id } })
 }
@@ -36,8 +37,9 @@ onMounted (() => {
   <hr>
   <user-table
     :users="users"
-    :showId="false"
+    :showId="true"
     @edit="editUser"
+    @delete="deleteUser"
   ></user-table>
 </template>
 

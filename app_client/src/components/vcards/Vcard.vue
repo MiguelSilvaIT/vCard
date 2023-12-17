@@ -1,27 +1,33 @@
 <script setup>
 import axios from 'axios'
 import { useToast } from "vue-toastification"
-import { ref, watch , computed} from 'vue'
+import { ref, watch , inject} from 'vue'
+import { useUserStore} from '../../stores/user.js'
 import { useRouter, onBeforeRouteLeave } from 'vue-router'
 import VcardDetail from "./VcardDetail.vue"
 
 
 const toast = useToast()
 const router = useRouter()
+const socket = inject('socket')
 
 const props = defineProps({
-    phone: {
+    phone_number: {
       type: Number,
       default: null
     }
-  
 })
+const userStore = useUserStore()
 
 const newVcard = () => {
     return {
-      phone: null,
       name: '',
       email: '',
+      photo_url: null,
+      phone_number: '',
+      password: '',
+      password_confirmation: '',
+      confirmation_code: '',
     }
 }
 
@@ -36,68 +42,92 @@ let originalValueStr = ''
 const loadVcard = async (phone) => {
   originalValueStr = ''
   errors.value = null
+  if (!phone || (phone < 0)) {
+    vcard.value = newVcard()
+    console.log("aqui" ,vcard.value)
+  } else {
       try {
-        const response = await axios.get('vcards/' + phone)
+        const response = await axios.get('/vcards/' + phone)
 
-        //vcard.value = response.data.data
         vcard.value = response.data.data
         originalValueStr = JSON.stringify(vcard.value)
       } catch (error) {
         console.log(error)
       }
-  
+  }
 }
 
-
-
-const save =  () => {
-
-  console.log('save -->' , JSON.stringify({ max_debit: vcard.value.max_debit }))
-  axios.patch('vcards/' + props.phone, JSON.stringify({ max_debit: vcard.value.max_debit }))
-    .then((response) => {
-      toast.success('Vcard Updated')
-      console.dir(response.data.data)
-      router.back()
-
-    })
-    .catch((error) => {
-    if (error.response && error.response.status == 422) {
-      errors.value = error.response.data.errors
-      toast.error("Validation Error")
+const inserting = (phone_number) => !phone_number || (phone_number < 0)
+  
+const save = async (vcardToSave) => {
+  errors.value = null
+  console.log(inserting(props.phone_number))
+  if (inserting(props.phone_number)) {
+    try {
+      const response = await axios.post('/vcards', vcardToSave)
+      console.dir(response.data)
+      vcard.value = response.data.data
+      originalValueStr = JSON.stringify(vcard.value)
+      toast.success('Vcard was registered successfully.')
+      socket.emit('insertedUser', vcard.value)
+      
+      router.push({name: 'Login'})
+    } catch (error) {
+      console.log(error)
+      if (error.response.status == 422) {
+        errors.value = error.response.data.errors
+        toast.error('vCard was not registered due to validation errors!')
+      } else {
+        toast.error('vCard was not registered due to unknown server error!')
+      }
     }
-      console.dir(error)
-    })
+  } else {
+    try {
+      const response = await axios.put('vcards/' + props.phone_number, vcardToSave)
+      vcard.value = response.data.data
+      originalValueStr = JSON.stringify(vcard.value)
+      toast.success('vCard ' + vcard.value.phone_number + ' was updated successfully.')
+      router.push({name: 'Dashboard'})
+      if (userStore.userType == 'V') {
+        await userStore.loadUser()
+      }
+      socket.emit('updatedUser', vcard.value)
+    } catch (error) {
+      if (error.response.status == 422) {
+        errors.value = error.response.data.errors
+        toast.error('vCard ' + props.phone_number + ' was not updated due to validation errors!')
+      } else {
+        toast.error('vCard ' + props.phone_number + ' was not updated due to unknown server error!')
+      }
+    }
   }
-   
+}
 
 const cancel =  () => {
-  originalValueStr = JSON.stringify(vcard.value)
   router.back()
 }
 
-const deleteVcard =  () => {
-  console.log('deleteVcard')
-  
+const deleteVcard = async () => {  
   try {
-      const response =  axios.delete('dadvcards/' + props.phone)
-      console.log(response)
-      toast.success('Vcard #' + props.phone + ' was deleted successfully.')
-      // router.back()
-
+      const response = await axios.delete('vcards/' + props.phone_number)
+      userStore.clearUser()
+      console.log(response.data.success)
+      toast.success('Vcard' + props.phone_number + ' was deleted successfully.')
+      router.push({name: 'home'})
     } catch (error) {
-      
-      console.log(error)
-      toast.error('Vcard was not deleted!')      
+      toast.error(error.response.data.message)  
+      return false    
     }
+    
 }
 
 const blockVcard =  () => {
   console.log('blockVcard')
   try {
-      const response =  axios.get('dadvcards/alterblockedStatus/' + props.phone)
-      console.log(response)
+    console.log(vcard.value.phone_number)
+      const response =  axios.patch('vcards/alterblockedStatus/' + props.phone)
       toast.success('Vcard #' + props.phone + ' was blocked successfully.')
-      // router.back()
+      socket.emit('blockedUser', vcard.value)
 
     } catch (error) {
       
@@ -109,10 +139,9 @@ const blockVcard =  () => {
 const unblockVcard =  () => {
   console.log('unblockVcard')
   try {
-      const response =  axios.get('dadvcards/alterblockedStatus/' + props.phone)
+      const response =  axios.patch('vcards/alterblockedStatus/' + props.phone)
       console.log(response)
       toast.success('Vcard #' + props.phone + ' was unblocked successfully.')
-      // router.back()
 
     } catch (error) {
       
@@ -121,9 +150,8 @@ const unblockVcard =  () => {
     }
 }
 
-
 watch(
-  () => props.phone,
+  () => props.phone_number,
   (newValue) => {
       loadVcard(newValue)
     },
@@ -151,18 +179,17 @@ onBeforeRouteLeave((to, from, next) => {
 })
 
 
-
-
 </script>
 
 <template>
-  <!-- <confirmation-dialog
+  <confirmation-dialog
     ref="confirmationLeaveDialog"
     confirmationBtn="Discard changes and leave"
     msg="Do you really want to leave? You have unsaved changes!"
     @confirmed="leaveConfirmed"
   >
-  </confirmation-dialog>   -->
+  </confirmation-dialog>
+  
 
   <vcard-detail
     :vcard="vcard"
@@ -170,7 +197,6 @@ onBeforeRouteLeave((to, from, next) => {
     @save="save"
     @cancel="cancel"
     @deleteVcard = "deleteVcard"
-    @blockVcard = "blockVcard"
-    @unblockVcard = "unblockVcard"
+    :inserting="inserting(phone_number)"
   ></vcard-detail>
 </template>

@@ -7,7 +7,7 @@ use Illuminate\Validation\Rules\Password;
 
 class UpdateUserPasswordRequest extends FormRequest
 {
-     /**
+    /**
      * Determine if the user is authorized to make this request.
      *
      * @return bool
@@ -26,7 +26,20 @@ class UpdateUserPasswordRequest extends FormRequest
     {
         return [
             'password' => ['required', 'confirmed', Password::min(3)],
-            'oldpassword' => 'required',
+            'current_password' => 'required',
+        ];
+    }
+
+    /**
+     * Get the error messages for the defined validation rules.
+     */
+    public function messages(): array
+    {
+        return [
+            'password.required' => 'Password is required',
+            'password.confirmed' => 'Password confirmation does not match',
+            'password.min' => 'Password must be at least 3 characters',
+            'current_password.required' => 'Current password is required',
         ];
     }
 }

@@ -4,6 +4,8 @@ namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 use App\Services\Base64Services;
+use Illuminate\Validation\Rule;
+use App\Models\Vcard;
 
 class UpdateVcardRequest extends FormRequest
 {
@@ -22,11 +24,19 @@ class UpdateVcardRequest extends FormRequest
      */
     public function rules(): array
     {
+        if (isset($this->vcard)) {
+            return [
+                'name' => 'required|string|max:255',
+                'email' => ['required', 'email', Rule::unique('vcards')->ignore($this->phone_number, 'phone_number')],
+                'blocked' => 'nullable|int|in:0,1',
+                'base64ImagePhoto' => 'nullable|string',
+                'deletePhotoOnServer' => 'nullable|boolean'
+            ];
+        }
         return [
             'name' => 'required|string|max:255',
-            'email' => 'required|email|unique:vcards,email',
+            'email' => 'required|email|unique:vcards',
             'blocked' => 'nullable|int|in:0,1',
-            'max_debit' => 'nullable|int|min:1',
             'base64ImagePhoto' => 'nullable|string',
             'deletePhotoOnServer' => 'nullable|boolean'
         ];
@@ -54,10 +64,6 @@ class UpdateVcardRequest extends FormRequest
             'blocked.required' => 'The blocked field is required.',
             'blocked.int' => 'The blocked field must be an integer.',
             'blocked.in' => 'The selected blocked is invalid.',
-
-            'max_debit.required' => 'The max debit field is required.',
-            'max_debit.int' => 'The max debit must be an integer.',
-            'max_debit.min' => 'The max debit must be at least :min.',
 
             'base64ImagePhoto.nullable' => 'The base64 image photo must be a string.',
             'deletePhotoOnServer.nullable' => 'The delete photo on server must be a boolean.',

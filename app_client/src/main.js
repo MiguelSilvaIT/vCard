@@ -11,26 +11,30 @@ import { io } from 'socket.io-client'
 import VueDatePicker from '@vuepic/vue-datepicker';
 import '@vuepic/vue-datepicker/dist/main.css'
 import PrimeVue from 'primevue/config';
-import 'primevue/resources/themes/lara-light-green/theme.css'
+import 'primevue/resources/themes/bootstrap4-light-blue/theme.css'
+// import 'primevue/resources/themes/lara-light-green/theme.css'
+import StyleClass from 'primevue/styleclass';
+                
+
 
 
 import axios from 'axios'
 
+import { FilterService } from 'primevue/api';
+import ToastService from 'primevue/toastservice';
 import Toast from "vue-toastification"
 // Import the Toast CSS (or use your own)!
 import "vue-toastification/dist/index.css"
 
 import FieldErrorMessage from './components/global/FieldErrorMessage.vue'
 import ConfirmationDialog from './components/global/ConfirmationDialog.vue'
+import Dialog from 'vue3-dialog'
 
 import App from './App.vue'
 import router from './router'
 
 
 const app = createApp(App)
-
-
-
 
 const serverBaseUrl = import.meta.env.VITE_API_DOMAIN
 const wsConnection = import.meta.env.VITE_WS_CONNECTION
@@ -65,6 +69,10 @@ app.use(Toast, {
 app.use(createPinia())
 app.use(router)
 app.use(PrimeVue);
+app.use(ToastService);
+app.use(FilterService);
+app.directive('styleclass', StyleClass);
+app.use(Dialog)
 
 app.component('FieldErrorMessage', FieldErrorMessage)
 app.component('ConfirmationDialog', ConfirmationDialog)

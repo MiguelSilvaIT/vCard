@@ -11,14 +11,12 @@ class VcardResource extends JsonResource
     public function toArray($request)
     {
         switch (VcardResource::$format) {
-            case 'detailed':   
+            case 'detailed':
                 return [
                     'phone_number' => $this->phone_number,
                     'name' => $this->name,
                     'email' => $this->email,
-                    'photo' => $this->photo_url,
-                    'password' => $this->password,
-                    'confirmation_code' => $this->confirmation_code,
+                    'photo_url' => $this->photo_url,
                     'custom_data' => $this->custom_data,
                     'custom_options' => $this->custom_options,
                     'blocked' => $this->blocked,
@@ -30,7 +28,7 @@ class VcardResource extends JsonResource
                     // simple format
                     'phone' => $this->phone_number,
                     'name' => $this->name,
-                    'photo' => $this->photo_url,
+                    'photo_url' => $this->photo_url,
                     'balance' => $this->balance,
                 ];
         }

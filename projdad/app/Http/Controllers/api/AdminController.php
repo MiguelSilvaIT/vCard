@@ -11,9 +11,15 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use App\Http\Resources\AdminResource;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Validator;
 
 class AdminController extends Controller
 {
+    public function __construct()
+    {
+        $this->authorizeResource(Admin::class, 'admin');
+    }
+    
     public function index()
     {
         //devolve todos os admins da BD
@@ -67,16 +73,17 @@ class AdminController extends Controller
         ], 200);
     }
 
-    public function updatePassword (UpdateUserPasswordRequest $request, Admin $admin) {
+    public function updatePassword(UpdateUserPasswordRequest $request, Admin $admin)
+    {
         //validar os dados recebidos
         $dataToSave = $request->validated();
         //alterar a password do vCard
-        if(!Hash::check($dataToSave['oldpassword'], $admin->password)) {
+        if (!Hash::check($dataToSave['current_password'], $admin->password)) {
             //se a password antiga não for igual à que está na BD, devolve erro
-            return response()->json([
-                'message' => 'error',
-                'data' => 'Old password is not correct'
-            ], 400);
+            $validator = Validator::make([], []);
+            $validator->errors()->add('current_password', 'Current password is not correct');
+
+            return response()->json(['errors' => $validator->errors()], 422);
         }
         $admin->password = $dataToSave['password'];
         $admin->save();
@@ -116,5 +123,3 @@ class AdminController extends Controller
 
   
 }
-
-
