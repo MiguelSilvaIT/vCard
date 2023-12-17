@@ -9,6 +9,7 @@ use App\Http\Resources\TransactionResource;
 use App\Models\Transaction;
 use App\Notifications\NewNotification;
 use Illuminate\Support\Facades\Http;
+use App\Models\Vcard;
 
 class TransactionController extends Controller
 {
@@ -36,6 +37,12 @@ class TransactionController extends Controller
         $newTransaction->datetime = date("Y-m-d H:i:s");
         // check vcard balance using the relationship between vcard and transaction
         $vcard = $newTransaction->vcard_details;
+        if($vcard->blocked){
+            return response()->json([
+                'success' => false,
+                'message' => 'Vcard is blocked'
+            ], 200);
+        }
         $newTransaction->old_balance = $vcard->balance;
         switch($request->type){
             case 'D':
@@ -56,7 +63,13 @@ class TransactionController extends Controller
                     $newPairTransaction = new Transaction();
                     $newTransaction->pair_vcard = $request->payment_ref;
                     $newTransaction->payment_reference = $request->payment_ref;
-                    
+                    $pair_vcard = Vcard::find($request->payment_ref);
+                    if($pair_vcard->blocked){
+                        return response()->json([
+                            'success' => false,
+                            'message' => 'Destination vcard is blocked'
+                        ], 200);
+                    }
                     $newTransaction->save();
                     //FALTA ALTERAR O VALOR DO BALANCE DOS VCARDS ENVOLVIDOS
                     $vcard->balance = $newTransaction->new_balance;
@@ -69,7 +82,7 @@ class TransactionController extends Controller
                     $newPairTransaction->date = date("Y-m-d");
                     $newPairTransaction->datetime = date("Y-m-d H:i:s");
                     $newPairTransaction->type = 'C';
-                    $pair_vcard = $newPairTransaction->vcard_details;
+                    
                     $newPairTransaction->old_balance = $pair_vcard->balance;
                     $newPairTransaction->new_balance = $pair_vcard->balance + $request->value;
                     $newPairTransaction->payment_type = 'VCARD';

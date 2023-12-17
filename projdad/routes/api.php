@@ -25,7 +25,8 @@ use App\Http\Controllers\api\DefaultCategoryController;
 
 Route::post('auth/login', [AuthController::class, 'login']);
 Route::post('vcards', [VcardController::class, 'store']);
-Route::post('vcards/checkphonenumber', [VcardController::class, 'checkphonenumber']);
+Route::post('taes/vcards/checkphonenumber', [VcardController::class, 'checkphonenumber']);
+Route::get('taes/vcards', [VcardController::class, 'index']);
 Route::middleware('auth:api')->group(function () {
     Route::post('logout', [AuthController::class, 'logout']);
     Route::get('users/me', [UserController::class, 'show_me']);

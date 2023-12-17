@@ -90,7 +90,7 @@ const onRowCollapse = (event) => {
 };
 
 const transactionCategory = (id) => {
-  console.log("id");
+  // console.log("id");
   categoriesStore.loadCategory(id);
   return categoriesStore.categoryName;
 };

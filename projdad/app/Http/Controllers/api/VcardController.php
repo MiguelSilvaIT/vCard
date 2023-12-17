@@ -164,7 +164,14 @@ class VcardController extends Controller
             'phone_number' => 'required|string|digits:9|starts_with:9',
         ]);
 
-        $vcard = Vcard::where('phone_number', $request->phone_number)->first();
+        $vcard = Vcard::withTrashed()->where('phone_number', $request->phone_number)->first();
+        if (isset($vcard) && $vcard->trashed()){
+            return response()->json([
+                'existsVcard' => $vcard != null,
+                'deleted' => true,
+                'message' =>'Vcard foi apagado não pode ser usado',
+            ]);
+        }
         return response()->json([
             'existsVcard' => $vcard != null,
             'message' => $vcard != null ? 'Vcard existe' : 'Vcard não existe',
@@ -240,10 +247,13 @@ class VcardController extends Controller
 
     public function update_max_debit(Request $request, Vcard $vcard)
     {
-        $vcard->max_debit = $request->validated()['max_debit'];
+        $request->validate([
+            'max_debit' => 'required|numeric|min:0.01',
+        ]);
+        $vcard->max_debit = $request->max_debit;
         $vcard->save();
         return response()->json([
-            'message' => 'success',
+            'success' => true,
             'data' => new VcardResource($vcard)
         ], 200);
     }
@@ -314,6 +324,7 @@ class VcardController extends Controller
         }
         //vai buscar as Transações e Categorias do vCard
         $transactions = $vcard->transactions;
+        // $pairTransactions = $vcard->pairTransactions;
         $categories = $vcard->categories;
         //se tiver transações, apagar com soft delete:
         if (!$transactions->isEmpty()) {

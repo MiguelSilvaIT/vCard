@@ -6,6 +6,7 @@ import CategoryTable from "./CategoryTable.vue"
 import { useToast } from "vue-toastification"
 
 import { useUserStore } from "/src/stores/user.js"
+import Button from 'primevue/button'
 
 const userStore = useUserStore()
 
@@ -62,10 +63,10 @@ const showId = computed(() => userStore.userType === 'A')
   <h3 class="mt-5 mb-3">Categories</h3>
   <hr>
   <div class="mx-2 mt-2  mb-4 d-flex justify-content-between">
-    <button type="button" class="btn btn-success px-4 btn-addprj" @click="addCategory">
+    <Button type="button" class="border-round-xs"  @click="addCategory">
       <i class="bi bi-xs bi-plus-circle"></i>&nbsp;
       Add Category
-    </button>
+    </Button>
   </div>
   <category-table :categories="categories" :show-id="showId" @edit="editCategory" @delete="deleteCategory"></category-table>
 </template>

@@ -85,19 +85,17 @@ const addTransaction = () => {
 
 onMounted(() => {
   loadTransactions()
-  const startDate = new Date()
-  const endDate = new Date(new Date().setDate(startDate.getDate() + 7))
-  date.value = [startDate, endDate];
+  date.value = null;
 })
 
 const handleDate = (modelData) => {
   console.log("ModelData",modelData);
-  filters.value.filter_start_date = new Date(modelData[0]).toISOString().split('T')[0];
+  filters.value.filter_start_date = new Date(Date.UTC(modelData[0].getFullYear(), modelData[0].getMonth(), modelData[0].getDate())).toISOString().split('T')[0];
   if(modelData[1] == null){
     filters.value.filter_end_date = null;
   }
   else{
-    filters.value.filter_end_date = new Date(modelData[1]).toISOString().split('T')[0];
+    filters.value.filter_end_date = new Date(Date.UTC(modelData[1].getFullYear(), modelData[1].getMonth(), modelData[1].getDate())).toISOString().split('T')[0];
   }
     console.log("Filtros",filters.value);
 }
@@ -108,7 +106,7 @@ const handleDate = (modelData) => {
   <h3 class="mt-5 mb-3">Transactions</h3>
   <hr>
   <div class="mx-2 mt-2 mb-5 d-flex justify-content-between">
-    <Button type="button" class="btn btn-success px-4 btn-addprj" @click="addTransaction">
+    <Button type="button" @click="addTransaction">
       <i class="bi bi-xs bi-plus-circle"></i>&nbsp;
       Add new transaction
     </Button>

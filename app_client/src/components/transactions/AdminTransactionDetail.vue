@@ -63,20 +63,20 @@ const cancel = () => {
 
 <template>
     
-  <form class="row g-3 needs-validation" novalidate @submit.prevent="save">
+  <form class="row g-3 mt-1 needs-validation" novalidate @submit.prevent="save">
     <h3 class="mt-5 mb-3">New Transaction</h3>
     <hr />
     <div class="d-flex flex-wrap justify-content-between">
       <div class="w-75 pe-4">
-        <div class="mb-4">
+        <div class="mb-5">
           <span class="p-float-label">
-            <Dropdown v-model="editingTransaction.vcard" editable :options="vcardsStore.vcards" optionLabel="phone" optionValue="phone"
+            <Dropdown v-model="editingTransaction.vcard" editable :options="vcardsStore.vcards" optionLabel="phone_number" optionValue="phone_number"
                          :class="{ 'p-invalid': errors ? errors['vcard'] : false }"/>
             <label for="number-input">Transaction Vcard</label>
             <field-error-message :errors="errors" fieldName="vcard"></field-error-message>
           </span> 
         </div>
-        <div class="col mb-4 ms-xs-3">
+        <div class="col mb-5 ms-xs-3">
           <span class="p-float-label">
             <InputNumber v-model="editingTransaction.value" inputId="currency-germany" mode="currency" currency="EUR" locale="ge-GE" 
                         :class="{ 'p-invalid': errors ? errors['value'] : false }"/>
@@ -84,7 +84,7 @@ const cancel = () => {
             <field-error-message :errors="errors" fieldName="value"></field-error-message>
           </span> 
         </div>
-        <div class="col mb-4 ms-xs-3">
+        <div class="col mb-5 ms-xs-3">
           <div class="p-float-label">
             <Dropdown v-model="editingTransaction.payment_type" :options="payment_type" optionLabel="value" optionValue="value" 
                         :class="{ 'p-invalid': errors ? errors['type'] : false }"/>
@@ -92,7 +92,7 @@ const cancel = () => {
             <field-error-message :errors="errors" fieldName="type"></field-error-message>
           </div>
         </div>
-        <div class="col mb-4 ms-xs-3">
+        <div class="col mb-5 ms-xs-3">
           <div class="p-float-label">
             <InputText type="text" v-model="editingTransaction.payment_ref" :class="{ 'p-invalid': errors ? errors['payment_ref'] : false }"/>
             <label for="dd-paymentType">Payment Reference</label>

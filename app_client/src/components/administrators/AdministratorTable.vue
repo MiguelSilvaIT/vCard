@@ -45,41 +45,6 @@ const deleteClick = (administrator) => {
   emit("delete", administrator);
 };
 </script>
-<!-- 
-<template>
-
-  
-
-  <table class="table">
-    <thead>
-      <tr>
-        <th v-if="showId" class="align-middle">#</th>
-        <th v-if="showName" class="align-middle">Name</th>
-        <th v-if="showEmail" class="align-middle">Email</th>
-        <th v-if="showDeleteButton" class="align-middle"></th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr v-for="administrator in administrators" :key="administrator.id">
-        <td v-if="showId" class="align-middle">{{ administrator.id }}</td>
-        <td v-if="showName" class="align-middle">{{ administrator.name }}</td>
-        <td v-if="showEmail" class="align-middle">{{  administrator.email }}</td>
-
-        <td class="text-end align-middle" v-if="showDeleteButton">
-          <div class="d-flex justify-content-end">
-            <button
-              class="btn btn-xs btn-light"
-              @click="deleteClick(administrator)"
-              v-if="showDeleteButton"
-            >
-              <i class="bi bi-xs bi-trash"></i>
-            </button>
-          </div>
-        </td>
-      </tr>
-    </tbody>
-  </table>
-</template> -->
 
 <template>
   <DataTable v-model:filters="filters" :value="administrators" sortField="id" sortOrder="1"  paginator :rows="10" stripedRows 

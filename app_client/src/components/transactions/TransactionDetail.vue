@@ -8,7 +8,6 @@ import InputText from 'primevue/inputtext';
 import { useCategoriesStore } from '../../stores/categories'
 
 const categoriesStore = useCategoriesStore()
-const userStore = useUserStore()
 
 const props = defineProps({
   transaction: {

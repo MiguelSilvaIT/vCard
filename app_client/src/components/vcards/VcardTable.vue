@@ -8,6 +8,11 @@ import { useToast } from 'primevue/usetoast';
 import Toast from 'primevue/toast';
 import Card from 'primevue/card';
 import 'primeicons/primeicons.css'
+import { FilterMatchMode } from 'primevue/api';
+import InputText from 'primevue/inputtext';
+import Dialog from "primevue/dialog";
+import Button from "primevue/button";
+import InputNumber from "primevue/inputnumber";
 
 const serverBaseUrl = inject("serverBaseUrl");
 const toast = useToast();
@@ -53,8 +58,11 @@ const props = defineProps({
     default: true,
   } 
 });
-
-const emit = defineEmits(["delete", "saveTransaction", "editMaxDebit", "block"]);
+const showDialog = ref(false);
+const editingVcard = ref();
+const emit = defineEmits(["delete", "editMaxDebit", "block"]);
+const newMax_debit = ref(null);
+const errors = ref(null);
 
 const photoFullUrl = (photo_url) => {
   return photo_url ? serverBaseUrl + "/storage/fotos/" + photo_url
@@ -65,12 +73,27 @@ const deleteClick = (vcard) => {
   emit("delete", vcard);
 };
 
-const saveTransactionClick = (vcard) => {
-  emit("saveTransaction", vcard);
+const editMaxDebitClick = (vcard,visible) => {
+  showDialog.value = visible
+  editingVcard.value = vcard
+  // emit("editMaxDebit", vcard);
 };
 
-const exitMaxDebitClick = (vcard) => {
-  emit("editMaxDebit", vcard);
+const changeMaxDebit = () => {
+  console.log("Editing max ",newMax_debit.value)
+  if(!newMax_debit.value){
+    errors.value = {max_debit: ["Max debit is required."]}
+    return
+  }
+  editingVcard.value.max_debit = newMax_debit.value
+  emit("editMaxDebit", editingVcard.value);
+  showDialog.value = false
+  newMax_debit.value = null
+};
+
+const hideDialog = () => {
+  showDialog.value = false
+  errors.value = null
 };
 
 const blockClick = (vcard) => {
@@ -93,21 +116,37 @@ const onRowExpand = (event) => {
 const onRowCollapse = (event) => {
   toast.add({ severity: 'info', summary: 'Vcard Collapsed', detail: event.data.name, life: 3000 });
 };
+
+const filters = ref({
+  global: { value: null, matchMode: FilterMatchMode.CONTAINS },
+});
+
 </script>
 
 <template>
   <DataTable v-model:expandedRows="selectedVcard" @rowSelect="onRowExpand" @rowUnselect="onRowCollapse"
      v-model:selection="selectedVcard" :value="vcards" 
      selectionMode="multiple" dataKey="phone_number"
-     :metaKeySelection=false paginator sortField="id" :sortOrder="1" :rows="30" stripedRows >
+     :metaKeySelection=false paginator sortField="phone_number" :sortOrder="1" :rows="30" stripedRows 
+     v-model:filters="filters" :globalFilterFields="['phone_number','name', 'email','blocked']">
+     <template #header>
+          <div class="flex justify-content-end">
+              <span class="p-input-icon-left">
+                  <i class="pi pi-search" />
+                  <InputText v-model="filters['global'].value" placeholder="Keyword Search" />
+              </span>
+          </div>
+      </template>
+     <template #empty> No customers found. </template>
+      <template #loading> Loading customers data. Please wait. </template>
       <Column v-if="showPhoto" header="Photo">
         <template #body="slotProps">
             <img :src="photoFullUrl(slotProps.data.photo_url)" :alt="slotProps.data.image" class="align-items-center rounded-circle z-depth-0 avatar-img" />
         </template>
       </Column>
-      <Column v-if="showPhoneNumber" field="phone_number" header="Phone Number"></Column>
-      <Column v-if="showName" field="name" header="Name"></Column>
-      <Column v-if="showBalance" field="balance" header="Account Balance">
+      <Column v-if="showPhoneNumber" sortable  field="phone_number" header="Phone Number"></Column>
+      <Column v-if="showName" sortable field="name" header="Name"></Column>
+      <Column v-if="showBalance" sortable field="balance" header="Account Balance">
         <template #body="slotProps">
           <div>
             {{ formatCurrency(slotProps.data.balance) }}
@@ -118,14 +157,7 @@ const onRowCollapse = (event) => {
         <template #body="slotProps">
           <button
               class="btn btn-xs btn-light"
-              @click="saveTransactionClick(slotProps.data)"
-              v-if="showCreateTransactionButton"
-            >
-              <i class="pi pi-send"></i>
-          </button>
-          <button
-              class="btn btn-xs btn-light"
-              @click="editMaxDebitClick(slotProps.data)"
+              @click="editMaxDebitClick(slotProps.data, true)"
               v-if="showUpdateMaxDebitButton"
             >
               <i class="bi bi-xs bi-pencil"></i>
@@ -182,6 +214,21 @@ const onRowCollapse = (event) => {
           </div>
         </template>
     </DataTable>
+    <Dialog header="Change Max Debit" v-model:visible="showDialog" :modal="true" :closable="false">
+      <div class="ms-4 mb-4">
+        <p><strong>Current Max Debit:</strong> {{ formatCurrency(editingVcard.max_debit) }}</p>
+      </div>
+      <span class="p-float-label">
+        <InputNumber v-model="newMax_debit" required inputId="currency-germany" mode="currency" currency="EUR" locale="pt-PT" 
+                       :class="{ 'p-invalid': errors ? errors['max_debit'] : false }"/>
+        <label for="number-input">Change Max Debit</label>
+          <field-error-message :errors="errors" fieldName="max_debit"></field-error-message>
+      </span>
+      <div class="p-d-flex p-jc-end p-mt-3 mt-4">
+        <Button label="Confirm" class="m-3" @click="changeMaxDebit" />
+        <Button label="Cancel" class="p-button-secondary m-3" @click="hideDialog" />
+      </div>
+    </Dialog>
   <Toast />
 </template>
 

@@ -22,3 +22,7 @@
 .p-calendar {
   width: 100%;
 }
+
+.p-button  {
+  border-radius: 4px;
+}

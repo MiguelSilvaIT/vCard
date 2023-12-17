@@ -45,6 +45,11 @@ class Vcard extends Authenticatable
     {
         return $this->hasMany(Transaction::class,'vcard');
     }
+
+    public function pairTransactions()
+    {
+        return $this->hasMany(Transaction::class,'pair_vcard');
+    }
     
     public function categories()
     {

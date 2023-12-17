@@ -18,7 +18,7 @@ export const useCategoriesStore = defineStore('categories', () => {
             if(userStore.userType == "V"){
                 const response = await axios.get('categories/'+category_id)
                 categoryName.value = response.data.data.name
-                console.log(categoryName.value)
+                // console.log(categoryName.value)
             }
         } catch (error) {
             throw error

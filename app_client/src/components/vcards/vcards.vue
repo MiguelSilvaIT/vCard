@@ -21,57 +21,71 @@
   }
   
   
-  const editVcard = (vcard) => {
-    router.push({name: 'Vcard', params: {phone: vcard.phone}})
-  }
-
-
-  const deletedVcard = (vcard) => {
-    try {
-      axios.delete(`vcards/${vcard.phone_number}`)
-      //fix policy authorization
-      let idx = vcards.value.findIndex((t) => t.phone_number === vcard.phone_number)
-      if (idx >= 0) {
-        vcards.value.splice(idx, 1)
+  const editMaxDebit = async (vcard) => {
+    try{
+      const response = await  axios.patch(`vcards/${vcard.phone_number}`, vcard)
+      if(response.data.success){
+        let idx = vcards.value.findIndex((t) => t.phone_number === vcard.phone_number)
+        if (idx >= 0) {
+          vcards.value[idx].max_debit= response.data.data.max_debit
+        }
+        toast.success('Vcard #' + vcard.phone_number + ' was edited successfully.')
       }
-      toast.success('Vcard #' + vcard.id + ' was deleted successfully.')
+      else{
+        toast.error('There was a problem editing the vcard!')
+      }
     } catch (error) {
-      console.log(error)
-      toast.error('Vcard was not deleted!')      
+      if(error.response.status == 422)
+        errors = error.response.data.errors
+      toast.error('Max debit was not updated!')
     }
   }
 
-  const block = (vcard) => {
+
+  const deletedVcard = async (vcard) => {
     try {
-      const response = axios.patch(`vcards/alterblockedStatus/${vcard.phone_number}`)
+      const response = await axios.delete(`vcards/${vcard.phone_number}`)
+      //fix policy authorization
+      if (response.data.success){
+        let idx = vcards.value.findIndex((t) => t.phone_number === vcard.phone_number)
+        if (idx >= 0) {
+          vcards.value.splice(idx, 1)
+        }
+        toast.success('Vcard #' + vcard.phone_number + ' was deleted successfully.')
+      }
+      else
+        toast.error('There was a problem deleting the vcard!')
+    } catch (error) {
+      toast.error(error.response.data.message)  
+      return false          
+    }
+  }
+
+  const block = async (vcard) => {
+    try {
+      const response = await axios.patch(`vcards/alterblockedStatus/${vcard.phone_number}`)
+      let idx = vcards.value.findIndex((t) => t.phone_number === vcard.phone_number)
+      if (idx >= 0) {
+        console.log(response.data.data.blocked)
+        vcards.value[idx].blocked= response.data.data.blocked
+        if(response.data.data.blocked){
+          toast.success('Vcard #' + vcard.phone_number + ' was blocked successfully.')
+        }
+        else{
+          toast.success('Vcard #' + vcard.phone_number + ' was unblocked successfully.')
+        }
+      }
     } catch (error) {
       console.log(error)
       toast.error('Vcard was not blocked!')      
     }
-      let idx = vcards.value.findIndex((t) => t.phone_number === vcard.phone_number)
-      if (idx >= 0) {
-        console.log(vcards.value[idx].blocked)
-        vcards.value[idx].blocked= !vcard.blocked
-      }
-      toast.success('Vcard #' + vcard.phone_number + ' was blocked successfully.')
+      
   }
 
   const vcards = ref([])
   
   const filterByEmail = ref(-1)
 
-  
-
-  const filteredVcards = computed( () => {
-    return vcards.value.filter(t =>
-        (filterByEmail.value == -1
-          || filterByEmail.value == t.email
-        ))
-  })
-
-  
-
-  
   onMounted (() => {
     loadVcards()
   })
@@ -79,17 +93,13 @@
 
 <template>
   <h3 class="mt-5 mb-3">Vcards</h3>
-  <div class="d-flex justify-content-between">
- 
-  </div>
   <hr>
 
   <vcard-table
     :vcards="vcards"
     @block="block"
     @delete="deletedVcard"
-    @edit="editVcard"
-    @deleted="deletedVcard"
+    @editMaxDebit="editMaxDebit"
   ></vcard-table>
 </template>
 

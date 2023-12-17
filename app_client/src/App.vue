@@ -167,7 +167,6 @@ const clickMenuOption = () => {
                               :to="{ name: 'CreditTransaction' }" @click="clickMenuOption">
                   <i class="bi bi-files"></i>
                     Transactions
-                    <i class="ms-3 bi bi-xs bi-plus-circle"></i>
                 </router-link>
                 <router-link class="link-secondary" :to="{ name: 'NewTransaction' }" aria-label="Add new Transactions">
                   

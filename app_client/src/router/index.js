@@ -72,14 +72,6 @@ const router = createRouter({
       props: { id: -1 }
     },
     {
-      path: '/users/:id',
-      name: 'User',
-      component: User,
-      //props: true
-      // Replaced with the following line to ensure that id is a number
-      props: route => ({ id: parseInt(route.params.id) })
-    },
-    {
       path: '/categories',
       name: 'Categories',
       component: Categories,
