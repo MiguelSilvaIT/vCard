@@ -19,6 +19,8 @@ class AuthController extends Controller
         'scope' => ''
         ];
     }
+
+
     public function login(Request $request)
     {
         $passportData = [

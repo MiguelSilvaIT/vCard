@@ -16,8 +16,10 @@ class Vcard extends Authenticatable
     use HasFactory;
     use SoftDeletes;
     use Notifiable;
+
     protected $primaryKey = 'phone_number';
     public $incrementing = false;
+
     protected $casts = [
         'password' => 'hashed',
         'confirmation_code' => 'hashed',

@@ -3,10 +3,12 @@ import axios from 'axios';
 import { computed, onMounted, ref, inject } from 'vue';
 import { useUserStore } from "/src/stores/user.js";
 import { useToast } from "vue-toastification";
+import { useRouter } from 'vue-router'
 
 const userStore = useUserStore()
 const socket = inject('socket')
 const toast = useToast()
+const router = useRouter()
 
 const balanceValue = ref(0);
 const piggyBalanceValue = ref(0);
@@ -66,6 +68,13 @@ const UpdatePiggy = async (value, currentAction) => {
   }
 };
 
+const addTransaction = () => {
+  router.push({ name: 'NewTransaction' })
+}
+
+const showTransactions = () => {
+  router.push({ name: 'Transactions' })
+}
 
 onMounted(() => {
   loadBalance()
@@ -103,14 +112,14 @@ onMounted(() => {
                   transaction.value + ' €' }}</p>
               </div>
             </div>
-            <router-link to="#" class="btn btn-dark mt-3">Mostrar tudo</router-link>
+            <router-link to="#" class="btn btn-dark mt-3" @click="showTransactions" >Mostrar tudo</router-link>
           </div>
         </div>
       </div>
       <div class="col-md-6">
         <div class="card mt-4 bg-light">
           <div class="card-body">
-            <button class="btn btn-dark fs-6 mb-2 rounded-pill w-50 p-1 lead fw-bold">Enviar</button>
+            <button class="btn btn-dark fs-6 mb-2 rounded-pill w-50 p-1 lead fw-bold" @click ="addTransaction">Enviar</button>
             <!-- Aqui você pode adicionar mais opções -->
           </div>
         </div>
