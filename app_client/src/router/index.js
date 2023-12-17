@@ -2,6 +2,7 @@ import { createRouter, createWebHistory } from 'vue-router'
 import HomeView from '../views/HomeView.vue'
 import Dashboard from "../components/Dashboard.vue"
 import Report from "../components/Reports.vue"
+import AdminReports from "../components/AdminReports.vue"
 import Login from "../components/auth/Login.vue"
 import ChangePassword from "../components/auth/ChangePassword.vue"
 import User from "../components/users/User.vue"
@@ -39,6 +40,11 @@ const router = createRouter({
       path: '/reports',
       name: 'Reports',
       component: Report
+    },
+    {
+      path: '/adminReports',
+      name: 'AdminReports',
+      component: AdminReports
     },
     {
       path: '/auth/login',

@@ -69,4 +69,30 @@ Route::middleware('auth:api')->group(function () {
 
 
 
+Route::patch('admins/updatePassword/{admin}', [AdminController::class, 'updatePassword']);
+
+//stats
+
+//Despesas
+Route::get('totalDebit/{vcard}', [VcardController::class, 'getDebitTransactionsTotal']);
+Route::get('totalDebit/{vcard}/{month}', [VcardController::class, 'getDebitTransactionsTotalByMonth']);
+
+//Ganhos
+Route::get('totalCredit/{vcard}', [VcardController::class, 'getCreditTransactionsTotal']);
+Route::get('totalCredit/{vcard}/{month}', [VcardController::class, 'getCreditTransactionsTotalByMonth']);
+
+//transações
+Route::get('totalTransactions/{vcard}', [VcardController::class, 'getTotalTransactions']);
+Route::get('totalTransactions/{vcard}/{month}', [VcardController::class, 'getTotalTransactionsByMonth']);
+
+Route::get('months', [TransactionController::class, 'getAllMonths']);
+
+//balanço
+
+Route::get('balance/sum', [AdminController::class, 'getSumOfBalances']);
+Route::get('balance/{vcard}', [VcardController::class, 'getBalanceInfo']);
+
+Route::get('stats/vcards/count/blocked', [AdminController::class, 'getNumberOfBlockedVcards']);
+Route::get('stats/vcards/count/created', [AdminController::class, 'getCountOfCreatedVcardsPerMonth']);
+Route::get('stats/vcards/count', [AdminController::class, 'getNumberOfVcards']);
 

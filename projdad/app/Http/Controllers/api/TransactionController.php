@@ -196,4 +196,24 @@ class TransactionController extends Controller
             'message' => 'success'
         ], 200);
     }
+
+    public function getAllMonths()
+    {
+        $months = Transaction::select(\DB::raw('MONTH(date) as month'))
+            ->groupBy(\DB::raw('MONTH(date)'))
+            ->orderBy(\DB::raw('MONTH(date)'))
+            ->get();
+    
+        $monthsFormatted = $months->map(function ($item) {
+            return [
+                'month' => strftime('%B', mktime(0, 0, 0, $item->month, 1)),
+            ];
+        });
+    
+        return $monthsFormatted;
+    }
+
+
+
+    
 }

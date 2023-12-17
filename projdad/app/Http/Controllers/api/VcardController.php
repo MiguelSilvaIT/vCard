@@ -6,6 +6,8 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\UpdateVcardRequest;
 use Illuminate\Http\Request;
 use App\Models\Vcard;
+use App\Models\Transaction;
+use Illuminate\Support\Facades\DB;
 use App\Http\Resources\VcardResource;
 use App\Http\Requests\StoreVcardRequest;
 use Illuminate\Support\Facades\Hash;
@@ -14,6 +16,8 @@ use Illuminate\Support\Facades\Storage;
 use App\Http\Requests\UpdateUserPasswordRequest;
 use App\Http\Requests\UpdateVcardconfirmation_codeRequest;
 use App\Http\Resources\CategoryResource;
+use Illuminate\Support\Carbon;
+
 use Illuminate\Support\Facades\Validator;
 use App\Models\DefaultCategory;
 
@@ -393,7 +397,8 @@ class VcardController extends Controller
         }
         switch ($request->filter_by_value) {
             case 'value_asc':
-                $transactions = $transactions->orderByRaw('CAST(value AS DECIMAL(10,2))');;
+                $transactions = $transactions->orderByRaw('CAST(value AS DECIMAL(10,2))');
+                ;
                 break;
             case 'value_desc':
                 $transactions = $transactions->orderBy('value', "desc");
@@ -418,4 +423,114 @@ class VcardController extends Controller
         }
         return CategoryResource::collection($categories);
     }
+
+
+
+    //get sum of debit transactions of a vcard per month
+    public function getDebitTransactionsTotal(Request $request, Vcard $vcard)
+    {
+        $total = DB::table('transactions')
+            ->where('vcard', $vcard->phone_number)
+            ->where('type', 'D')
+            ->sum('value');
+
+        return response()->json($total);
+
+    }
+
+    //get sum of credit transactions of a vcard per month
+    public function getDebitTransactionsTotalByMonth(Request $request, Vcard $vcard, $month)
+    {
+        $date = date_parse($month);
+        
+         $total = DB::table('transactions')
+             ->where('vcard', $vcard->phone_number)
+             ->where('type', 'D')
+             ->whereMonth('date' , $date['month'])
+            ->sum('value');
+
+        return $total;
+
+    }
+
+    public function getCreditTransactionsTotal(Request $request, Vcard $vcard)
+    {
+        $total = DB::table('transactions')
+            ->where('vcard', $vcard->phone_number)
+            ->where('type', 'C')
+            ->sum('value');
+
+        return response()->json($total);
+
+    }
+
+    //get sum of credit transactions of a vcard per month
+    public function getCreditTransactionsTotalByMonth(Request $request, Vcard $vcard, $month)
+    {
+        $date = date_parse($month);
+        
+         $total = DB::table('transactions')
+             ->where('vcard', $vcard->phone_number)
+             ->where('type', 'C')
+             ->whereMonth('date' , $date['month'])
+            ->sum('value');
+
+        return $total;
+
+    }
+
+    public function getTotalTransactions(Request $request, Vcard $vcard)
+    {
+        
+         $total = DB::table('transactions')
+             ->where('vcard', $vcard->phone_number)
+            ->count();
+
+        return $total;
+
+    }
+
+    public function getTotalTransactionsByMonth(Request $request, Vcard $vcard, $month)
+    {
+
+        $date = date_parse($month);
+
+        
+         $total = DB::table('transactions')
+             ->where('vcard', $vcard->phone_number)
+             ->whereMonth('date' , $date['month'])
+            ->count();
+
+        return $total;
+
+    }
+
+    public function getBalanceInfo(Request $request, Vcard $vcard)
+    {
+        
+         $minBalance = DB::table('transactions')
+             ->where('vcard', $vcard->phone_number)
+             ->min('old_balance');
+
+        $maxBalance = DB::table('transactions')
+                ->where('vcard', $vcard->phone_number)
+                ->max('old_balance');
+        
+        $allBalances = DB::table('transactions')
+                ->where('vcard', $vcard->phone_number)
+                ->select('old_balance')
+                ->orderBy('datetime')
+                ->get();
+        
+        $response = [
+            'minBalance' => $minBalance,
+            'maxBalance' => $maxBalance,
+            'allBalances' => $allBalances
+        ];
+        
+
+        return $response;
+
+    }
+
 }

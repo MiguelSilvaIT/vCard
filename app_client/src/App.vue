@@ -179,6 +179,14 @@ const clickMenuOption = () => {
                 Reports
               </router-link>
             </li>
+            
+            <li class="nav-item" v-if="userStore.userType == 'A'">
+              <router-link class="nav-link" :class="{ active: $route.name === 'AdminReports' }"
+                        :to="{ name: 'AdminReports' }" @click="clickMenuOption">
+                <i class="bi bi-bar-chart-line"></i>
+                Reports
+              </router-link>
+            </li>
           </ul>
         </div>
       </nav>
