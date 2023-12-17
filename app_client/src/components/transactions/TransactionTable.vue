@@ -85,12 +85,10 @@ const onRowExpand = (event) => {
   toast.add({ severity: 'info', summary: 'Transaction Expanded', detail: event.data.name, life: 3000 });
 };
 const onRowCollapse = (event) => {
-  console.log("here1");
   toast.add({ severity: 'info', summary: 'Transaction Collapsed', detail: event.data.name, life: 3000 });
 };
 
 const transactionCategory = (id) => {
-  // console.log("id");
   categoriesStore.loadCategory(id);
   return categoriesStore.categoryName;
 };

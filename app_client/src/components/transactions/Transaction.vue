@@ -56,7 +56,6 @@ const loadTransactions = async (id) => {
   } else {
       try {
         const response = await axios.get('transactions/' + id)
-        // console.log("Response",response.data.data)
         transaction.value = response.data.data
         originalValueStr = JSON.stringify(transaction.value)
       } catch (error) {
@@ -70,7 +69,6 @@ const operation = computed( () => (!props.id || props.id < 0) ? 'insert' : 'upda
 const save =  async () => {
   if (operation.value == 'insert') 
   {
-    console.log(transaction.value)
     
     if(transaction.value.payment_type == 'VCARD'){
       transaction.value.pair_vcard = transaction.value.payment_ref
@@ -80,6 +78,7 @@ const save =  async () => {
       console.dir(response.data)
       if(response.data.success){
         toast.success('Transaction Created')
+        socket.emit('newTransaction', response.data.data)
         console.dir(response.data)
         originalValueStr=JSON.stringify(transaction.value)
         router.push({name: 'Transactions'})

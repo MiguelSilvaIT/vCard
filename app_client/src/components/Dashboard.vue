@@ -21,9 +21,8 @@ const totalBalance = computed(() => totalBalanceValue.value);
 const loadBalance = async () => {
   try {
     const response = await axios.get('vcards/' + userStore.userId)
-    console.log(response.data.data)
-    balanceValue.value = response.data.data.balance
-    piggyBalanceValue.value = response.data.data.custom_data.value
+    balanceValue.value = response.data.data?.balance ?? 0
+    piggyBalanceValue.value = response.data.data.custom_data?.value ?? 0
     totalBalanceValue.value = parseFloat(balanceValue.value) + parseFloat(piggyBalanceValue.value)
   } catch (error) {
     console.log(error)
@@ -39,7 +38,6 @@ const loadTransactions = async () => {
 }
 
 socket.on('newTransaction', (novatransaction) => {
-  console.log("Nova transação", novatransaction)
   toast.info(`Recebeu ${novatransaction.value}€ de ${novatransaction.vcard}!`)
   loadTransactions()
   loadBalance()
@@ -54,7 +52,6 @@ const UpdatePiggy = async (value, currentAction) => {
 
   try {
     const response = await axios.patch('vcards/' + userStore.userId + '/piggybank', requestData);
-    console.log(response.data);
     balanceValue.value = response.data.data.balance;
     piggyBalanceValue.value = response.data.data.custom_data.value;
     toast.success("Saldo atualizado com sucesso");

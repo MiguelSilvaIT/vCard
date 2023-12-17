@@ -47,7 +47,6 @@ const type = [
 
 
 const loadTransactions = async () => {
-  console.log("Filtros",filters.value);
   try {
     if (userStore.userType == "V") {
       const response = await axios.post('vcards/'+userStore.userId+'/transactions', 
@@ -58,11 +57,9 @@ const loadTransactions = async () => {
         'filter_end_date':filters.value.filter_end_date,
         'filter_payment_type':filters.value.filterByPaymentType,
       })
-      console.log(filters.value);
       transactions.value = response.data
     } else { 
       const response = await axios.get('transactions')
-      console.log(response.data.data)
       transactions.value = response.data.data
     }
   } catch (error) {
@@ -89,7 +86,6 @@ onMounted(() => {
 })
 
 const handleDate = (modelData) => {
-  console.log("ModelData",modelData);
   filters.value.filter_start_date = new Date(Date.UTC(modelData[0].getFullYear(), modelData[0].getMonth(), modelData[0].getDate())).toISOString().split('T')[0];
   if(modelData[1] == null){
     filters.value.filter_end_date = null;
@@ -97,7 +93,6 @@ const handleDate = (modelData) => {
   else{
     filters.value.filter_end_date = new Date(Date.UTC(modelData[1].getFullYear(), modelData[1].getMonth(), modelData[1].getDate())).toISOString().split('T')[0];
   }
-    console.log("Filtros",filters.value);
 }
 
 </script>

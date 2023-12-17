@@ -1,12 +1,13 @@
 <script setup>
   import axios from 'axios'
-  import { ref, computed, onMounted } from 'vue'
+  import { ref, computed, onMounted, inject } from 'vue'
   import VcardTable from './VcardTable.vue'
   import {useRouter} from 'vue-router';
   import { useToast } from "vue-toastification"
 
   const toast = useToast()
   const router = useRouter()
+  const socket = inject('socket')
 
   const loadVcards = () => {
     // Change later when authentication is implemented
@@ -30,6 +31,7 @@
           vcards.value[idx].max_debit= response.data.data.max_debit
         }
         toast.success('Vcard #' + vcard.phone_number + ' was edited successfully.')
+        socket.emit('max_debit', vcard)
       }
       else{
         toast.error('There was a problem editing the vcard!')
@@ -70,6 +72,7 @@
         vcards.value[idx].blocked= response.data.data.blocked
         if(response.data.data.blocked){
           toast.success('Vcard #' + vcard.phone_number + ' was blocked successfully.')
+          socket.emit('blockedUser', vcard)
         }
         else{
           toast.success('Vcard #' + vcard.phone_number + ' was unblocked successfully.')

@@ -32,7 +32,6 @@ onMounted( async () => {
 })
 
 const onChange = () => {
-  console.log('selectedMonth -->', selectedMonth.value)
   loadTotalDebit(selectedMonth.value)
   loadTotalCredit(selectedMonth.value)
   loadTransactions(selectedMonth.value)
@@ -45,7 +44,6 @@ const loadBalanceInfo = async () => {
 
   try {
     const response = await axios.get('balance/' + userStore.userId)
-    console.log('response.data.data -->', response)
 
     balanceMin.value = response.data.minBalance
     balanceMax.value = response.data.maxBalance
@@ -60,7 +58,6 @@ const loadBalanceInfo = async () => {
 const setChartData =  () => 
 {
     const documentStyle = getComputedStyle(document.documentElement);
-    console.log('balanceHistory.value -->', balanceHistory.value.map(item => item.old_balance))
 
     return {
         labels: balanceHistory.value.map((item, index) => index + 1),
@@ -121,14 +118,10 @@ const loadMonths = async () => {
   try {
     const response = await axios.get('months/')
 
-
     months.value = response.data
 
     months.value.unshift({ month: 'Todos' })
 
-    
-
-    //console.log('months.value -->', months.value[0].month)
   } catch (error) {
     console.log(error)
   }
@@ -141,7 +134,6 @@ const loadTotalDebit = async (month) => {
   if (month && month !== 'Todos') {
     try {
       const response = await axios.get('totalDebit/' + userStore.userId + '/' + month)
-      console.log('response.data.data -->', response)
       totalExpenses.value = response.data
     } catch (error) {
       console.log(error)
@@ -150,7 +142,6 @@ const loadTotalDebit = async (month) => {
   else {
     try {
       const response = await axios.get('totalDebit/' + userStore.userId)
-      console.log('response.data.data -->', response)
       totalExpenses.value = response.data
     } catch (error) {
       console.log(error)
@@ -164,7 +155,6 @@ const loadTotalDebit = async (month) => {
     if (month && month !== 'Todos') {
       try {
         const response = await axios.get('totalCredit/' + userStore.userId + '/' + month)
-        console.log('response.data.data -->', response)
         totalEarnings.value = response.data
       } catch (error) {
         console.log(error)
@@ -173,7 +163,6 @@ const loadTotalDebit = async (month) => {
     else {
       try {
         const response = await axios.get('totalCredit/' + userStore.userId)
-        console.log('response.data.data -->', response)
         totalEarnings.value = response.data
       } catch (error) {
         console.log(error)
@@ -187,7 +176,6 @@ const loadTotalDebit = async (month) => {
     if (month && month !== 'Todos') {
       try {
         const response = await axios.get('totalTransactions/' + userStore.userId + '/' + month)
-        console.log('response.data.data -->', response)
         totalTransactions.value = response.data
       } catch (error) {
         console.log(error)
@@ -196,7 +184,6 @@ const loadTotalDebit = async (month) => {
     else {
       try {
         const response = await axios.get('totalTransactions/' + userStore.userId)
-        console.log('response.data.data -->', response)
         totalTransactions.value = response.data
       } catch (error) {
         console.log(error)

@@ -14,10 +14,6 @@ const toast = useToast()
 
 const userStore = useUserStore()
 
-// console.log('userType', userStore.userType)
-
-console.log('id', userStore.userId)
-
 const logout = async () => {
   if (await userStore.logout()) {
     toast.success('User has logged out of the application.')

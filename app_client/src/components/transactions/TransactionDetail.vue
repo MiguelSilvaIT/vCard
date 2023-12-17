@@ -23,7 +23,6 @@ const props = defineProps({
       required: false,
     },
 });
-console.log("Props",props)
 
 
 const emit = defineEmits(["save", "cancel"]);
@@ -37,7 +36,6 @@ watch(
     editingTransaction.value = newTransaction
     if(props.transaction.type != null)
       categoriesStore.loadCategories(props.transaction.type)
-    console.log("Editing Transaction",editingTransaction.value.type)
   },
   { immediate: true }
 )
@@ -58,15 +56,12 @@ const transactionTittle = computed( () => {
     if (!editingTransaction.value) {
       return ''
     }
-    //   console.log("Transaction",editingTransaction.value.data)
     return props.operationType == 'insert' ? 'New Transaction' : 'Transaction #' + editingTransaction.value.id
 })
 
 const operation = computed( () => props.operationType == 'insert' ? 'insert' : 'update')
 
-// console.log("Operation",operation.value)
 const save = () => {
-  console.log("Editing Transaction",editingTransaction.value)
   emit("save", editingTransaction.value);
 }
 

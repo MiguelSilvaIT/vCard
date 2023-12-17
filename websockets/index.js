@@ -33,4 +33,7 @@ io.on("connection", (socket) => {
   socket.on('blockedUser', function (user) {
     socket.in(user.phone_number).emit('blockedUser', user);
   })
+  socket.on('max_debit', function (user) {
+    socket.in(user.phone_number).emit('max_debit', user);
+  })
 });

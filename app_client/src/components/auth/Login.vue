@@ -14,6 +14,7 @@
     username: '',
     password: ''
   })
+  const errors = ref(null)
 
   const userStore = useUserStore()
 

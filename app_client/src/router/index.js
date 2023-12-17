@@ -200,6 +200,7 @@ router.beforeEach( async (to, from, next) => {
       return
     }
     next()
+    return
   }
   else{
     if((to.name == 'Vcard')||(to.name == 'NewVcard')||(to.name == 'NewTransaction')||(to.name == "Dashboard")){

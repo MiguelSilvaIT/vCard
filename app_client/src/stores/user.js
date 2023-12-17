@@ -115,9 +115,11 @@ export const useUserStore = defineStore('user', () => {
     }   
 
     socket.on('blockedUser', (user) => {
-      console.log("user bloqueado", user)
       toast.error(`A sua conta foi bloqueada por um administrador.`)
       logout()
+    })
+    socket.on('max_debit', (user) => {
+      toast.success(`O seu saldo máximo foi alterado para ${user.max_debit}€.`)
     })
 
     return { user, userName, userId, userPhotoUrl, userType, loadUser, clearUser, login, logout,restoreToken, getTransactions, changeVcardPassword, changeAdminsPassword}
