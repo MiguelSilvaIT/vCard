@@ -36,4 +36,9 @@ io.on("connection", (socket) => {
   socket.on('max_debit', function (user) {
     socket.in(user.phone_number).emit('max_debit', user);
   })
+  socket.on('deletedUser', function (user) {
+      console.log(user)
+      socket.in(user.phone_number).emit('deletedUser', user);
+    })
+
 });

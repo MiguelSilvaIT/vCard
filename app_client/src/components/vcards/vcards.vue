@@ -54,6 +54,7 @@
           vcards.value.splice(idx, 1)
         }
         toast.success('Vcard #' + vcard.phone_number + ' was deleted successfully.')
+        socket.emit('deletedUser', vcard)
       }
       else
         toast.error('There was a problem deleting the vcard!')

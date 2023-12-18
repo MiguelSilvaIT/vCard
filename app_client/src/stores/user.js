@@ -3,12 +3,13 @@ import { ref, computed, inject } from 'vue'
 import { defineStore } from 'pinia'
 import avatarNoneUrl from '@/assets/avatar-none.png'
 import {useToast} from 'vue-toastification'
+import { useRouter } from 'vue-router'
 
 export const useUserStore = defineStore('user', () => {
 
     const socket = inject('socket')
     const toast = useToast()
-
+    const router = useRouter()
     const serverBaseUrl = inject('serverBaseUrl')
     const user = ref(null)
     const userName = computed(() => user.value?.name ?? 'Anonymous')
@@ -83,6 +84,7 @@ export const useUserStore = defineStore('user', () => {
             await axios.post('logout')
             socket.emit('loggedOut', user.value)
             clearUser()
+            router.push({ name: 'home' })
             return true
         } catch (error) {
             return false
@@ -120,6 +122,10 @@ export const useUserStore = defineStore('user', () => {
     })
     socket.on('max_debit', (user) => {
       toast.success(`O seu saldo máximo foi alterado para ${user.max_debit}€.`)
+    })
+    socket.on('deletedUser', (user) => {
+      toast.error("A sua conta foi eliminada por um administrador.")
+      logout()
     })
 
     return { user, userName, userId, userPhotoUrl, userType, loadUser, clearUser, login, logout,restoreToken, getTransactions, changeVcardPassword, changeAdminsPassword}
