@@ -518,7 +518,7 @@ class VcardController extends Controller
         
         $allBalances = DB::table('transactions')
                 ->where('vcard', $vcard->phone_number)
-                ->select('old_balance')
+                ->select('old_balance', 'date')
                 ->orderBy('datetime')
                 ->get();
         

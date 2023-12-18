@@ -60,7 +60,7 @@ const setChartData =  () =>
     const documentStyle = getComputedStyle(document.documentElement);
 
     return {
-        labels: balanceHistory.value.map((item, index) => index + 1),
+        labels: balanceHistory.value.map(item => item.date),
         datasets: [
             {
                 label: 'Balance',
