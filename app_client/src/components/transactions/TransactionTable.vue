@@ -170,9 +170,6 @@ const transactionCategory = (id) => {
                   </div>
                 </div>
               </div>
-                
-            <!-- </template> -->
-        <!-- </Card> -->
         </template>
     </DataTable>
   <Toast />

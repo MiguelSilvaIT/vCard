@@ -86,6 +86,11 @@ onMounted(() => {
 })
 
 const handleDate = (modelData) => {
+  if(modelData == null){
+    filters.value.filter_start_date = null;
+    filters.value.filter_end_date = null;
+    return;
+  }
   filters.value.filter_start_date = new Date(Date.UTC(modelData[0].getFullYear(), modelData[0].getMonth(), modelData[0].getDate())).toISOString().split('T')[0];
   if(modelData[1] == null){
     filters.value.filter_end_date = null;
@@ -123,7 +128,7 @@ const handleDate = (modelData) => {
       <div class="col mb-3 ms-xs-3">
         <span class="p-float-label">
           <Calendar v-model="date" selectionMode="range" 
-            :manualInput="false" model-type="yyyy-MM-dd" @update:modelValue="handleDate" :maxDate="today"/>
+            :manualInput="false" model-type="yyyy-MM-dd" @update:modelValue="handleDate" :maxDate="today" showButtonBar />
           <label for="birth_date">Select Dates</label>
         </span>
       </div>
