@@ -212,5 +212,6 @@ button {
 .catDescDetail{
   margin-right: 4px;
   max-width: 250px;
+  min-width: 250px;
 }
 </style>

@@ -1,13 +1,20 @@
 <script setup>
 import { ref, watch, computed, inject } from "vue";
 
+import axios from "axios";
 import { useUserStore } from "/src/stores/user.js"
 import InputNumber from 'primevue/inputnumber';
 import Dropdown from 'primevue/dropdown';
 import InputText from 'primevue/inputtext';
 import { useCategoriesStore } from '../../stores/categories'
+import Dialog from "primevue/dialog";
+import Button from "primevue/button";
+import { useToast } from "vue-toastification";
+
 
 const categoriesStore = useCategoriesStore()
+const userStore = useUserStore()
+const toast = useToast()
 
 const props = defineProps({
   transaction: {
@@ -49,8 +56,35 @@ const payment_type = [
   { value: 'VISA' },
   { value: 'MB' }
 ];
+const showDialog = ref(false);
+const pinCode = ref(null);
+const errorsPin = ref(null);
 
+const confirmCodeAPI = async () => {
+  try{
+    const response = await axios.post('vcards/'+userStore.userId+'/checkconfirmationcode', {confirmation_code: pinCode.value})
+    console.dir(response.data)
+    if(response.data.isConfirmationCodeCorrect){
+      console.log("aqui",editingTransaction.value)
+      showDialog.value = false
+      pinCode.value = null
+      emit("save", editingTransaction.value)
+      return
+    }
+    toast.error('Confirmation Code is incorrect.')
+    pinCode.value = null
+  } 
+  catch(error){
+    if(error.response.status == 422)
+      errorsPin.value = error.response.data.errors
+    toast.error("Validation Error")
+  }
+};
 
+const hideDialog = () => {
+  showDialog.value = false
+  errors.value = null
+};
 
 const transactionTittle = computed( () => {
     if (!editingTransaction.value) {
@@ -71,7 +105,7 @@ const cancel = () => {
 </script>
 
 <template>
-  <form class="row g-3 needs-validation" v-if = "operation == 'insert'" novalidate @submit.prevent="save">
+  <form class="row g-3 needs-validation" v-if = "operation == 'insert'" novalidate @submit.prevent="showDialog=true">
     <h3 class="mt-5 mb-2">{{transactionTittle}}</h3>
     <hr />
     <div class="d-flex flex-wrap mt-4 justify-content-between">
@@ -114,7 +148,7 @@ const cancel = () => {
       </div>
     </div>
     <div class="mb-3 d-flex justify-content-end">
-      <button type="button" class="btn btn-primary px-5" @click="save">Save</button>
+      <button type="button" class="btn btn-primary px-5" @click="showDialog=true">Save</button>
       <button type="button" class="btn btn-light px-5" @click="cancel">Cancel</button>
     </div>
   </form>
@@ -143,6 +177,16 @@ const cancel = () => {
       <button type="button" class="btn btn-light px-5" @click="cancel">Cancel</button>
     </div>
   </form>
+  <Dialog header="Apagar vCard" v-model:visible="showDialog" :modal="true" :closable="false">
+      <p>Please insert your confirmation code</p>
+        <InputText v-model="pinCode" placeholder="Enter confirmation code" type="password"
+                       :class="{ 'p-invalid': errorsPin ? errorsPin['confirmation_code'] : false }"/>
+        <field-error-message :errors="errorsPin" fieldName="confirmation_code"></field-error-message>
+      <div class="p-d-flex p-jc-end p-mt-3 mt-4">
+        <Button label="Confirm" class="p-button-danger m-3" @click="confirmCodeAPI" />
+        <Button label="Cancel" class="p-button-secondary m-3" @click="hideDialog" />
+      </div>
+    </Dialog>
 </template>
 
 <style scoped>
